@@ -16,7 +16,7 @@ import java.time.Instant
 trait BiddingService extends Service {
   def placeBid(): ServiceCall[PlaceBid, BidResult]
 
-def getBids(): ServiceCall[NotUsed, Bid]
+def getBids(): ServiceCall[NotUsed, List[Bid]]
 
 
   
@@ -26,7 +26,7 @@ def getBids(): ServiceCall[NotUsed, Bid]
   named("bidding")
     .withCalls(
   pathCall("/api/item/:id/bids", placeBid _)(implicitly[MessageSerializer[PlaceBid, ByteString]], implicitly[MessageSerializer[BidResult, ByteString]]),
-pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[Bid, ByteString]])
+pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[List[Bid], ByteString]])
 )
 
     
