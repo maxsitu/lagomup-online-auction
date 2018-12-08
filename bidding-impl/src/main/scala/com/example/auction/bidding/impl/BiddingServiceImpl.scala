@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 
 class BiddingServiceImpl(val pubSubRegistry: PubSubRegistry)
                                          (implicit val ec: ExecutionContext)  extends BiddingService
-  with BiddingServiceCalls   {
+  with BiddingServiceCalls with BiddingTopics  {
 
   
   override def placeBid() = ServiceCall { request =>
@@ -23,7 +23,11 @@ override def getBids() = ServiceCall { request =>
 }
 
 
-  
+  override def bidEvents() = {
+  _bidEvents()
+}
+
+
 
 }
 

@@ -30,8 +30,9 @@ lazy val `bidding-impl` = (project in file("bidding-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
-      "com.softwaremill.macwire" %% "macros" % "2.3.1" % "provided",
-lagomScaladslPubSub
+      "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
+lagomScaladslPubSub,
+lagomScaladslKafkaBroker
     )
   )
   .dependsOn(`bidding-api`)

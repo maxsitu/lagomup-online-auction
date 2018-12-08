@@ -19,7 +19,9 @@ trait BiddingService extends Service {
 def getBids(): ServiceCall[NotUsed, List[Bid]]
 
 
-  
+  def bidEvents: Topic[BidEvent]
+
+
   override def descriptor = {
   import Service._
 
@@ -29,7 +31,15 @@ def getBids(): ServiceCall[NotUsed, List[Bid]]
 pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[List[Bid], ByteString]])
 )
 
-    
+    .withTopics(
+  topic("bidding-BidEvent", bidEvents _)(implicitly[MessageSerializer[BidEvent, ByteString]])
+  .addProperty(
+    KafkaProperties.partitionKeyStrategy,
+    PartitionKeyStrategy[BidEvent](_.itemId)
+  )
+
+)
+
     .withAutoAcl(true)
 }
 
@@ -53,4 +63,35 @@ case class Bid(bidder: String, bidTime: Instant, price: Int, maximumPrice: Int)
 object Bid {
   implicit val format: Format[Bid] = Json.format
 }
+
+case class Bid(bidder: String, bidTime: Instant, price: Int, maximumPrice: Int) 
+
+object Bid {
+  implicit val format: Format[Bid] = Json.format
+}
+
+
+
+sealed trait BidEvent {
+  val itemId: String
+}
+
+object BidEvent {
+  implicit val format: Format[BidEvent] =
+    derived.flat.oformat((__ \ "type").format[String])
+}
+
+case class BidPlaced(itemId: String, bid: Bid) extends BidEvent
+
+object BidPlaced {
+  implicit val format: Format[BidPlaced] = Json.format
+}
+
+case class BiddingFinished(itemId: String, winningBid: Option[Bid]) extends BidEvent
+
+object BiddingFinished {
+  implicit val format: Format[BiddingFinished] = Json.format
+}
+
+
 
