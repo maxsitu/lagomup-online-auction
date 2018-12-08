@@ -18,7 +18,7 @@ trait BiddingServiceCalls_TODO {
   ???
 }
 
-def _getBids(request: NotUsed): Future[Bid] = {
+def _getBids(request: NotUsed): Future[List[Bid]] = {
   ???
 }
 

@@ -14,15 +14,15 @@ trait BiddingServiceCalls {
 
 
 
-  def _placeBid(request: PlaceBid): Future[BidResult] = {
-    ???
+    def _placeBid(request: PlaceBid): Future[BidResult] = {
+      ???
+    }
+
+    def _getBids(request: NotUsed): Future[List[Bid]] = {
+      ???
+    }
+
+
+
   }
-
-  def _getBids(request: NotUsed): Future[Bid] = {
-    ???
-  }
-
-
-
-}
 
