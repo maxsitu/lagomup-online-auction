@@ -20,7 +20,7 @@ def startAuction(id: String): ServiceCall[NotUsed, Done]
 
 def getItem(id: String): ServiceCall[NotUsed, Item]
 
-def getItemForUser(id: String, status: String, page: String): ServiceCall[NotUsed, ItemSummaryPagingState]
+def getItemForUser(id: String, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState]
 
 
   

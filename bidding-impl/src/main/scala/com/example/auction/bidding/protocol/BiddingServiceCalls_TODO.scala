@@ -21,7 +21,7 @@ val pubSubRegistry: PubSubRegistry
 
 
 
-  def _placeBid(userId: String, itemId: String, request: PlaceBid): Future[BidResult] = {
+  def _placeBid(itemId: String, userId: String, request: PlaceBid): Future[BidResult] = {
   ???
 }
 

@@ -18,7 +18,7 @@ trait BiddingServiceCalls {
   val db: CassandraSession
   val pubSubRegistry: PubSubRegistry
 
-  def _placeBid(userId: String, itemId: String, request: PlaceBid): Future[BidResult] = {
+  def _placeBid(itemId: String, userId: String, request: PlaceBid): Future[BidResult] = {
     entityRegistry.refFor[BiddingEntity](itemId).ask(impl.PlaceBid(request.maximumBidPrice, userId)).map { result =>
       // TODO: result.status enum
       BidResult(result.currentPrice, result.status, result.currentBidder)
