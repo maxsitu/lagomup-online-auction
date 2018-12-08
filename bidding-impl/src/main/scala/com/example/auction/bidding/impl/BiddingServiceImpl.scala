@@ -7,6 +7,7 @@ import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import akka.stream.scaladsl.Flow
 import scala.concurrent.ExecutionContext
+import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
@@ -16,9 +17,9 @@ class BiddingServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: C
   with BiddingServiceCalls with BiddingTopics  {
 
   
-  override def placeBid(itemId: String) = ServiceCall { request =>
-  _placeBid(itemId, request)
-}
+  override def placeBid(itemId: String) = _placeBidAuthentication(userId => ServerServiceCall { request =>
+  _placeBid(userId, itemId, request)
+})
 
 override def getBids(itemId: String) = ServiceCall { request =>
   _getBids(itemId, request)
