@@ -23,16 +23,16 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
   case (command: StartAuction, ctx, state) =>
     onStartAuction(command, state, ctx)
 }
-.onCommand[CancelAuction, Done] {
-  case (command: CancelAuction, ctx, state) =>
+.onCommand[CancelAuction.type, Done] {
+  case (command: CancelAuction.type, ctx, state) =>
     onCancelAuction(command, state, ctx)
 }
 .onCommand[PlaceBid, PlaceBidResult] {
   case (command: PlaceBid, ctx, state) =>
     onPlaceBid(command, state, ctx)
 }
-.onCommand[FinishBidding, Done] {
-  case (command: FinishBidding, ctx, state) =>
+.onCommand[FinishBidding.type, Done] {
+  case (command: FinishBidding.type, ctx, state) =>
     onFinishBidding(command, state, ctx)
 }
 
@@ -46,7 +46,7 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onAuctionStarted(event, state)
 }
 .onEvent {
-  case (event: AuctionCancelled, state) =>
+  case (event: AuctionCancelled.type, state) =>
     onAuctionCancelled(event, state)
 }
 .onEvent {
@@ -54,7 +54,7 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onBidPlaced(event, state)
 }
 .onEvent {
-  case (event: BiddingFinished, state) =>
+  case (event: BiddingFinished.type, state) =>
     onBiddingFinished(event, state)
 }
 
@@ -62,7 +62,7 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
 
 }
 
-case class AuctionState(auction: Auction, status: String, biddingHistory: Bid) 
+case class AuctionState(auction: Auction, status: String, biddingHistory: List[Bid]) 
 
 object AuctionState {
   implicit val format: Format[AuctionState] = Json.format
