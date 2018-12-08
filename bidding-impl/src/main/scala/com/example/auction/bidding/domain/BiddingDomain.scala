@@ -28,7 +28,6 @@ trait BiddingDomain {
     ???
   }
 
-
   def onGetAuction(query: GetAuction.type, aggregate: BiddingAggregate, ctx: ReadOnlyCommandContext[AuctionState]): Unit = {
     ???
   }
