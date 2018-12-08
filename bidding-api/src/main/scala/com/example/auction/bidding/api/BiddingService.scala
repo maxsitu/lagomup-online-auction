@@ -46,32 +46,6 @@ pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, 
       
 }
 
-case class PlaceBid(maximumBidPrice: Int) 
-
-object PlaceBid {
-  implicit val format: Format[PlaceBid] = Json.format
-}
-
-case class BidResult(currentPrice: Int, status: String, currentBidder: Option[String]) 
-
-object BidResult {
-  implicit val format: Format[BidResult] = Json.format
-}
-
-case class Bid(bidder: String, bidTime: Instant, price: Int, maximumPrice: Int) 
-
-object Bid {
-  implicit val format: Format[Bid] = Json.format
-}
-
-case class Bid(bidder: String, bidTime: Instant, price: Int, maximumPrice: Int) 
-
-object Bid {
-  implicit val format: Format[Bid] = Json.format
-}
-
-
-
 sealed trait BidEvent {
   val itemId: String
 }
@@ -95,3 +69,28 @@ object BiddingFinished {
 
 
 
+
+
+case class PlaceBid(maximumBidPrice: Int) 
+
+object PlaceBid {
+  implicit val format: Format[PlaceBid] = Json.format
+}
+
+case class BidResult(currentPrice: Int, status: String, currentBidder: Option[String]) 
+
+object BidResult {
+  implicit val format: Format[BidResult] = Json.format
+}
+
+case class Bid(bidder: String, bidTime: Instant, price: Int, maximumPrice: Int) 
+
+object Bid {
+  implicit val format: Format[Bid] = Json.format
+}
+
+
+
+
+
+     
