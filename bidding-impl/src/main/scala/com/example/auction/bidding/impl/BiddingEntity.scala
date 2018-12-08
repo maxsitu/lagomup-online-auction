@@ -94,7 +94,7 @@ case object CancelAuction extends BiddingCommand with ReplyType[Done] {
   implicit val format: Format[CancelAuction.type] = JsonSerializer.emptySingletonFormat(CancelAuction)
 }
 
-case class PlaceBid(bidPrice: String, bidder: String) extends BiddingCommand with ReplyType[PlaceBidResult]
+case class PlaceBid(bidPrice: Int, bidder: String) extends BiddingCommand with ReplyType[PlaceBidResult]
 
 object PlaceBid {
   implicit val format: Format[PlaceBid] = Json.format
