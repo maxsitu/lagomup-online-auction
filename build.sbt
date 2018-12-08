@@ -32,6 +32,7 @@ lazy val `bidding-impl` = (project in file("bidding-impl"))
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
 lagomScaladslPubSub,
+lagomScaladslPersistenceCassandra,
 lagomScaladslKafkaBroker
     )
   )

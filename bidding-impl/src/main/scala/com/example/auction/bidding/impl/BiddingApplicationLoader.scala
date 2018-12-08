@@ -3,7 +3,7 @@ package com.example.auction.bidding.impl
 import com.example.auction.bidding.api.BiddingService
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
-
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 import com.lightbend.lagom.scaladsl.server._
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
@@ -28,11 +28,11 @@ class BiddingApplicationLoader extends LagomApplicationLoader {
 
 abstract class BiddingApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents  with LagomKafkaComponents {
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents with LagomKafkaComponents {
 
   override lazy val lagomServer = serverFor[BiddingService](wire[BiddingServiceImpl])
-  
-  
+  override lazy val jsonSerializerRegistry = BiddingSerializerRegistry
+  persistentEntityRegistry.register(wire[BiddingEntity])
   
   
 

@@ -69,8 +69,6 @@ object BiddingFinished {
 
 
 
-
-
 case class PlaceBid(maximumBidPrice: Int) 
 
 object PlaceBid {
@@ -91,6 +89,3 @@ object Bid {
 
 
 
-
-
-     

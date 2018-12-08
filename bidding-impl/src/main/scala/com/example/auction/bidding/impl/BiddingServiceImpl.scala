@@ -7,9 +7,11 @@ import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import akka.stream.scaladsl.Flow
 import scala.concurrent.ExecutionContext
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-class BiddingServiceImpl(val pubSubRegistry: PubSubRegistry)
+class BiddingServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry)
                                          (implicit val ec: ExecutionContext)  extends BiddingService
   with BiddingServiceCalls with BiddingTopics  {
 
