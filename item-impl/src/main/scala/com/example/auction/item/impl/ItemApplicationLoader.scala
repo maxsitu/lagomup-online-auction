@@ -3,7 +3,7 @@ package com.example.auction.item.impl
 import com.example.auction.item.api.ItemService
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
-
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 import com.lightbend.lagom.scaladsl.server._
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
@@ -28,11 +28,11 @@ class ItemApplicationLoader extends LagomApplicationLoader {
 
 abstract class ItemApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents   {
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents  {
 
   override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])
-  
-  
+  override lazy val jsonSerializerRegistry = ItemSerializerRegistry
+  persistentEntityRegistry.register(wire[ItemEntity])
   
   
 

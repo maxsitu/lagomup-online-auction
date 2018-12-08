@@ -54,7 +54,8 @@ lazy val `item-impl` = (project in file("item-impl"))
   .settings(
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
-lagomScaladslPubSub
+lagomScaladslPubSub,
+lagomScaladslPersistenceCassandra
     )
   )
   .dependsOn(`item-api`)

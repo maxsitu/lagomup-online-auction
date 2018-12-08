@@ -8,9 +8,11 @@ import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import akka.stream.scaladsl.Flow
 import scala.concurrent.ExecutionContext
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-class ItemServiceImpl(val pubSubRegistry: PubSubRegistry)
+class ItemServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry)
                                          (implicit val ec: ExecutionContext)  extends ItemService
   with ItemServiceCalls   {
 
