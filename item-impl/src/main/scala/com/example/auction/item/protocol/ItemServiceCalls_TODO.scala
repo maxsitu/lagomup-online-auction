@@ -21,11 +21,11 @@ val pubSubRegistry: PubSubRegistry
 
 
 
-  def _createItem(request: Item): Future[Item] = {
+  def _createItem(userId: String, request: Item): Future[Item] = {
   ???
 }
 
-def _startAuction(id: String, request: NotUsed): Future[Done] = {
+def _startAuction(id: String, userId: String, request: NotUsed): Future[Done] = {
   ???
 }
 
@@ -39,7 +39,15 @@ def _getItemForUser(id: String, status: String, page: Option[String], request: N
 
 
 
-  
+  def _createItemAuthentication[Request, Response](serviceCall: String => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  ???
+}
+
+def _startAuctionAuthentication[Request, Response](serviceCall: String => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  ???
+}
+
+
 
 }
 

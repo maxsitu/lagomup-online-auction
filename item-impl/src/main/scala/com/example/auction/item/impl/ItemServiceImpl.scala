@@ -17,13 +17,13 @@ class ItemServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: Cass
   with ItemServiceCalls   {
 
   
-  override def createItem() = ServiceCall { request =>
-  _createItem(request)
-}
+  override def createItem() = _createItemAuthentication(userId => ServerServiceCall { request =>
+  _createItem(userId, request)
+})
 
-override def startAuction(id: String) = ServiceCall { request =>
-  _startAuction(id, request)
-}
+override def startAuction(id: String) = _startAuctionAuthentication(userId => ServerServiceCall { request =>
+  _startAuction(userId, id, request)
+})
 
 override def getItem(id: String) = ServiceCall { request =>
   _getItem(id, request)
