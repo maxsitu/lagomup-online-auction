@@ -16,12 +16,12 @@ class BiddingServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: C
   with BiddingServiceCalls with BiddingTopics  {
 
   
-  override def placeBid() = ServiceCall { request =>
-  _placeBid(request)
+  override def placeBid(itemId: String) = ServiceCall { request =>
+  _placeBid(itemId, request)
 }
 
-override def getBids() = ServiceCall { request =>
-  _getBids(request)
+override def getBids(itemId: String) = ServiceCall { request =>
+  _getBids(itemId, request)
 }
 
 

@@ -20,11 +20,11 @@ val pubSubRegistry: PubSubRegistry
 
 
 
-  def _placeBid(request: PlaceBid): Future[BidResult] = {
+  def _placeBid(itemId: String, request: PlaceBid): Future[BidResult] = {
   ???
 }
 
-def _getBids(request: NotUsed): Future[List[Bid]] = {
+def _getBids(itemId: String, request: NotUsed): Future[List[Bid]] = {
   ???
 }
 

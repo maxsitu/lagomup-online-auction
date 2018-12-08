@@ -14,9 +14,9 @@ import play.api.libs.json._
 import java.time.Instant
 
 trait BiddingService extends Service {
-  def placeBid(): ServiceCall[PlaceBid, BidResult]
+  def placeBid(itemId: String): ServiceCall[PlaceBid, BidResult]
 
-def getBids(): ServiceCall[NotUsed, List[Bid]]
+def getBids(itemId: String): ServiceCall[NotUsed, List[Bid]]
 
 
   def bidEvents: Topic[BidEvent]
