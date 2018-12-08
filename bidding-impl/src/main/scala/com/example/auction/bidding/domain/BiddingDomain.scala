@@ -13,7 +13,7 @@ trait BiddingDomain {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: BiddingAggregate = ???
+  def initialState: BiddingAggregate = BiddingAggregate(None, AuctionStateStatus.NotStarted)
 
   def onStartAuction(command: StartAuction, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
     aggregate.status match {
@@ -58,23 +58,34 @@ trait BiddingDomain {
   }
 
   def onGetAuction(query: GetAuction.type, aggregate: BiddingAggregate, ctx: ReadOnlyCommandContext[AuctionState]): Unit = {
-    ???
+    // TODO: Example always had AuctionState
+    aggregate.state.fold {
+      ctx.invalidCommand(s"No state found (${aggregate.status})")
+    } {
+      ctx.reply
+    }
   }
 
   def onAuctionStarted(event: AuctionStarted, aggregate: BiddingAggregate): BiddingAggregate = {
-    ???
+    // TODO: Remove status if not used
+    BiddingAggregate(Some(AuctionState(event.auction, aggregate.status.toString, Nil)), AuctionStateStatus.UnderAuction)
   }
 
   def onAuctionCancelled(event: AuctionCancelled.type, aggregate: BiddingAggregate): BiddingAggregate = {
-    ???
+    aggregate.copy(status = AuctionStateStatus.Cancelled)
   }
 
   def onBidPlaced(event: BidPlaced, aggregate: BiddingAggregate): BiddingAggregate = {
-    ???
+    val BiddingAggregate(Some(auctionState @ AuctionState(_, _, biddingHistory)), _) = aggregate
+    if (biddingHistory.headOption.exists(_.bidder == event.bid.bidder)) {
+      aggregate.copy(state = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory.tail)))
+    } else {
+      aggregate.copy(state = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory)))
+    }
   }
 
   def onBiddingFinished(event: BiddingFinished.type, aggregate: BiddingAggregate): BiddingAggregate = {
-    ???
+    aggregate.copy(status = AuctionStateStatus.Complete)
   }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -184,34 +195,5 @@ trait BiddingDomain {
     */
   case class BidValidationException(message: String) extends TransportException(TransportErrorCode.PolicyViolation, message)
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
