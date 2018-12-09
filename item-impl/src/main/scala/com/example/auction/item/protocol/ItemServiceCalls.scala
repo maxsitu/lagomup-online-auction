@@ -1,9 +1,10 @@
 package com.example.auction.item.protocol
 
 
+import akka.persistence.cassandra.ListenableFutureConverter
 import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
-import com.datastax.driver.core.{PagingState, SimpleStatement}
+import com.datastax.driver.core.{PagingState, SimpleStatement, _}
 import com.example.auction.item.api._
 import com.example.auction.item.impl._
 import com.lightbend.lagom.scaladsl.api.transport.Forbidden
@@ -12,11 +13,8 @@ import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.JavaConverters._
-import com.datastax.driver.core._
-import akka.persistence.cassandra.ListenableFutureConverter
-
+import scala.concurrent.{ExecutionContext, Future}
 
 
 trait ItemServiceCalls {
@@ -79,38 +77,25 @@ trait ItemServiceCalls {
   val CreatedStatus = "Created"
 
   // Table
-  val ItemEventOffset: String = "itemEventOffset"
-  val ItemCreatorTable: String = "itemCreator"
-  val ItemSummaryByCreatorTable: String = "itemSummaryByCreator"
-  val ItemSummaryByCreatorAndStatusMV: String = "itemSummaryByCreatorAndStatus"
+  val ItemEventOffset = "itemEventOffset"
+  val ItemCreatorTable = "itemCreator"
+  val ItemSummaryByCreatorTable = "itemSummaryByCreator"
+  val ItemSummaryByCreatorAndStatusMV = "itemSummaryByCreatorAndStatus"
 
   // Fields
-  val ItemId: String = "itemId"
-  val CreatorId: String = "creatorId"
-  val Title: String = "title"
-  val CurrencyId: String = "currencyId"
-  val ReservePrice: String = "reservePrice"
-  val Status: String = "status"
+  val ItemId = "itemId"
+  val CreatorId = "creatorId"
+  val Title = "title"
+  val CurrencyId = "currencyId"
+  val ReservePrice = "reservePrice"
+  val Status = "status"
 
   def convertItem(item: ItemState) = {
     val itemData = ItemData(
-      item.title,
-      item.description,
-      item.currencyId,
-      item.increment,
-      item.reservePrice,
-      item.auctionDuration,
-      None
+      item.title, item.description, item.currencyId, item.increment, item.reservePrice, item.auctionDuration, None
     )
     Item(
-      Some(item.id),
-      item.creator,
-      itemData,
-      item.price,
-      item.status,
-      item.auctionStart,
-      item.auctionEnd,
-      item.auctionWinner
+      Some(item.id), item.creator, itemData, item.price, item.status, item.auctionStart, item.auctionEnd, item.auctionWinner
     )
   }
 
@@ -129,14 +114,10 @@ trait ItemServiceCalls {
   private def countItemsByCreatorInStatus(creatorId: String, status: String) = {
     db.selectOne(
       s"""
-      SELECT
-        COUNT(*)
-      FROM
-        $ItemSummaryByCreatorAndStatusMV
-      WHERE
-        $CreatorId = ? AND $Status = ?
-      ORDER BY
-        $Status ASC, $ItemId DESC
+      SELECT COUNT(*)
+      FROM $ItemSummaryByCreatorAndStatusMV
+      WHERE $CreatorId = ? AND $Status = ?
+      ORDER BY $Status ASC, $ItemId DESC
     """, // ORDER BY status is required due to https://issues.apache.org/jira/browse/CASSANDRA-10271
       creatorId, status.toString).map {
       case Some(row) => row.getLong("count").toInt
@@ -163,14 +144,10 @@ trait ItemServiceCalls {
                                                      fetchSize: Int): Future[(Seq[ItemSummary], Option[String])] = {
     val statement = new SimpleStatement(
       s"""
-      SELECT
-        *
-      FROM
-        $ItemSummaryByCreatorAndStatusMV
-      WHERE
-        $CreatorId = ? AND $Status = ?
-      ORDER BY
-        $Status ASC, $ItemId DESC
+      SELECT *
+      FROM $ItemSummaryByCreatorAndStatusMV
+      WHERE $CreatorId = ? AND $Status = ?
+      ORDER BY $Status ASC, $ItemId DESC
       """, creatorId, status.toString)
 
     statement.setFetchSize(fetchSize)
@@ -185,7 +162,7 @@ trait ItemServiceCalls {
         /**
           * @note Check against null due to Java code in `getPagingState` function.
           * @note The `getPagingState` function can return null if there is no next page for this reason nextPage is an
-          * Option[String].
+          *       Option[String].
           */
         val nextPage: Option[String] = if (newPagingState != null) Some(newPagingState.toString) else None
 

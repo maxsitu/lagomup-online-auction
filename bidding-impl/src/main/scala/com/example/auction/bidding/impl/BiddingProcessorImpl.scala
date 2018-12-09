@@ -8,7 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, Ca
 import scala.concurrent.{ExecutionContext, Future}
 
 class BiddingProcessorImpl(
-                            session: CassandraSession,
+                            db: CassandraSession,
                             readSide: CassandraReadSide
                           )(implicit ec: ExecutionContext) extends ReadSideProcessor[BiddingEvent] with BiddingProcessor {
 
@@ -29,14 +29,14 @@ class BiddingProcessorImpl(
 
   def prepareTables(): Future[Done] = {
     for {
-      _ <- session.executeCreateTable("CREATE TABLE IF NOT EXISTS auctionSchedule (itemId TEXT, endAuction TIMESTAMP, PRIMARY KEY (itemId))")
+      _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS auctionSchedule (itemId TEXT, endAuction TIMESTAMP, PRIMARY KEY (itemId))")
 
     } yield Done
   }
 
   def prepareStatements(): Future[Done] = {
     for {
-      _insertAuctionSchedule <- session.prepare("INSERT INTO auctionSchedule (itemId, endAuction) VALUES (?, ?)")
+      _insertAuctionSchedule <- db.prepare("INSERT INTO auctionSchedule (itemId, endAuction) VALUES (?, ?)")
 
     } yield {
       insertAuctionSchedule = _insertAuctionSchedule
