@@ -49,7 +49,8 @@ trait BiddingDomain {
   def onFinishBidding(command: FinishBidding.type, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
     aggregate.status match {
       case AuctionStateStatus.NotStarted =>
-        ??? // TODO: Not specified
+        // TODO: Not specified in example
+        ???
       case AuctionStateStatus.UnderAuction =>
         ctx.thenPersist(BiddingFinished)(_ => ctx.reply(Done))
       case _ =>
@@ -59,10 +60,9 @@ trait BiddingDomain {
 
   def onGetAuction(query: GetAuction.type, aggregate: BiddingAggregate, ctx: ReadOnlyCommandContext[AuctionState]): Unit = {
     // TODO: Example always had AuctionState
-    aggregate.state.fold {
-      ctx.invalidCommand(s"No state found (${aggregate.status})")
-    } {
-      ctx.reply
+    aggregate.state match {
+      case Some(state) => ctx.reply(state)
+      case None => ctx.invalidCommand(s"No state found in status ${aggregate.status}")
     }
   }
 

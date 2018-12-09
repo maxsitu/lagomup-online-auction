@@ -71,7 +71,7 @@ object ItemState {
 
 
 object ItemStateStatus extends Enumeration {
-  val Created, Auction, Completed, Cancelled = Value
+  val NotCreated, Created, Auction, Completed, Cancelled = Value
   type Status = Value
   implicit val format: Format[Status] = enumFormat(ItemStateStatus)
 }
