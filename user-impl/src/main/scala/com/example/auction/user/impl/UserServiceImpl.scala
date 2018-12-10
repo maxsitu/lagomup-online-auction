@@ -21,8 +21,8 @@ class UserServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: Cass
   _createUser(request)
 }
 
-override def getUser() = ServiceCall { request =>
-  _getUser(request)
+override def getUser(userId: String) = ServiceCall { request =>
+  _getUser(userId, request)
 }
 
 override def getUsers() = ServiceCall { request =>

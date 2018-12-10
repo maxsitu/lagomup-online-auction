@@ -16,7 +16,7 @@ import java.time.Instant
 trait UserService extends Service {
   def createUser(): ServiceCall[CreateUser, User]
 
-def getUser(): ServiceCall[NotUsed, User]
+def getUser(userId: String): ServiceCall[NotUsed, User]
 
 def getUsers(): ServiceCall[NotUsed, List[User]]
 
