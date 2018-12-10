@@ -29,7 +29,7 @@ trait ItemServiceCalls {
       throw Forbidden("User " + userId + " can't created an item on behalf of " + request.creator)
     }
     val itemId = UUIDs.timeBased().toString // TODO: UUID
-    val pItem = ItemState(
+    val pItem = ItemAggregate(
       id = itemId,
       creator = request.creator,
       title = request.itemData.title,
@@ -90,7 +90,7 @@ trait ItemServiceCalls {
   val ReservePrice = "reservePrice"
   val Status = "status"
 
-  def convertItem(item: ItemState) = {
+  def convertItem(item: ItemAggregate) = {
     val itemData = ItemData(
       item.title, item.description, item.currencyId, item.increment, item.reservePrice, item.auctionDuration, None
     )

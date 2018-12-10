@@ -27,7 +27,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
     TestKit.shutdownActorSystem(system)
   }
 
-  def withTestDriver(block: PersistentEntityTestDriver[BiddingCommand, BiddingEvent, BiddingAggregate] => Unit): Unit = {
+  def withTestDriver(block: PersistentEntityTestDriver[BiddingCommand, BiddingEvent, BiddingState] => Unit): Unit = {
     val driver = new PersistentEntityTestDriver(system, new BiddingEntity(mock[PubSubRegistry]), itemId)
     block(driver)
     if (driver.getAllIssues.nonEmpty) {
@@ -40,15 +40,15 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
 
     "allow starting an auction" in withTestDriver { driver =>
       val outcome = driver.run(StartAuction(auction))
-      outcome.state.status should ===(AuctionStateStatus.UnderAuction)
-      outcome.state.state.get.auction should ===(auction)
+      outcome.state.status should ===(AuctionAggregateStatus.UnderAuction)
+      outcome.state.aggregate.get.auction should ===(auction)
       outcome.events should contain only AuctionStarted(auction)
     }
 
     "accept a first bid under the reserve" in withTestDriver { driver =>
       driver.run(StartAuction(auction))
       val outcome = driver.run(PlaceBid(500, bidder1))
-      outcome.state.state.get.biddingHistory.map(matchable) should contain only
+      outcome.state.aggregate.get.biddingHistory.map(matchable) should contain only
         MatchingBid(bidder1, 500, 500)
       outcome.events.map(matchable) should contain only
         MatchingBid(bidder1, 500, 500)
@@ -58,7 +58,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
     "accept a first bid with zero reserve" in withTestDriver { driver =>
       driver.run(StartAuction(auction.copy(reservePrice = 0)))
       val outcome = driver.run(PlaceBid(2000, bidder1))
-      outcome.state.state.get.biddingHistory.map(matchable) should contain only
+      outcome.state.aggregate.get.biddingHistory.map(matchable) should contain only
         MatchingBid(bidder1, 50, 2000)
       outcome.events.map(matchable) should contain only
         MatchingBid(bidder1, 50, 2000)
@@ -68,7 +68,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
     "accept a first bid equal to the reserve" in withTestDriver { driver =>
       driver.run(StartAuction(auction))
       val outcome = driver.run(PlaceBid(2000, bidder1))
-      outcome.state.state.get.biddingHistory.map(matchable) should contain only
+      outcome.state.aggregate.get.biddingHistory.map(matchable) should contain only
         MatchingBid(bidder1, 2000, 2000)
       outcome.events.map(matchable) should contain only
         MatchingBid(bidder1, 2000, 2000)

@@ -13,7 +13,7 @@ import java.time.Instant
 class UserEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
   with UserDomain {
 
-  override type State = UserAggregate
+  override type State = UserState
   override type Command = UserCommand
   override type Event = UserEvent
 
@@ -24,7 +24,7 @@ class UserEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onCreateUser(command, state, ctx)
 }
 
-      .onReadOnlyCommand[GetUser.type, Option[UserState]] {
+      .onReadOnlyCommand[GetUser.type, Option[UserAggregate]] {
   case (query: GetUser.type, ctx, state) =>
     onGetUser(query, state, ctx)
 }
@@ -38,24 +38,24 @@ class UserEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
 
 }
 
-case class UserState(name: String) 
-
-object UserState {
-  implicit val format: Format[UserState] = Json.format
-}
-
-
-
-object UserStateStatus extends Enumeration {
-  val NotCreated, Created = Value
-  type Status = Value
-  implicit val format: Format[Status] = enumFormat(UserStateStatus)
-}
-
-case class UserAggregate(state: Option[UserState], status: UserStateStatus.Status)
+case class UserAggregate(name: String) 
 
 object UserAggregate {
   implicit val format: Format[UserAggregate] = Json.format
+}
+
+
+
+object UserAggregateStatus extends Enumeration {
+  val NotCreated, Created = Value
+  type Status = Value
+  implicit val format: Format[Status] = enumFormat(UserAggregateStatus)
+}
+
+case class UserState(aggregate: Option[UserAggregate], status: UserAggregateStatus.Status)
+
+object UserState {
+  implicit val format: Format[UserState] = Json.format
 }
 
 sealed trait UserCommand
@@ -66,7 +66,7 @@ object CreateUser {
   implicit val format: Format[CreateUser] = Json.format
 }
 
-case object GetUser extends UserCommand with ReplyType[Option[UserState]] {
+case object GetUser extends UserCommand with ReplyType[Option[UserAggregate]] {
   implicit val format: Format[GetUser.type] = JsonSerializer.emptySingletonFormat(GetUser)
 }
 
@@ -86,8 +86,8 @@ object UserCreated {
 
 object UserSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
-    JsonSerializer[UserAggregate],
-JsonSerializer[UserState],
+    JsonSerializer[UserState],
+JsonSerializer[UserAggregate],
 JsonSerializer[CreateUser],
 JsonSerializer[GetUser.type],
 JsonSerializer[UserCreated]

@@ -14,86 +14,86 @@ trait BiddingDomain {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: BiddingAggregate = BiddingAggregate(None, AuctionStateStatus.NotStarted)
+  def initialState: BiddingState = BiddingState(None, AuctionAggregateStatus.NotStarted)
 
-  def onStartAuction(command: StartAuction, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
-      case AuctionStateStatus.NotStarted =>
+  def onStartAuction(command: StartAuction, state: BiddingState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
+      case AuctionAggregateStatus.NotStarted =>
         ctx.thenPersist(AuctionStarted(command.auction))(_ => ctx.reply(Done))
       case _ =>
         done(ctx)
     }
   }
 
-  def onCancelAuction(command: CancelAuction.type, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
-      case AuctionStateStatus.Cancelled =>
+  def onCancelAuction(command: CancelAuction.type, state: BiddingState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
+      case AuctionAggregateStatus.Cancelled =>
         done(ctx)
       case _ =>
         ctx.thenPersist(AuctionCancelled)(_ => ctx.done)
     }
   }
 
-  def onPlaceBid(command: PlaceBid, aggregate: BiddingAggregate, ctx: CommandContext[PlaceBidResult]): Persist = {
-    aggregate.status match {
-      case AuctionStateStatus.NotStarted =>
-        reply(ctx, createResult(NotStartedStatus, aggregate))
-      case AuctionStateStatus.UnderAuction =>
-        handlePlaceBidWhileUnderAuction(command, ctx, aggregate)
-      case AuctionStateStatus.Complete =>
-        reply(ctx, createResult(FinishedStatus, aggregate))
-      case AuctionStateStatus.Cancelled =>
-        reply(ctx, createResult(CancelledStatus, aggregate))
+  def onPlaceBid(command: PlaceBid, state: BiddingState, ctx: CommandContext[PlaceBidResult]): Persist = {
+    state.status match {
+      case AuctionAggregateStatus.NotStarted =>
+        reply(ctx, createResult(NotStartedStatus, state))
+      case AuctionAggregateStatus.UnderAuction =>
+        handlePlaceBidWhileUnderAuction(command, ctx, state)
+      case AuctionAggregateStatus.Complete =>
+        reply(ctx, createResult(FinishedStatus, state))
+      case AuctionAggregateStatus.Cancelled =>
+        reply(ctx, createResult(CancelledStatus, state))
     }
   }
 
-  def onFinishBidding(command: FinishBidding.type, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
-      case AuctionStateStatus.NotStarted =>
+  def onFinishBidding(command: FinishBidding.type, state: BiddingState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
+      case AuctionAggregateStatus.NotStarted =>
         // TODO: Not specified in example
         ???
-      case AuctionStateStatus.UnderAuction =>
+      case AuctionAggregateStatus.UnderAuction =>
         ctx.thenPersist(BiddingFinished)(_ => ctx.reply(Done))
       case _ =>
         done(ctx)
     }
   }
 
-  def onGetAuction(query: GetAuction.type, aggregate: BiddingAggregate, ctx: ReadOnlyCommandContext[AuctionState]): Unit = {
+  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[AuctionAggregate]): Unit = {
     // TODO: Example always had AuctionState
-    aggregate.state match {
+    state.aggregate match {
       case Some(state) => ctx.reply(state)
-      case None => ctx.invalidCommand(s"No state found in status ${aggregate.status}")
+      case None => ctx.invalidCommand(s"No state found in status ${state.status}")
     }
   }
 
-  def onAuctionStarted(event: AuctionStarted, aggregate: BiddingAggregate): BiddingAggregate = {
+  def onAuctionStarted(event: AuctionStarted, state: BiddingState): BiddingState = {
     // TODO: Remove status if not used
-    BiddingAggregate(Some(AuctionState(event.auction, aggregate.status.toString, Nil)), AuctionStateStatus.UnderAuction)
+    BiddingState(Some(AuctionAggregate(event.auction, state.status.toString, Nil)), AuctionAggregateStatus.UnderAuction)
   }
 
-  def onAuctionCancelled(event: AuctionCancelled.type, aggregate: BiddingAggregate): BiddingAggregate = {
-    aggregate.copy(status = AuctionStateStatus.Cancelled)
+  def onAuctionCancelled(event: AuctionCancelled.type, state: BiddingState): BiddingState = {
+    state.copy(status = AuctionAggregateStatus.Cancelled)
   }
 
-  def onBidPlaced(event: BidPlaced, aggregate: BiddingAggregate): BiddingAggregate = {
-    val BiddingAggregate(Some(auctionState @ AuctionState(_, _, biddingHistory)), _) = aggregate
+  def onBidPlaced(event: BidPlaced, state: BiddingState): BiddingState = {
+    val BiddingState(Some(auctionState @ AuctionAggregate(_, _, biddingHistory)), _) = state
     if (biddingHistory.headOption.exists(_.bidder == event.bid.bidder)) {
-      aggregate.copy(state = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory.tail)))
+      state.copy(aggregate = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory.tail)))
     } else {
-      aggregate.copy(state = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory)))
+      state.copy(aggregate = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory)))
     }
   }
 
-  def onBiddingFinished(event: BiddingFinished.type, aggregate: BiddingAggregate): BiddingAggregate = {
-    aggregate.copy(status = AuctionStateStatus.Complete)
+  def onBiddingFinished(event: BiddingFinished.type, state: BiddingState): BiddingState = {
+    state.copy(status = AuctionAggregateStatus.Complete)
   }
 
   // -------------------------------------------------------------------------------------------------------------------
 
   // TODO: Status enum
-  private def createResult(status: String, aggregate: BiddingAggregate): PlaceBidResult = {
-    aggregate.state.flatMap(_.biddingHistory.headOption) match {
+  private def createResult(status: String, state: BiddingState): PlaceBidResult = {
+    state.aggregate.flatMap(_.biddingHistory.headOption) match {
       case Some(Bid(bidder, _, price, _)) =>
         PlaceBidResult(status, price, Some(bidder))
       case None =>
@@ -104,14 +104,14 @@ trait BiddingDomain {
   /**
     * The main logic for handling of bids.
     */
-  private def handlePlaceBidWhileUnderAuction(bid: PlaceBid, ctx: CommandContext[PlaceBidResult], aggregate: BiddingAggregate): Persist = {
+  private def handlePlaceBidWhileUnderAuction(bid: PlaceBid, ctx: CommandContext[PlaceBidResult], state: BiddingState): Persist = {
 
-    val BiddingAggregate(Some(AuctionState(auction, _, history)), _) = aggregate
+    val BiddingState(Some(AuctionAggregate(auction, _, history)), _) = state
     val now = Instant.now
 
     // Even though we're not in the finished state yet, we should check
     if (auction.endTime.isBefore(now)) {
-      reply(ctx, createResult(FinishedStatus, aggregate))
+      reply(ctx, createResult(FinishedStatus, state))
     } else if (auction.creator == bid.bidder) {
       throw BidValidationException("An auctions creator cannot bid in their own auction.")
     } else {
@@ -127,9 +127,9 @@ trait BiddingDomain {
 
         // Bid too low
         case None if bid.bidPrice < auction.increment =>
-          reply(ctx, createResult(TooLowStatus, aggregate))
+          reply(ctx, createResult(TooLowStatus, state))
         case Some(Bid(_, _, currentPrice, _)) if bid.bidPrice < currentPrice + auction.increment =>
-          reply(ctx, createResult(TooLowStatus, aggregate))
+          reply(ctx, createResult(TooLowStatus, state))
 
         // Automatic outbid
         case Some(currentBid@Bid(_, _, _, currentMaximum)) if bid.bidPrice <= currentMaximum =>

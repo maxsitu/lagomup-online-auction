@@ -10,19 +10,19 @@ trait UserDomain_TODO {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: UserAggregate = ???
+  def initialState: UserState = ???
 
-  def onCreateUser(command: CreateUser, aggregate: UserAggregate, ctx: CommandContext[Done]): Persist = {
+  def onCreateUser(command: CreateUser, state: UserState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
 
-  def onGetUser(query: GetUser.type, aggregate: UserAggregate, ctx: ReadOnlyCommandContext[Option[UserState]]): Unit = {
+  def onGetUser(query: GetUser.type, state: UserState, ctx: ReadOnlyCommandContext[Option[UserAggregate]]): Unit = {
   ???
 }
 
 
-  def onUserCreated(event: UserCreated, aggregate: UserAggregate): UserAggregate = {
+  def onUserCreated(event: UserCreated, state: UserState): UserState = {
   ???
 }
 

@@ -10,24 +10,24 @@ trait UserDomain {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: UserAggregate = UserAggregate(None, UserStateStatus.NotCreated)
+  def initialState: UserState = UserState(None, UserAggregateStatus.NotCreated)
 
-  def onCreateUser(command: CreateUser, aggregate: UserAggregate, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
-      case UserStateStatus.NotCreated =>
+  def onCreateUser(command: CreateUser, state: UserState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
+      case UserAggregateStatus.NotCreated =>
         ctx.thenPersist(UserCreated(command.name))(_ => ctx.reply(Done))
-      case UserStateStatus.Created =>
+      case UserAggregateStatus.Created =>
         ctx.invalidCommand("User already exists")
         ctx.done
     }
   }
 
-  def onGetUser(query: GetUser.type, aggregate: UserAggregate, ctx: ReadOnlyCommandContext[Option[UserState]]): Unit = {
-    ctx.reply(aggregate.state)
+  def onGetUser(query: GetUser.type, state: UserState, ctx: ReadOnlyCommandContext[Option[UserAggregate]]): Unit = {
+    ctx.reply(state.aggregate)
   }
 
-  def onUserCreated(event: UserCreated, aggregate: UserAggregate): UserAggregate = {
-    UserAggregate(Some(UserState(event.name)), UserStateStatus.Created)
+  def onUserCreated(event: UserCreated, state: UserState): UserState = {
+    UserState(Some(UserAggregate(event.name)), UserAggregateStatus.Created)
   }
 
 }

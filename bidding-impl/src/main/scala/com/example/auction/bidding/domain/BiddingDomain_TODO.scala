@@ -10,43 +10,43 @@ trait BiddingDomain_TODO {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: BiddingAggregate = ???
+  def initialState: BiddingState = ???
 
-  def onStartAuction(command: StartAuction, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
+  def onStartAuction(command: StartAuction, state: BiddingState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
-def onCancelAuction(command: CancelAuction.type, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
+def onCancelAuction(command: CancelAuction.type, state: BiddingState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
-def onPlaceBid(command: PlaceBid, aggregate: BiddingAggregate, ctx: CommandContext[PlaceBidResult]): Persist = {
+def onPlaceBid(command: PlaceBid, state: BiddingState, ctx: CommandContext[PlaceBidResult]): Persist = {
   ???
 }
 
-def onFinishBidding(command: FinishBidding.type, aggregate: BiddingAggregate, ctx: CommandContext[Done]): Persist = {
-  ???
-}
-
-
-  def onGetAuction(query: GetAuction.type, aggregate: BiddingAggregate, ctx: ReadOnlyCommandContext[AuctionState]): Unit = {
+def onFinishBidding(command: FinishBidding.type, state: BiddingState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
 
-  def onAuctionStarted(event: AuctionStarted, aggregate: BiddingAggregate): BiddingAggregate = {
+  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[AuctionAggregate]): Unit = {
   ???
 }
 
-def onAuctionCancelled(event: AuctionCancelled.type, aggregate: BiddingAggregate): BiddingAggregate = {
+
+  def onAuctionStarted(event: AuctionStarted, state: BiddingState): BiddingState = {
   ???
 }
 
-def onBidPlaced(event: BidPlaced, aggregate: BiddingAggregate): BiddingAggregate = {
+def onAuctionCancelled(event: AuctionCancelled.type, state: BiddingState): BiddingState = {
   ???
 }
 
-def onBiddingFinished(event: BiddingFinished.type, aggregate: BiddingAggregate): BiddingAggregate = {
+def onBidPlaced(event: BidPlaced, state: BiddingState): BiddingState = {
+  ???
+}
+
+def onBiddingFinished(event: BiddingFinished.type, state: BiddingState): BiddingState = {
   ???
 }
 

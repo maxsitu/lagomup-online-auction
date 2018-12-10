@@ -12,11 +12,11 @@ trait ItemDomain {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: ItemAggregate = ItemAggregate(None, ItemStateStatus.NotCreated)
+  def initialState: ItemState = ItemState(None, ItemAggregateStatus.NotCreated)
 
-  def onCreateItem(command: CreateItem, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
+  def onCreateItem(command: CreateItem, aggregate: ItemState, ctx: CommandContext[Done]): Persist = {
     aggregate.status match {
-      case ItemStateStatus.NotCreated =>
+      case ItemAggregateStatus.NotCreated =>
         ctx.thenPersist(ItemCreated(command.item))(_ => ctx.reply(Done))
       case _ =>
         // TODO: Not specified in example
@@ -24,90 +24,90 @@ trait ItemDomain {
     }
   }
 
-  def onStartAuction(command: StartAuction, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
-      case ItemStateStatus.Created =>
-        if (aggregate.state.get.creator != command.userId) {
+  def onStartAuction(command: StartAuction, state: ItemState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
+      case ItemAggregateStatus.Created =>
+        if (state.aggregate.get.creator != command.userId) {
           ctx.invalidCommand("Only the creator of an auction can start it")
           ctx.done
         } else {
           ctx.thenPersist(AuctionStarted(Instant.now))(_ => ctx.reply(Done))
         }
-      case ItemStateStatus.Auction | ItemStateStatus.Completed | ItemStateStatus.Cancelled =>
+      case ItemAggregateStatus.Auction | ItemAggregateStatus.Completed | ItemAggregateStatus.Cancelled =>
         done(ctx)
-      case ItemStateStatus.NotCreated =>
+      case ItemAggregateStatus.NotCreated =>
         // TODO: Not specified in example
         ???
     }
   }
 
-  def onUpdatePrice(command: UpdatePrice, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
+  def onUpdatePrice(command: UpdatePrice, aggregate: ItemState, ctx: CommandContext[Done]): Persist = {
     aggregate.status match {
-      case ItemStateStatus.Auction =>
+      case ItemAggregateStatus.Auction =>
         ctx.thenPersist(PriceUpdated(command.price))(_ => ctx.reply(Done))
-      case ItemStateStatus.Completed | ItemStateStatus.Cancelled =>
+      case ItemAggregateStatus.Completed | ItemAggregateStatus.Cancelled =>
         done(ctx)
-      case ItemStateStatus.NotCreated | ItemStateStatus.Created =>
+      case ItemAggregateStatus.NotCreated | ItemAggregateStatus.Created =>
         // TODO: Not specified in example
         ???
     }
   }
 
-  def onFinishAuction(command: FinishAuction, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
+  def onFinishAuction(command: FinishAuction, aggregate: ItemState, ctx: CommandContext[Done]): Persist = {
     aggregate.status match {
-      case ItemStateStatus.Auction =>
+      case ItemAggregateStatus.Auction =>
         ctx.thenPersist(AuctionFinished(command.winner, command.price))(_ => ctx.reply(Done))
-      case ItemStateStatus.Completed | ItemStateStatus.Cancelled =>
+      case ItemAggregateStatus.Completed | ItemAggregateStatus.Cancelled =>
         done(ctx)
-      case ItemStateStatus.NotCreated | ItemStateStatus.Created =>
+      case ItemAggregateStatus.NotCreated | ItemAggregateStatus.Created =>
         // TODO: Not specified in example
         ???
     }
   }
 
-  def onGetItem(query: GetItem.type, aggregate: ItemAggregate, ctx: ReadOnlyCommandContext[ItemState]): Unit = {
+  def onGetItem(query: GetItem.type, state: ItemState, ctx: ReadOnlyCommandContext[ItemAggregate]): Unit = {
     // TODO: Example always had ItemState, look at how UserService handles this
-    aggregate.state match {
-      case Some(state) => ctx.reply(state)
-      case None => ctx.invalidCommand(s"No state found in status ${aggregate.status}")
+    state.aggregate match {
+      case Some(aggregate) => ctx.reply(aggregate)
+      case None => ctx.invalidCommand(s"No state found in status ${state.status}")
     }
   }
 
-  def onItemCreated(event: ItemCreated, aggregate: ItemAggregate): ItemAggregate = {
-    aggregate.copy(state = Some(event.item))
+  def onItemCreated(event: ItemCreated, state: ItemState): ItemState = {
+    state.copy(aggregate = Some(event.item))
   }
 
-  def onAuctionStarted(event: AuctionStarted, aggregate: ItemAggregate): ItemAggregate = {
-    assert(aggregate.status == ItemStateStatus.Created)
-    val itemState = aggregate.state.get
-    aggregate.copy(
-      state = Some(itemState.copy(
-        status = ItemStateStatus.Auction.toString, // TODO: Needed?
+  def onAuctionStarted(event: AuctionStarted, state: ItemState): ItemState = {
+    assert(state.status == ItemAggregateStatus.Created)
+    val itemState = state.aggregate.get
+    state.copy(
+      aggregate = Some(itemState.copy(
+        status = ItemAggregateStatus.Auction.toString, // TODO: Needed?
         auctionStart = Some(event.startTime),
         auctionEnd = Some(event.startTime.plus(Duration.ofMinutes(itemState.auctionDuration)))
       )),
-      status = ItemStateStatus.Auction
+      status = ItemAggregateStatus.Auction
     )
   }
 
-  def onPriceUpdated(event: PriceUpdated, aggregate: ItemAggregate): ItemAggregate = {
-    assert(aggregate.status == ItemStateStatus.Auction)
-    val itemState = aggregate.state.get
-    aggregate.copy(
-      state = Some(itemState.copy(price = Some(event.price)))
+  def onPriceUpdated(event: PriceUpdated, state: ItemState): ItemState = {
+    assert(state.status == ItemAggregateStatus.Auction)
+    val itemState = state.aggregate.get
+    state.copy(
+      aggregate = Some(itemState.copy(price = Some(event.price)))
     )
   }
 
-  def onAuctionFinished(event: AuctionFinished, aggregate: ItemAggregate): ItemAggregate = {
-    assert(aggregate.status == ItemStateStatus.Auction)
-    val itemState = aggregate.state.get
-    aggregate.copy(
-      state = Some(itemState.copy(
-        status = ItemStateStatus.Completed.toString, // TODO: Needed?
+  def onAuctionFinished(event: AuctionFinished, state: ItemState): ItemState = {
+    assert(state.status == ItemAggregateStatus.Auction)
+    val itemState = state.aggregate.get
+    state.copy(
+      aggregate = Some(itemState.copy(
+        status = ItemAggregateStatus.Completed.toString, // TODO: Needed?
         price = event.price,
         auctionWinner = event.winner
       )),
-      status = ItemStateStatus.Completed
+      status = ItemAggregateStatus.Completed
     )
   }
 

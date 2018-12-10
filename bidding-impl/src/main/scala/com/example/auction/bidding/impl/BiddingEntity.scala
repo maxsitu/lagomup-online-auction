@@ -13,7 +13,7 @@ import java.time.Instant
 class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
   with BiddingDomain {
 
-  override type State = BiddingAggregate
+  override type State = BiddingState
   override type Command = BiddingCommand
   override type Event = BiddingEvent
 
@@ -36,7 +36,7 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onFinishBidding(command, state, ctx)
 }
 
-      .onReadOnlyCommand[GetAuction.type, AuctionState] {
+      .onReadOnlyCommand[GetAuction.type, AuctionAggregate] {
   case (query: GetAuction.type, ctx, state) =>
     onGetAuction(query, state, ctx)
 }
@@ -62,24 +62,24 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
 
 }
 
-case class AuctionState(auction: Auction, status: String, biddingHistory: List[Bid]) 
+case class AuctionAggregate(auction: Auction, status: String, biddingHistory: List[Bid]) 
 
-object AuctionState {
-  implicit val format: Format[AuctionState] = Json.format
+object AuctionAggregate {
+  implicit val format: Format[AuctionAggregate] = Json.format
 }
 
 
 
-object AuctionStateStatus extends Enumeration {
+object AuctionAggregateStatus extends Enumeration {
   val NotStarted, UnderAuction, Complete, Cancelled = Value
   type Status = Value
-  implicit val format: Format[Status] = enumFormat(AuctionStateStatus)
+  implicit val format: Format[Status] = enumFormat(AuctionAggregateStatus)
 }
 
-case class BiddingAggregate(state: Option[AuctionState], status: AuctionStateStatus.Status)
+case class BiddingState(aggregate: Option[AuctionAggregate], status: AuctionAggregateStatus.Status)
 
-object BiddingAggregate {
-  implicit val format: Format[BiddingAggregate] = Json.format
+object BiddingState {
+  implicit val format: Format[BiddingState] = Json.format
 }
 
 sealed trait BiddingCommand
@@ -104,7 +104,7 @@ case object FinishBidding extends BiddingCommand with ReplyType[Done] {
   implicit val format: Format[FinishBidding.type] = JsonSerializer.emptySingletonFormat(FinishBidding)
 }
 
-case object GetAuction extends BiddingCommand with ReplyType[AuctionState] {
+case object GetAuction extends BiddingCommand with ReplyType[AuctionAggregate] {
   implicit val format: Format[GetAuction.type] = JsonSerializer.emptySingletonFormat(GetAuction)
 }
 
@@ -156,8 +156,8 @@ object Bid {
 
 object BiddingSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
-    JsonSerializer[BiddingAggregate],
-JsonSerializer[AuctionState],
+    JsonSerializer[BiddingState],
+JsonSerializer[AuctionAggregate],
 JsonSerializer[StartAuction],
 JsonSerializer[CancelAuction.type],
 JsonSerializer[PlaceBid],

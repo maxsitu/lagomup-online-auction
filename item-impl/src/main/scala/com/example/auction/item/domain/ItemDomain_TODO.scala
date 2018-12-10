@@ -10,43 +10,43 @@ trait ItemDomain_TODO {
 
   def pubSubRegistry: PubSubRegistry
 
-  def initialState: ItemAggregate = ???
+  def initialState: ItemState = ???
 
-  def onCreateItem(command: CreateItem, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
+  def onCreateItem(command: CreateItem, state: ItemState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
-def onStartAuction(command: StartAuction, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
+def onStartAuction(command: StartAuction, state: ItemState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
-def onUpdatePrice(command: UpdatePrice, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
+def onUpdatePrice(command: UpdatePrice, state: ItemState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
-def onFinishAuction(command: FinishAuction, aggregate: ItemAggregate, ctx: CommandContext[Done]): Persist = {
-  ???
-}
-
-
-  def onGetItem(query: GetItem.type, aggregate: ItemAggregate, ctx: ReadOnlyCommandContext[ItemState]): Unit = {
+def onFinishAuction(command: FinishAuction, state: ItemState, ctx: CommandContext[Done]): Persist = {
   ???
 }
 
 
-  def onItemCreated(event: ItemCreated, aggregate: ItemAggregate): ItemAggregate = {
+  def onGetItem(query: GetItem.type, state: ItemState, ctx: ReadOnlyCommandContext[ItemAggregate]): Unit = {
   ???
 }
 
-def onAuctionStarted(event: AuctionStarted, aggregate: ItemAggregate): ItemAggregate = {
+
+  def onItemCreated(event: ItemCreated, state: ItemState): ItemState = {
   ???
 }
 
-def onPriceUpdated(event: PriceUpdated, aggregate: ItemAggregate): ItemAggregate = {
+def onAuctionStarted(event: AuctionStarted, state: ItemState): ItemState = {
   ???
 }
 
-def onAuctionFinished(event: AuctionFinished, aggregate: ItemAggregate): ItemAggregate = {
+def onPriceUpdated(event: PriceUpdated, state: ItemState): ItemState = {
+  ???
+}
+
+def onAuctionFinished(event: AuctionFinished, state: ItemState): ItemState = {
   ???
 }
 

@@ -13,7 +13,7 @@ import java.time.Instant
 class ItemEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
   with ItemDomain {
 
-  override type State = ItemAggregate
+  override type State = ItemState
   override type Command = ItemCommand
   override type Event = ItemEvent
 
@@ -36,7 +36,7 @@ class ItemEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onFinishAuction(command, state, ctx)
 }
 
-      .onReadOnlyCommand[GetItem.type, ItemState] {
+      .onReadOnlyCommand[GetItem.type, ItemAggregate] {
   case (query: GetItem.type, ctx, state) =>
     onGetItem(query, state, ctx)
 }
@@ -62,29 +62,29 @@ class ItemEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
 
 }
 
-case class ItemState(id: String, creator: String, title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, price: Option[Int], status: String, auctionDuration: Int, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[String]) 
-
-object ItemState {
-  implicit val format: Format[ItemState] = Json.format
-}
-
-
-
-object ItemStateStatus extends Enumeration {
-  val NotCreated, Created, Auction, Completed, Cancelled = Value
-  type Status = Value
-  implicit val format: Format[Status] = enumFormat(ItemStateStatus)
-}
-
-case class ItemAggregate(state: Option[ItemState], status: ItemStateStatus.Status)
+case class ItemAggregate(id: String, creator: String, title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, price: Option[Int], status: String, auctionDuration: Int, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[String]) 
 
 object ItemAggregate {
   implicit val format: Format[ItemAggregate] = Json.format
 }
 
+
+
+object ItemAggregateStatus extends Enumeration {
+  val NotCreated, Created, Auction, Completed, Cancelled = Value
+  type Status = Value
+  implicit val format: Format[Status] = enumFormat(ItemAggregateStatus)
+}
+
+case class ItemState(aggregate: Option[ItemAggregate], status: ItemAggregateStatus.Status)
+
+object ItemState {
+  implicit val format: Format[ItemState] = Json.format
+}
+
 sealed trait ItemCommand
 
-case class CreateItem(item: ItemState) extends ItemCommand with ReplyType[Done]
+case class CreateItem(item: ItemAggregate) extends ItemCommand with ReplyType[Done]
 
 object CreateItem {
   implicit val format: Format[CreateItem] = Json.format
@@ -108,7 +108,7 @@ object FinishAuction {
   implicit val format: Format[FinishAuction] = Json.format
 }
 
-case object GetItem extends ItemCommand with ReplyType[ItemState] {
+case object GetItem extends ItemCommand with ReplyType[ItemAggregate] {
   implicit val format: Format[GetItem.type] = JsonSerializer.emptySingletonFormat(GetItem)
 }
 
@@ -120,7 +120,7 @@ object ItemEvent {
   val Tag = AggregateEventTag[ItemEvent]
 }
 
-case class ItemCreated(item: ItemState) extends ItemEvent
+case class ItemCreated(item: ItemAggregate) extends ItemEvent
 
 object ItemCreated {
   implicit val format: Format[ItemCreated] = Json.format
@@ -146,8 +146,8 @@ object AuctionFinished {
 
 object ItemSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
-    JsonSerializer[ItemAggregate],
-JsonSerializer[ItemState],
+    JsonSerializer[ItemState],
+JsonSerializer[ItemAggregate],
 JsonSerializer[CreateItem],
 JsonSerializer[StartAuction],
 JsonSerializer[UpdatePrice],
