@@ -29,7 +29,7 @@ trait UserServiceCalls {
 
   def _getUser(userId: String, request: NotUsed): Future[User] = {
     entityRegistry.refFor[UserEntity](userId).ask(GetUser).map {
-      case Some(user) => User(user)
+      case Some(userState) => User(userId, userState.name)
       case None => throw NotFound(s"User with id $userId")
     }
   }

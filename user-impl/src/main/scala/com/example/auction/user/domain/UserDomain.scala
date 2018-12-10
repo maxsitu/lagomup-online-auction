@@ -22,13 +22,8 @@ trait UserDomain {
     }
   }
 
-  def onGetUser(query: GetUser.type, aggregate: UserAggregate, ctx: ReadOnlyCommandContext[UserState]): Unit = {
-    // TODO: Example always had UserState
-    // TODO: Replytype should be optional
-    aggregate.state match {
-      case Some(state) => ctx.reply(state)
-      case None => ctx.invalidCommand(s"No state found in status ${aggregate.status}")
-    }
+  def onGetUser(query: GetUser.type, aggregate: UserAggregate, ctx: ReadOnlyCommandContext[Option[UserState]]): Unit = {
+    ctx.reply(aggregate.state)
   }
 
   def onUserCreated(event: UserCreated, aggregate: UserAggregate): UserAggregate = {

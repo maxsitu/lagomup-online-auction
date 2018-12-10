@@ -17,7 +17,7 @@ trait UserDomain_TODO {
 }
 
 
-  def onGetUser(query: GetUser.type, aggregate: UserAggregate, ctx: ReadOnlyCommandContext[UserState]): Unit = {
+  def onGetUser(query: GetUser.type, aggregate: UserAggregate, ctx: ReadOnlyCommandContext[Option[UserState]]): Unit = {
   ???
 }
 

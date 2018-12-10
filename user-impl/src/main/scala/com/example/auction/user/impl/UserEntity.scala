@@ -24,7 +24,7 @@ class UserEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onCreateUser(command, state, ctx)
 }
 
-      .onReadOnlyCommand[GetUser.type, UserState] {
+      .onReadOnlyCommand[GetUser.type, Option[UserState]] {
   case (query: GetUser.type, ctx, state) =>
     onGetUser(query, state, ctx)
 }
@@ -66,7 +66,7 @@ object CreateUser {
   implicit val format: Format[CreateUser] = Json.format
 }
 
-case object GetUser extends UserCommand with ReplyType[UserState] {
+case object GetUser extends UserCommand with ReplyType[Option[UserState]] {
   implicit val format: Format[GetUser.type] = JsonSerializer.emptySingletonFormat(GetUser)
 }
 
