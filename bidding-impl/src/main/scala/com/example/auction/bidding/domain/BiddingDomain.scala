@@ -183,12 +183,12 @@ trait BiddingDomain {
     ctx.done
   }
 
-  /**
-    * Exception thrown when a bid fails validation.
-    */
-  case class BidValidationException(message: String) extends TransportException(TransportErrorCode.PolicyViolation, message)
-
 }
+
+/**
+  * Exception thrown when a bid fails validation.
+  */
+case class BidValidationException(message: String) extends TransportException(TransportErrorCode.PolicyViolation, message)
 
 object BiddingDomain {
   val AcceptedStatus = "Accepted"
