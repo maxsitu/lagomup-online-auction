@@ -4,6 +4,8 @@ package com.example.auction.bidding.impl
 import com.example.auction.bidding.api._
 import com.example.auction.bidding.protocol._
 import com.lightbend.lagom.scaladsl.api.ServiceCall
+import akka.actor.ActorSystem
+import akka.stream.Materializer
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import akka.stream.scaladsl.Flow
 import scala.concurrent.ExecutionContext
@@ -12,7 +14,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-class BiddingServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry)
+class BiddingServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry, val actorSystem: ActorSystem, val mat: Materializer)
                                          (implicit val ec: ExecutionContext)  extends BiddingService
   with BiddingServiceCalls with BiddingTopics  {
 

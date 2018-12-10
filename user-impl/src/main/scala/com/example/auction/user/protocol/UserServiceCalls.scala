@@ -3,6 +3,11 @@ package com.example.auction.user.protocol
 import java.util.UUID
 
 import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
+import akka.persistence.query.PersistenceQuery
+import akka.stream.Materializer
+import akka.stream.scaladsl.Sink
 import com.example.auction.user.api._
 import com.example.auction.user.impl
 import com.example.auction.user.impl.{GetUser, UserEntity}
@@ -15,10 +20,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait UserServiceCalls {
   implicit val ec: ExecutionContext
+  implicit val mat: Materializer
 
   val entityRegistry: PersistentEntityRegistry
   val db: CassandraSession
   val pubSubRegistry: PubSubRegistry
+  val actorSystem: ActorSystem
+
+  private val currentIdsQuery = PersistenceQuery(actorSystem).readJournalFor[CassandraReadJournal](CassandraReadJournal.Identifier)
 
   def _createUser(request: CreateUser): Future[User] = {
     val userId = UUID.randomUUID().toString // TODO: UUID
@@ -35,7 +44,17 @@ trait UserServiceCalls {
   }
 
   def _getUsers(request: NotUsed): Future[List[User]] = {
-    ???
+    // Note this should never make production....
+    currentIdsQuery.currentPersistenceIds()
+      .filter(_.startsWith("UserEntity|"))
+      .mapAsync(4) { id =>
+        val entityId = id.split("\\|", 2).last
+        entityRegistry.refFor[UserEntity](entityId)
+          .ask(GetUser)
+          .map(_.map(userState => User(entityId, userState.name)))
+      }.collect {
+      case Some(user) => user
+    }.runWith(Sink.seq).map(_.toList)
   }
 
 }
