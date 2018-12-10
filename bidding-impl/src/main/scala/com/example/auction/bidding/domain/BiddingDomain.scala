@@ -7,6 +7,7 @@ import com.example.auction.bidding.impl._
 import com.lightbend.lagom.scaladsl.api.transport.{TransportErrorCode, TransportException}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
+import BiddingDomain._
 
 trait BiddingDomain {
   this: BiddingEntity with PersistentEntity =>
@@ -89,14 +90,6 @@ trait BiddingDomain {
   }
 
   // -------------------------------------------------------------------------------------------------------------------
-
-  val AcceptedStatus = "Accepted"
-  val AcceptedOutbidStatus = "AcceptedOutbid"
-  val AcceptedBelowReserveStatus = "AcceptedBelowReserve"
-  val TooLowStatus = "TooLow"
-  val NotStartedStatus = "NotStarted"
-  val FinishedStatus = "Finished"
-  val CancelledStatus = "Cancelled"
 
   // TODO: Status enum
   private def createResult(status: String, aggregate: BiddingAggregate): PlaceBidResult = {
@@ -197,3 +190,12 @@ trait BiddingDomain {
 
 }
 
+object BiddingDomain {
+  val AcceptedStatus = "Accepted"
+  val AcceptedOutbidStatus = "AcceptedOutbid"
+  val AcceptedBelowReserveStatus = "AcceptedBelowReserve"
+  val TooLowStatus = "TooLow"
+  val NotStartedStatus = "NotStarted"
+  val FinishedStatus = "Finished"
+  val CancelledStatus = "Cancelled"
+}

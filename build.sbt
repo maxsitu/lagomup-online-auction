@@ -34,6 +34,9 @@ lazy val `bidding-impl` = (project in file("bidding-impl"))
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
 lagomScaladslPubSub,
+"org.scalatest" %% "scalatest" % "3.0.5" % Test,
+"org.scalamock" %% "scalamock" % "4.1.0" % Test,
+lagomScaladslTestKit,
 lagomScaladslPersistenceCassandra,
 lagomScaladslKafkaBroker
     )
@@ -56,6 +59,9 @@ lazy val `item-impl` = (project in file("item-impl"))
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
 lagomScaladslPubSub,
+"org.scalatest" %% "scalatest" % "3.0.5" % Test,
+"org.scalamock" %% "scalamock" % "4.1.0" % Test,
+lagomScaladslTestKit,
 lagomScaladslPersistenceCassandra
     )
   )
@@ -77,6 +83,9 @@ lazy val `user-impl` = (project in file("user-impl"))
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
 lagomScaladslPubSub,
+"org.scalatest" %% "scalatest" % "3.0.5" % Test,
+"org.scalamock" %% "scalamock" % "4.1.0" % Test,
+lagomScaladslTestKit,
 lagomScaladslPersistenceCassandra
     )
   )
