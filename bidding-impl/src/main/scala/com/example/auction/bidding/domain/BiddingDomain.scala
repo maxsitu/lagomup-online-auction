@@ -59,12 +59,9 @@ trait BiddingDomain {
     }
   }
 
-  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[AuctionAggregate]): Unit = {
+  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[Option[AuctionAggregate]]): Unit = {
     // TODO: Example always had AuctionState
-    state.aggregate match {
-      case Some(state) => ctx.reply(state)
-      case None => ctx.invalidCommand(s"No state found in status ${state.status}")
-    }
+    ctx.reply(state.aggregate)
   }
 
   def onAuctionStarted(event: AuctionStarted, state: BiddingState): BiddingState = {

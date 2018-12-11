@@ -166,7 +166,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
 
     "reject a bid from the seller" in withTestDriver { driver =>
       driver.run(StartAuction(auction))
-      a [BidValidationException] should be thrownBy driver.run(PlaceBid(2500, creator))
+      a[BidValidationException] should be thrownBy driver.run(PlaceBid(2500, creator))
     }
 
     "allow the current winning bidder to lower their maximum bid" in withTestDriver { driver =>
@@ -221,14 +221,14 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
       driver.run(StartAuction(auction), PlaceBid(3000, bidder1), PlaceBid(3500, bidder2))
       val outcome = driver.run(FinishBidding)
       outcome.events should contain only BiddingFinished
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.Complete)
+      outcome.state.status should ===(AuctionAggregateStatus.Complete)
     }
 
     "allow cancelling the auction" in withTestDriver { driver =>
       driver.run(StartAuction(auction), PlaceBid(3000, bidder1), PlaceBid(3500, bidder2))
       val outcome = driver.run(CancelAuction)
       outcome.events should contain only AuctionCancelled
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.Cancelled)
+      outcome.state.status should ===(AuctionAggregateStatus.Cancelled)
     }
 
     "allow cancelling the auction before started" in withTestDriver { driver =>
@@ -246,7 +246,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
       driver.run(StartAuction(auction), PlaceBid(3000, bidder1), FinishBidding)
       val outcome = driver.run(CancelAuction)
       outcome.events should contain only AuctionCancelled
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.Cancelled)
+      outcome.state.status should ===(AuctionAggregateStatus.Cancelled)
     }
 
     "handle start auction idempotently" in withTestDriver { driver =>
@@ -279,13 +279,13 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
       driver.run(StartAuction(auction), PlaceBid(3000, bidder1), CancelAuction)
       val outcome = driver.run(CancelAuction)
       outcome.events shouldBe empty
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.Cancelled)
+      outcome.state.status should ===(AuctionAggregateStatus.Cancelled)
     }
 
     "not allow a bid to be placed before the auction has started" in withTestDriver { driver =>
       val outcome = driver.run(PlaceBid(3000, bidder1))
       outcome.events shouldBe empty
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.NotStarted)
+      outcome.state.status should ===(AuctionAggregateStatus.NotStarted)
       outcome.replies should contain only PlaceBidResult(NotStartedStatus, 0, None)
     }
 
@@ -293,7 +293,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
       driver.run(StartAuction(auction), PlaceBid(2500, bidder1), FinishBidding)
       val outcome = driver.run(PlaceBid(3000, bidder2))
       outcome.events shouldBe empty
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.Complete)
+      outcome.state.status should ===(AuctionAggregateStatus.Complete)
       outcome.state.aggregate.get.biddingHistory should have size 1
       outcome.replies should contain only PlaceBidResult(FinishedStatus, 2000, Some(bidder1))
     }
@@ -302,7 +302,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
       driver.run(StartAuction(auction), PlaceBid(2500, bidder1), CancelAuction)
       val outcome = driver.run(PlaceBid(3000, bidder2))
       outcome.events shouldBe empty
-      outcome.state.aggregate.get.status should ===(AuctionAggregateStatus.Cancelled)
+      outcome.state.status should ===(AuctionAggregateStatus.Cancelled)
       outcome.state.aggregate.get.biddingHistory should have size 1
       outcome.replies should contain only PlaceBidResult(CancelledStatus, 2000, Some(bidder1))
     }
@@ -311,7 +311,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
       driver.run(StartAuction(auction), PlaceBid(3000, bidder1))
       val outcome = driver.run(GetAuction)
       outcome.events shouldBe empty
-      outcome.replies should contain only outcome.state
+      outcome.replies should contain only outcome.state.aggregate
     }
 
 
@@ -323,7 +323,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
 
   private def matchable(event: BiddingEvent): MatchingBid = event match {
     case BidPlaced(bid) => matchable(bid)
+    case _ => ??? // TODO: Not specified in example
   }
-
 
 }

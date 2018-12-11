@@ -29,16 +29,21 @@ trait BiddingTopics {
               val message = BidPlaced(e.entityId, convertBid(bid))
               Future.successful(message, e.offset)
             case impl.BiddingFinished =>
-              entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetAuction).map { auctionState =>
-                val maybeWinningBid = auctionState
-                  .biddingHistory
-                  .headOption
-                  .filter(_.bidPrice >= auctionState.auction.reservePrice)
-                  .map(convertBid)
-                val message = BiddingFinished(e.entityId, maybeWinningBid)
-                (message, e.offset)
+              entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetAuction).map {
+                case Some(aggregate) =>
+                  val maybeWinningBid = aggregate
+                    .biddingHistory
+                    .headOption
+                    .filter(_.bidPrice >= aggregate.auction.reservePrice)
+                    .map(convertBid)
+                  val message = BiddingFinished(e.entityId, maybeWinningBid)
+                  (message, e.offset)
+                case None =>
+                  val message = BiddingFinished(e.entityId, None)
+                  (message, e.offset)
               }
-            // TODO: Get rid of "match may not be exhaustive"
+            case _ =>
+              ??? // TODO: Not specified in example
           }
         }
     }

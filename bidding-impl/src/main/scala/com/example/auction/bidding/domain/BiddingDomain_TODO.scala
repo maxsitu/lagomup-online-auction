@@ -29,7 +29,7 @@ def onFinishBidding(command: FinishBidding.type, state: BiddingState, ctx: Comma
 }
 
 
-  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[AuctionAggregate]): Unit = {
+  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[Option[AuctionAggregate]]): Unit = {
   ???
 }
 

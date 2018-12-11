@@ -26,8 +26,9 @@ trait BiddingServiceCalls {
   }
 
   def _getBids(itemId: String, request: NotUsed): Future[List[Bid]] = {
-    entityRegistry.refFor[BiddingEntity](itemId).ask(GetAuction).map { auction =>
-      auction.biddingHistory.map(convertBid).reverse
+    entityRegistry.refFor[BiddingEntity](itemId).ask(GetAuction).map {
+      case Some(aggregate) => aggregate.biddingHistory.map(convertBid).reverse
+      case None => List.empty
     }
   }
 

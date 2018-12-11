@@ -36,7 +36,7 @@ class BiddingEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
     onFinishBidding(command, state, ctx)
 }
 
-      .onReadOnlyCommand[GetAuction.type, AuctionAggregate] {
+      .onReadOnlyCommand[GetAuction.type, Option[AuctionAggregate]] {
   case (query: GetAuction.type, ctx, state) =>
     onGetAuction(query, state, ctx)
 }
@@ -104,7 +104,7 @@ case object FinishBidding extends BiddingCommand with ReplyType[Done] {
   implicit val format: Format[FinishBidding.type] = JsonSerializer.emptySingletonFormat(FinishBidding)
 }
 
-case object GetAuction extends BiddingCommand with ReplyType[AuctionAggregate] {
+case object GetAuction extends BiddingCommand with ReplyType[Option[AuctionAggregate]] {
   implicit val format: Format[GetAuction.type] = JsonSerializer.emptySingletonFormat(GetAuction)
 }
 
