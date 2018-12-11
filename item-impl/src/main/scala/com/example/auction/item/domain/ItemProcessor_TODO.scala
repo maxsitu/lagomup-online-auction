@@ -6,7 +6,9 @@ import scala.concurrent.Future
 
 trait ItemProcessor_TODO {
 
-  
+   def insertItemCreator: PreparedStatement
+ def insertItemSummaryByCreator: PreparedStatement
+
 
   def processItemCreated(event: ItemCreated): Future[List[BoundStatement]] = {
   Future.successful(List.empty)

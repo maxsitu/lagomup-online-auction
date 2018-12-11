@@ -12,11 +12,32 @@ class ItemProcessorImpl(
                             readSide: CassandraReadSide
                           )(implicit ec: ExecutionContext) extends ReadSideProcessor[ItemEvent] with ItemProcessor {
 
-  
+  var insertItemCreator: PreparedStatement = _
+var insertItemSummaryByCreator: PreparedStatement = _
+
 
   override def buildHandler() = readSide.builder[ItemEvent]("item_offset")
-    
-    
+    .setGlobalPrepare(() =>
+  for {
+    _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS itemCreator (itemId TIMEUUID, creatorId UUID, PRIMARY KEY (itemId))")
+_ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS itemSummaryByCreator (creatorId UUID, itemId TIMEUUID, title TEXT, currencyId TEXT, reservePrice INT, status TEXT, PRIMARY KEY (creatorId, itemId))")
+
+  } yield Done
+)
+
+    .setPrepare(_ =>
+  for {
+    _insertItemCreator <- db.prepare("INSERT INTO itemCreator (itemId, creatorId) VALUES (?, ?)")
+_insertItemSummaryByCreator <- db.prepare("INSERT INTO itemSummaryByCreator (creatorId, itemId, title, currencyId, reservePrice, status) VALUES (?, ?, ?, ?, ?, ?)")
+
+  } yield {
+    insertItemCreator = _insertItemCreator
+insertItemSummaryByCreator = _insertItemSummaryByCreator
+
+    Done
+  }
+)
+
     .setEventHandler[ItemCreated](e => processItemCreated(e.event))
 .setEventHandler[AuctionStarted](e => processAuctionStarted(e.event))
 .setEventHandler[PriceUpdated](e => processPriceUpdated(e.event))
