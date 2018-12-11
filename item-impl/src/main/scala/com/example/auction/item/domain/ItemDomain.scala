@@ -74,7 +74,10 @@ trait ItemDomain {
   }
 
   def onItemCreated(event: ItemCreated, state: ItemState): ItemState = {
-    state.copy(aggregate = Some(event.item))
+    state.copy(
+      aggregate = Some(event.item),
+      status = ItemAggregateStatus.Created
+    )
   }
 
   def onAuctionStarted(event: AuctionStarted, state: ItemState): ItemState = {

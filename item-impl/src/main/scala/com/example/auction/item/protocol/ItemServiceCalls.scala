@@ -29,6 +29,8 @@ trait ItemServiceCalls {
       throw Forbidden("User " + userId + " can't created an item on behalf of " + request.creator)
     }
     val itemId = UUIDs.timeBased().toString // TODO: UUID
+
+    // FIXME: (From example) Shouldn't send internal aggregate state when creating an item
     val pItem = ItemAggregate(
       id = itemId,
       creator = request.creator,
