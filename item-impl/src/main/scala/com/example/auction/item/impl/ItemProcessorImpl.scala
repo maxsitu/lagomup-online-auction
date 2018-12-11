@@ -19,8 +19,8 @@ var insertItemSummaryByCreator: PreparedStatement = _
   override def buildHandler() = readSide.builder[ItemEvent]("item_offset")
     .setGlobalPrepare(() =>
   for {
-    _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS itemCreator (itemId TIMEUUID, creatorId UUID, PRIMARY KEY (itemId))")
-_ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS itemSummaryByCreator (creatorId UUID, itemId TIMEUUID, title TEXT, currencyId TEXT, reservePrice INT, status TEXT, PRIMARY KEY (creatorId, itemId))")
+    _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS itemCreator (itemId TIMEUUID, creatorId UUID, PRIMARY KEY ((itemId)))")
+_ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS itemSummaryByCreator (creatorId UUID, itemId TIMEUUID, title TEXT, currencyId TEXT, reservePrice INT, status TEXT, PRIMARY KEY ((creatorId), itemId)) WITH CLUSTERING ORDER BY (itemId DESC)")
 
   } yield Done
 )

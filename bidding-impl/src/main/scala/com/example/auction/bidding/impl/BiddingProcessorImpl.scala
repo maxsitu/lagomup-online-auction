@@ -18,7 +18,7 @@ class BiddingProcessorImpl(
   override def buildHandler() = readSide.builder[BiddingEvent]("bidding_offset")
     .setGlobalPrepare(() =>
   for {
-    _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS auctionSchedule (itemId TEXT, endAuction TIMESTAMP, PRIMARY KEY (itemId))")
+    _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS auctionSchedule (itemId TEXT, endAuction TIMESTAMP, PRIMARY KEY ((itemId)))")
 
   } yield Done
 )
