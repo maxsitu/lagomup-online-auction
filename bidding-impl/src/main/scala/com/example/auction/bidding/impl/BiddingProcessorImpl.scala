@@ -16,8 +16,24 @@ class BiddingProcessorImpl(
 
 
   override def buildHandler() = readSide.builder[BiddingEvent]("bidding_offset")
-    .setGlobalPrepare(prepareTables)
-    .setPrepare(_ => prepareStatements())
+    .setGlobalPrepare(() =>
+  for {
+    _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS auctionSchedule (itemId TEXT, endAuction TIMESTAMP, PRIMARY KEY (itemId))")
+
+  } yield Done
+)
+
+    .setPrepare(_ =>
+  for {
+    _insertAuctionSchedule <- db.prepare("INSERT INTO auctionSchedule (itemId, endAuction) VALUES (?, ?)")
+
+  } yield {
+    insertAuctionSchedule = _insertAuctionSchedule
+
+    Done
+  }
+)
+
     .setEventHandler[AuctionStarted](e => processAuctionStarted(e.event))
 .setEventHandler[AuctionCancelled.type](e => processAuctionCancelled(e.event))
 .setEventHandler[BidPlaced](e => processBidPlaced(e.event))
@@ -26,24 +42,6 @@ class BiddingProcessorImpl(
     .build()
 
   override def aggregateTags = Set(BiddingEvent.Tag)
-
-  def prepareTables(): Future[Done] = {
-    for {
-      _ <- db.executeCreateTable("CREATE TABLE IF NOT EXISTS auctionSchedule (itemId TEXT, endAuction TIMESTAMP, PRIMARY KEY (itemId))")
-
-    } yield Done
-  }
-
-  def prepareStatements(): Future[Done] = {
-    for {
-      _insertAuctionSchedule <- db.prepare("INSERT INTO auctionSchedule (itemId, endAuction) VALUES (?, ?)")
-
-    } yield {
-      insertAuctionSchedule = _insertAuctionSchedule
-
-      Done
-    }
-  }
 
 }
 
