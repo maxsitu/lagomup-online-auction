@@ -55,6 +55,8 @@ object BidEvent {
     derived.flat.oformat((__ \ "type").format[String])
 }
 
+
+
 case class BidPlaced(itemId: String, bid: Bid) extends BidEvent
 
 object BidPlaced {

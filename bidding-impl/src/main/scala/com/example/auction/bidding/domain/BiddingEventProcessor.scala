@@ -4,7 +4,7 @@ import com.example.auction.bidding.impl._
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
 import scala.concurrent.Future
 
-trait BiddingProcessor_TODO {
+trait BiddingEventProcessor {
 
    def insertAuctionSchedule: PreparedStatement
 

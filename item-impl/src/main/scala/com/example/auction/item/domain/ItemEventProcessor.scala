@@ -4,7 +4,7 @@ import com.example.auction.item.impl._
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
 import scala.concurrent.Future
 
-trait ItemProcessor_TODO {
+trait ItemEventProcessor {
 
    def insertItemCreator: PreparedStatement
  def insertItemSummaryByCreator: PreparedStatement

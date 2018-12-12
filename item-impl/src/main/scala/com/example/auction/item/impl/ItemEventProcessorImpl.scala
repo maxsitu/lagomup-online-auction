@@ -1,16 +1,16 @@
 package com.example.auction.item.impl
 
-import com.example.auction.item.domain.ItemProcessor
+import com.example.auction.item.domain.ItemEventProcessor
 import akka.Done
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
 import com.lightbend.lagom.scaladsl.persistence.ReadSideProcessor
 import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, CassandraSession}
 import scala.concurrent.{ExecutionContext, Future}
 
-class ItemProcessorImpl(
+class ItemEventProcessorImpl(
                             db: CassandraSession,
                             readSide: CassandraReadSide
-                          )(implicit ec: ExecutionContext) extends ReadSideProcessor[ItemEvent] with ItemProcessor {
+                          )(implicit ec: ExecutionContext) extends ReadSideProcessor[ItemEvent] with ItemEventProcessor {
 
   var insertItemCreator: PreparedStatement = _
 var insertItemSummaryByCreator: PreparedStatement = _

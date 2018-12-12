@@ -33,7 +33,7 @@ abstract class BiddingApplication(context: LagomApplicationContext)
   override lazy val lagomServer = serverFor[BiddingService](wire[BiddingServiceImpl])
   override lazy val jsonSerializerRegistry = BiddingSerializerRegistry
   persistentEntityRegistry.register(wire[BiddingEntity])
-  readSide.register(wire[BiddingProcessorImpl])
+  readSide.register(wire[BiddingEventProcessorImpl])
   
 
 }

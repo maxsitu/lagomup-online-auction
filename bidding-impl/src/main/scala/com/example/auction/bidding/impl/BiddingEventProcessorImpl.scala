@@ -1,16 +1,16 @@
 package com.example.auction.bidding.impl
 
-import com.example.auction.bidding.domain.BiddingProcessor
+import com.example.auction.bidding.domain.BiddingEventProcessor
 import akka.Done
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
 import com.lightbend.lagom.scaladsl.persistence.ReadSideProcessor
 import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, CassandraSession}
 import scala.concurrent.{ExecutionContext, Future}
 
-class BiddingProcessorImpl(
+class BiddingEventProcessorImpl(
                             db: CassandraSession,
                             readSide: CassandraReadSide
-                          )(implicit ec: ExecutionContext) extends ReadSideProcessor[BiddingEvent] with BiddingProcessor {
+                          )(implicit ec: ExecutionContext) extends ReadSideProcessor[BiddingEvent] with BiddingEventProcessor {
 
   var insertAuctionSchedule: PreparedStatement = _
 
