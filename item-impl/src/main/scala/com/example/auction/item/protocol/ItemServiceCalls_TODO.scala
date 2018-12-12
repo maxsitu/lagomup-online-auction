@@ -2,11 +2,9 @@ package com.example.auction.item.protocol
 
 
 import com.example.auction.item.api._
+import com.example.auction.item.impl.ItemPorts
 import akka.stream.scaladsl.Source
 import akka.{Done, NotUsed}
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
-
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
@@ -14,16 +12,8 @@ import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import scala.concurrent.{ExecutionContext, Future}
 
 trait ItemServiceCalls_TODO {
-  implicit val ec: ExecutionContext
-  implicit val mat: Materializer
 
-  
-  val entityRegistry: PersistentEntityRegistry
-val db: CassandraSession
-val pubSubRegistry: PubSubRegistry
-val actorSystem: ActorSystem
-
-
+  val ports: ItemPorts
 
   def _createItem(userId: String, request: Item): Future[Item] = {
   ???

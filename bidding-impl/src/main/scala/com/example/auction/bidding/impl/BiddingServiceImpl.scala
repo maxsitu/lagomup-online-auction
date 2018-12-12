@@ -14,8 +14,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-class BiddingServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry, val actorSystem: ActorSystem, val mat: Materializer)
-                                         (implicit val ec: ExecutionContext)  extends BiddingService
+class BiddingServiceImpl(val ports: BiddingPorts) extends BiddingService
   with BiddingServiceCalls with BiddingTopics  {
 
   

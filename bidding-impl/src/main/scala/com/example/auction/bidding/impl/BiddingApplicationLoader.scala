@@ -29,12 +29,11 @@ class BiddingApplicationLoader extends LagomApplicationLoader {
 abstract class BiddingApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents with LagomKafkaComponents {
-
-  override lazy val lagomServer = serverFor[BiddingService](wire[BiddingServiceImpl])
   override lazy val jsonSerializerRegistry = BiddingSerializerRegistry
   persistentEntityRegistry.register(wire[BiddingEntity])
   readSide.register(wire[BiddingEventProcessorImpl])
   
-
+  lazy val ports = wire[BiddingPorts]
+  override lazy val lagomServer = serverFor[BiddingService](wire[BiddingServiceImpl])
 }
 

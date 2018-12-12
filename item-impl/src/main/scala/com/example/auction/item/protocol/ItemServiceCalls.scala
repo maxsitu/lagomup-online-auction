@@ -1,6 +1,5 @@
 package com.example.auction.item.protocol
 
-
 import akka.persistence.cassandra.ListenableFutureConverter
 import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
@@ -8,21 +7,15 @@ import com.datastax.driver.core.{PagingState, SimpleStatement, _}
 import com.example.auction.item.api._
 import com.example.auction.item.impl._
 import com.lightbend.lagom.scaladsl.api.transport.Forbidden
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
-
 trait ItemServiceCalls {
-  implicit val ec: ExecutionContext
 
-  val entityRegistry: PersistentEntityRegistry
-  val db: CassandraSession
-  val pubSubRegistry: PubSubRegistry
+  val ports: ItemPorts
+  implicit val ec: ExecutionContext = ports.ec
 
   def _createItem(userId: String, request: Item): Future[Item] = {
     if (userId != request.creator) {
@@ -46,18 +39,18 @@ trait ItemServiceCalls {
       auctionEnd = None,
       auctionWinner = None
     )
-    entityRegistry.refFor[ItemEntity](itemId).ask(CreateItem(pItem)).map { _ =>
+    ports.entityRegistry.refFor[ItemEntity](itemId).ask(CreateItem(pItem)).map { _ =>
       convertItem(pItem)
     }
   }
 
   def _startAuction(id: String, userId: String, request: NotUsed): Future[Done] = {
-    entityRegistry.refFor[ItemEntity](id).ask(StartAuction(userId))
+    ports.entityRegistry.refFor[ItemEntity](id).ask(StartAuction(userId))
   }
 
   def _getItem(id: String, request: NotUsed): Future[Item] = {
     // TODO: Example tested for None here
-    entityRegistry.refFor[ItemEntity](id).ask(GetItem).map(convertItem)
+    ports.entityRegistry.refFor[ItemEntity](id).ask(GetItem).map(convertItem)
   }
 
   def _getItemForUser(id: String, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
@@ -114,7 +107,7 @@ trait ItemServiceCalls {
   }
 
   private def countItemsByCreatorInStatus(creatorId: String, status: String) = {
-    db.selectOne(
+    ports.db.selectOne(
       s"""
       SELECT COUNT(*)
       FROM $ItemSummaryByCreatorAndStatusMV
@@ -154,7 +147,7 @@ trait ItemServiceCalls {
 
     statement.setFetchSize(fetchSize)
 
-    db.underlying().flatMap(underlyingSession => {
+    ports.db.underlying().flatMap(underlyingSession => {
 
       page.map(pagingStateStr => statement.setPagingState(PagingState.fromString(pagingStateStr)))
 

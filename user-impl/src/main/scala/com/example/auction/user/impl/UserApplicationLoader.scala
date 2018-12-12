@@ -29,12 +29,11 @@ class UserApplicationLoader extends LagomApplicationLoader {
 abstract class UserApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents  {
-
-  override lazy val lagomServer = serverFor[UserService](wire[UserServiceImpl])
   override lazy val jsonSerializerRegistry = UserSerializerRegistry
   persistentEntityRegistry.register(wire[UserEntity])
   
   
-
+  lazy val ports = wire[UserPorts]
+  override lazy val lagomServer = serverFor[UserService](wire[UserServiceImpl])
 }
 

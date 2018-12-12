@@ -14,8 +14,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-class ItemServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry, val actorSystem: ActorSystem, val mat: Materializer)
-                                         (implicit val ec: ExecutionContext)  extends ItemService
+class ItemServiceImpl(val ports: ItemPorts) extends ItemService
   with ItemServiceCalls   {
 
   

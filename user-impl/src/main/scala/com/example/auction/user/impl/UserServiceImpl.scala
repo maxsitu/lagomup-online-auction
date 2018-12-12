@@ -14,8 +14,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-class UserServiceImpl(val entityRegistry: PersistentEntityRegistry, val db: CassandraSession, val pubSubRegistry: PubSubRegistry, val actorSystem: ActorSystem, val mat: Materializer)
-                                         (implicit val ec: ExecutionContext)  extends UserService
+class UserServiceImpl(val ports: UserPorts) extends UserService
   with UserServiceCalls   {
 
   

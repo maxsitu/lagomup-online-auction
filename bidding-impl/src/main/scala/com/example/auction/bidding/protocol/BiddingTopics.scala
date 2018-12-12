@@ -1,24 +1,23 @@
 package com.example.auction.bidding.protocol
 
-
 import com.example.auction.bidding.api._
 import com.example.auction.bidding.impl
+import com.example.auction.bidding.impl.BiddingPorts
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait BiddingTopics {
 
-  implicit val ec: ExecutionContext
-  val entityRegistry: PersistentEntityRegistry
+  val ports: BiddingPorts
+  implicit val topicsEC: ExecutionContext = ports.ec
 
   def _bidEvents(): Topic[BidEvent] = {
 
     // TODO: taggedStreamWithOffset
     TopicProducer.singleStreamWithOffset { fromOffset =>
-      entityRegistry.eventStream(impl.BiddingEvent.Tag, fromOffset)
+      ports.entityRegistry.eventStream(impl.BiddingEvent.Tag, fromOffset)
         .filter { e =>
           // TODO: Docs have a different filtering approach
           e.event.isInstanceOf[BidPlaced] || e.event.isInstanceOf[impl.BiddingFinished.type]
@@ -29,7 +28,7 @@ trait BiddingTopics {
               val message = BidPlaced(e.entityId, convertBid(bid))
               Future.successful(message, e.offset)
             case impl.BiddingFinished =>
-              entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetAuction).map {
+              ports.entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetAuction).map {
                 case Some(aggregate) =>
                   val maybeWinningBid = aggregate
                     .biddingHistory

@@ -29,12 +29,11 @@ class ItemApplicationLoader extends LagomApplicationLoader {
 abstract class ItemApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents  {
-
-  override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])
   override lazy val jsonSerializerRegistry = ItemSerializerRegistry
   persistentEntityRegistry.register(wire[ItemEntity])
   readSide.register(wire[ItemEventProcessorImpl])
   
-
+  lazy val ports = wire[ItemPorts]
+  override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])
 }
 
