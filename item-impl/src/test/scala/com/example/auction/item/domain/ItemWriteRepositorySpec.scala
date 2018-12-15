@@ -48,7 +48,6 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
           creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Created"
         )
       }
-      pending
     }
 
   }

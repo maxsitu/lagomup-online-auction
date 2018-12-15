@@ -13,8 +13,23 @@ trait ItemReadRepository {
 
   def selectItemCreator(itemId: UUID): Future[Seq[String]]
 
+  /*
+  creatorId UUID,
+  itemId timeuuid,
+  title text,
+  currencyId text,
+  reservePrice int,
+  status text,
+   */
   def mapSelectItemsByCreatorInStatusResult(row: Row): ItemSummaryByCreator = {
-    ???
+    ItemSummaryByCreator(
+      row.getUUID("creatorId"),
+      row.getUUID("itemId"),
+      row.getString("title"),
+      row.getString("currencyId"),
+      row.getInt("reservePrice"),
+      row.getString("status")
+    )
   }
 
   def mapSelectItemCreatorResult(row: Row): String = {

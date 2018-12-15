@@ -16,7 +16,20 @@ trait ItemWriteRepository {
   def bindUpdateItemSummaryStatus(status: String, creatorId: UUID, itemId: UUID): BoundStatement
 
   def processItemCreated(event: ItemCreated): Future[List[BoundStatement]] = {
-    Future.successful(List.empty)
+    Future.successful(List(
+      bindInsertItemCreator(
+        event.item.id,
+        event.item.creator
+      ),
+      bindInsertItemSummaryByCreator(
+        event.item.creator,
+        event.item.id,
+        event.item.title,
+        event.item.currencyId,
+        event.item.reservePrice,
+        event.item.status
+      )
+    ))
   }
 
   def processAuctionStarted(event: AuctionStarted): Future[List[BoundStatement]] = {
