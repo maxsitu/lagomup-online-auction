@@ -26,7 +26,7 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
   override def afterAll(): Unit = server.stop()
 
   val testDriver = server.application.readSide
-  //val itemRepository = server.application.
+  val ports = server.application.ports
   val offset = new AtomicInteger()
 
   def sampleItem(creatorId: String): ItemAggregate = {
@@ -38,12 +38,16 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
   "The write repository" should {
 
     "create an item" in {
-//      val creatorId= UUID.randomUUID().toString
-//      val item = sampleItem(creatorId)
-//      for {
-//        _ <- feed(item.id, ItemCreated(item))
-//        items <- getIt
-//      }
+      val creatorId = UUID.randomUUID().toString
+      val item = sampleItem(creatorId)
+      for {
+        _ <- feed(item.id, ItemCreated(item))
+        items <- getItems(creatorId, "Created")
+      } yield {
+        items should contain only ItemSummaryByCreator(
+          creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Created"
+        )
+      }
       pending
     }
 
@@ -52,11 +56,10 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
   private def getItems(creatorId: String, itemStatus: String) = {
-    //itemRep
-    ???
+    ports.itemRepository.selectItemsByCreatorInStatus(creatorId, itemStatus)
   }
 
-  private def feed(itemId: UUID, event: ItemEvent) = {
+  private def feed(itemId: String, event: ItemEvent) = {
     testDriver.feed(itemId.toString, event, Sequence(offset.getAndIncrement))
   }
 
