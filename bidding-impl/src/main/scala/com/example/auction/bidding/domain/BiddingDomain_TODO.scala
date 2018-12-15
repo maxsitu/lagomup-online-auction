@@ -3,12 +3,11 @@ package com.example.auction.bidding.domain
 import com.example.auction.bidding.impl._
 import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
-import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 
 trait BiddingDomain_TODO {
   this: BiddingEntity with PersistentEntity =>
 
-  def pubSubRegistry: PubSubRegistry
+  def biddingEventStream: BiddingEventStream
 
   def initialState: BiddingState = ???
 

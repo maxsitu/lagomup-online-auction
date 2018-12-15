@@ -6,6 +6,7 @@ import akka.stream.Materializer
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
+
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import scala.concurrent.ExecutionContext
 
@@ -15,6 +16,7 @@ actorSystem: ActorSystem,
 mat: Materializer, 
 ec: ExecutionContext, 
 entityRegistry: PersistentEntityRegistry, 
-db: CassandraSession
+db: CassandraSession, 
+userEventStream: UserEventStream
 )
 

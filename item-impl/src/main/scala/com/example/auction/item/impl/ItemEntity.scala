@@ -6,11 +6,12 @@ import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
+import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 import play.api.libs.json.{Format, Json}
 import java.time.Instant
+import akka.stream.scaladsl.Source
 
-class ItemEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
+class ItemEntity(val itemEventStream: ItemEventStream) extends PersistentEntity
   with ItemDomain {
 
   override type State = ItemState
@@ -142,6 +143,26 @@ case class AuctionFinished(winner: Option[String], price: Option[Int]) extends I
 
 object AuctionFinished {
   implicit val format: Format[AuctionFinished] = Json.format
+}
+
+trait ItemEventStream {
+
+  def publish(qualifier: String, event: ItemEvent): Unit
+
+  def subscriber(qualifier: String): Source[ItemEvent, NotUsed]
+
+}
+
+class ItemEventStreamImpl(pubSubRegistry: PubSubRegistry) extends ItemEventStream {
+
+  def publish(qualifier: String, event: ItemEvent): Unit = {
+    pubSubRegistry.refFor(TopicId[ItemEvent](qualifier)).publish(event)
+  }
+
+  def subscriber(qualifier: String): Source[ItemEvent, NotUsed] = {
+    pubSubRegistry.refFor(TopicId[ItemEvent](qualifier)).subscriber
+  }
+
 }
 
 object ItemSerializerRegistry extends JsonSerializerRegistry {

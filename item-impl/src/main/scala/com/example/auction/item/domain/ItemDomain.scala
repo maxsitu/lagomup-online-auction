@@ -5,12 +5,11 @@ import java.time.{Duration, Instant}
 import akka.Done
 import com.example.auction.item.impl._
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 
 trait ItemDomain {
   this: ItemEntity with PersistentEntity =>
 
-  def pubSubRegistry: PubSubRegistry
+  def itemEventStream: ItemEventStream
 
   def initialState: ItemState = ItemState(None, ItemAggregateStatus.NotCreated)
 

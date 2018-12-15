@@ -6,11 +6,12 @@ import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
+import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 import play.api.libs.json.{Format, Json}
 import java.time.Instant
+import akka.stream.scaladsl.Source
 
-class UserEntity(val pubSubRegistry: PubSubRegistry) extends PersistentEntity
+class UserEntity(val userEventStream: UserEventStream) extends PersistentEntity
   with UserDomain {
 
   override type State = UserState
@@ -82,6 +83,26 @@ case class UserCreated(name: String) extends UserEvent
 
 object UserCreated {
   implicit val format: Format[UserCreated] = Json.format
+}
+
+trait UserEventStream {
+
+  def publish(qualifier: String, event: UserEvent): Unit
+
+  def subscriber(qualifier: String): Source[UserEvent, NotUsed]
+
+}
+
+class UserEventStreamImpl(pubSubRegistry: PubSubRegistry) extends UserEventStream {
+
+  def publish(qualifier: String, event: UserEvent): Unit = {
+    pubSubRegistry.refFor(TopicId[UserEvent](qualifier)).publish(event)
+  }
+
+  def subscriber(qualifier: String): Source[UserEvent, NotUsed] = {
+    pubSubRegistry.refFor(TopicId[UserEvent](qualifier)).subscriber
+  }
+
 }
 
 object UserSerializerRegistry extends JsonSerializerRegistry {

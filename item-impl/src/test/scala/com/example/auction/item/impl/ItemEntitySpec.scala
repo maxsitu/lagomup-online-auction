@@ -5,7 +5,6 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.InvalidCommandException
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import com.lightbend.lagom.scaladsl.testkit.PersistentEntityTestDriver
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterAll, Matchers, OptionValues, WordSpec}
@@ -21,7 +20,7 @@ class ItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll with 
   )
 
   private def withDriver[T](block: PersistentEntityTestDriver[ItemCommand, ItemEvent, ItemState] => T): T = {
-    val driver = new PersistentEntityTestDriver(system, new ItemEntity(mock[PubSubRegistry]), itemId)
+    val driver = new PersistentEntityTestDriver(system, new ItemEntity(mock[ItemEventStream]), itemId)
     try {
       block(driver)
     } finally {
@@ -50,7 +49,7 @@ class ItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll with 
       val outcome = driver.run(StartAuction(UUID.randomUUID.toString))
       outcome.events shouldBe empty
       outcome.replies should have size 1
-      outcome.replies.head shouldBe a [InvalidCommandException]
+      outcome.replies.head shouldBe a[InvalidCommandException]
     }
 
     "ignore duplicate start auction commands" in withDriver { driver =>

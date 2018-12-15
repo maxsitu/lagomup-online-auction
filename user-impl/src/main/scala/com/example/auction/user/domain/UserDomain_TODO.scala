@@ -3,12 +3,11 @@ package com.example.auction.user.domain
 import com.example.auction.user.impl._
 import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
-import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 
 trait UserDomain_TODO {
   this: UserEntity with PersistentEntity =>
 
-  def pubSubRegistry: PubSubRegistry
+  def userEventStream: UserEventStream
 
   def initialState: UserState = ???
 

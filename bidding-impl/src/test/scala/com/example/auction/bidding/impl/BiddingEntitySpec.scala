@@ -30,7 +30,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
   }
 
   def withTestDriver(block: PersistentEntityTestDriver[BiddingCommand, BiddingEvent, BiddingState] => Unit): Unit = {
-    val driver = new PersistentEntityTestDriver(system, new BiddingEntity(mock[PubSubRegistry]), itemId)
+    val driver = new PersistentEntityTestDriver(system, new BiddingEntity(mock[BiddingEventStream]), itemId)
     block(driver)
     if (driver.getAllIssues.nonEmpty) {
       driver.getAllIssues.foreach(println)

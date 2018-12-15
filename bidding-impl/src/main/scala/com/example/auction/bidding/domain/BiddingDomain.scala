@@ -3,16 +3,15 @@ package com.example.auction.bidding.domain
 import java.time.Instant
 
 import akka.Done
+import com.example.auction.bidding.domain.BiddingDomain._
 import com.example.auction.bidding.impl._
 import com.lightbend.lagom.scaladsl.api.transport.{TransportErrorCode, TransportException}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
-import BiddingDomain._
 
 trait BiddingDomain {
   this: BiddingEntity with PersistentEntity =>
 
-  def pubSubRegistry: PubSubRegistry
+  def biddingEventStream: BiddingEventStream
 
   def initialState: BiddingState = BiddingState(None, AuctionAggregateStatus.NotStarted)
 
@@ -74,7 +73,7 @@ trait BiddingDomain {
   }
 
   def onBidPlaced(event: BidPlaced, state: BiddingState): BiddingState = {
-    val BiddingState(Some(auctionState @ AuctionAggregate(_, _, biddingHistory)), _) = state
+    val BiddingState(Some(auctionState@AuctionAggregate(_, _, biddingHistory)), _) = state
     if (biddingHistory.headOption.exists(_.bidder == event.bid.bidder)) {
       state.copy(aggregate = Some(auctionState.copy(biddingHistory = event.bid +: biddingHistory.tail)))
     } else {
