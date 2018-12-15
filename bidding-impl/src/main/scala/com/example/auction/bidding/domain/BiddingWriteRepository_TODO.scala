@@ -3,6 +3,7 @@ package com.example.auction.bidding.domain
 import com.example.auction.bidding.impl._
 import com.datastax.driver.core.BoundStatement
 import scala.concurrent.Future
+import java.util.UUID
 
 trait BiddingWriteRepository_TODO {
 

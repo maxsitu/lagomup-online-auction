@@ -8,6 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.ReadSideProcessor
 import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, CassandraSession}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.{Format, Json}
+import java.util.UUID
 
 class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
   extends ReadSideProcessor[BiddingEvent]

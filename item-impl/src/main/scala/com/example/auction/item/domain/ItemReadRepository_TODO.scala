@@ -5,12 +5,13 @@ import akka.NotUsed
 import akka.stream.scaladsl.Source
 import com.datastax.driver.core.Row
 import scala.concurrent.Future
+import java.util.UUID
 
 trait ItemReadRepository_TODO {
 
-  def selectItemsByCreatorInStatus(creatorId: String, status: String): Future[Seq[ItemSummaryByCreator]]
+  def selectItemsByCreatorInStatus(creatorId: UUID, status: String): Future[Seq[ItemSummaryByCreator]]
 
-def selectItemCreator(itemId: String): Future[Seq[String]]
+def selectItemCreator(itemId: UUID): Future[Seq[String]]
 
 
 

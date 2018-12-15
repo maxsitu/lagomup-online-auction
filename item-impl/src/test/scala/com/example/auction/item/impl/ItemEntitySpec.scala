@@ -13,14 +13,14 @@ class ItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll with 
 
   private val system = ActorSystem("test", JsonSerializerRegistry.actorSystemSetupFor(ItemSerializerRegistry))
 
-  private val itemId = UUID.randomUUID.toString
-  private val creatorId = UUID.randomUUID.toString
+  private val itemId = UUID.randomUUID
+  private val creatorId = UUID.randomUUID
   private val item = ItemAggregate(
     itemId, creatorId, "title", "desc", "EUR", 1, 10, None, ItemAggregateStatus.Created.toString, 10, None, None, None
   )
 
   private def withDriver[T](block: PersistentEntityTestDriver[ItemCommand, ItemEvent, ItemState] => T): T = {
-    val driver = new PersistentEntityTestDriver(system, new ItemEntity(mock[ItemEventStream]), itemId)
+    val driver = new PersistentEntityTestDriver(system, new ItemEntity(mock[ItemEventStream]), itemId.toString)
     try {
       block(driver)
     } finally {
@@ -46,7 +46,7 @@ class ItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll with 
 
     "only allow the creator to start an auction" in withDriver { driver =>
       driver.run(CreateItem(item))
-      val outcome = driver.run(StartAuction(UUID.randomUUID.toString))
+      val outcome = driver.run(StartAuction(UUID.randomUUID))
       outcome.events shouldBe empty
       outcome.replies should have size 1
       outcome.replies.head shouldBe a[InvalidCommandException]
@@ -66,7 +66,7 @@ class ItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll with 
 
     "allow finishing an auction" in withDriver { driver =>
       driver.run(CreateItem(item), StartAuction(creatorId))
-      val winner = UUID.randomUUID.toString
+      val winner = UUID.randomUUID
       val outcome = driver.run(FinishAuction(Some(winner), Some(20)))
       outcome.events should contain only AuctionFinished(Some(winner), Some(20))
       outcome.state.aggregate.value.auctionWinner.value should ===(winner)

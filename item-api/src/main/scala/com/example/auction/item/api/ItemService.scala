@@ -12,15 +12,16 @@ import com.lightbend.lagom.scaladsl.playjson.JsonSerializer
 import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
+import java.util.UUID
 
 trait ItemService extends Service {
   def createItem(): ServiceCall[Item, Item]
 
-def startAuction(id: String): ServiceCall[NotUsed, Done]
+def startAuction(id: UUID): ServiceCall[NotUsed, Done]
 
-def getItem(id: String): ServiceCall[NotUsed, Item]
+def getItem(id: UUID): ServiceCall[NotUsed, Item]
 
-def getItemForUser(id: String, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState]
+def getItemForUser(id: UUID, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState]
 
 
   
@@ -43,7 +44,7 @@ pathCall("/api/item?userId&status&page", getItemForUser _)(implicitly[MessageSer
 }
 
 
-case class Item(id: Option[String], creator: String, itemData: ItemData, price: Option[Int], status: String, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[String]) 
+case class Item(id: Option[UUID], creator: UUID, itemData: ItemData, price: Option[Int], status: String, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID]) 
 
 object Item {
   implicit val format: Format[Item] = Json.format
@@ -55,13 +56,13 @@ object ItemSummaryPagingState {
   implicit val format: Format[ItemSummaryPagingState] = Json.format
 }
 
-case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[String]) 
+case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
 
 object ItemData {
   implicit val format: Format[ItemData] = Json.format
 }
 
-case class ItemSummary(id: String, title: String, currencyId: String, reservePrice: Int, status: String) 
+case class ItemSummary(id: UUID, title: String, currencyId: String, reservePrice: Int, status: String) 
 
 object ItemSummary {
   implicit val format: Format[ItemSummary] = Json.format

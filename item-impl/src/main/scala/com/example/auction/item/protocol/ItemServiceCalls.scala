@@ -1,5 +1,7 @@
 package com.example.auction.item.protocol
 
+import java.util.UUID
+
 import akka.persistence.cassandra.ListenableFutureConverter
 import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
@@ -17,11 +19,11 @@ trait ItemServiceCalls {
   val ports: ItemPorts
   implicit val ec: ExecutionContext = ports.ec
 
-  def _createItem(userId: String, request: Item): Future[Item] = {
+  def _createItem(userId: UUID, request: Item): Future[Item] = {
     if (userId != request.creator) {
       throw Forbidden("User " + userId + " can't created an item on behalf of " + request.creator)
     }
-    val itemId = UUIDs.timeBased().toString // TODO: UUID
+    val itemId = UUIDs.timeBased()
 
     // FIXME: (From example) Shouldn't send internal aggregate state when creating an item
     val pItem = ItemAggregate(
@@ -39,29 +41,29 @@ trait ItemServiceCalls {
       auctionEnd = None,
       auctionWinner = None
     )
-    ports.entityRegistry.refFor[ItemEntity](itemId).ask(CreateItem(pItem)).map { _ =>
+    ports.entityRegistry.refFor[ItemEntity](itemId.toString).ask(CreateItem(pItem)).map { _ =>
       convertItem(pItem)
     }
   }
 
-  def _startAuction(id: String, userId: String, request: NotUsed): Future[Done] = {
-    ports.entityRegistry.refFor[ItemEntity](id).ask(StartAuction(userId))
+  def _startAuction(id: UUID, userId: UUID, request: NotUsed): Future[Done] = {
+    ports.entityRegistry.refFor[ItemEntity](id.toString).ask(StartAuction(userId))
   }
 
-  def _getItem(id: String, request: NotUsed): Future[Item] = {
+  def _getItem(id: UUID, request: NotUsed): Future[Item] = {
     // TODO: Example tested for None here
-    ports.entityRegistry.refFor[ItemEntity](id).ask(GetItem).map(convertItem)
+    ports.entityRegistry.refFor[ItemEntity](id.toString).ask(GetItem).map(convertItem)
   }
 
-  def _getItemForUser(id: String, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
+  def _getItemForUser(id: UUID, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
     getItemsForUser(id, status, page, DefaultFetchSize)
   }
 
-  def _createItemAuthentication[Request, Response](serviceCall: String => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _createItemAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
     ServerSecurity.authenticated(serviceCall)
   }
 
-  def _startAuctionAuthentication[Request, Response](serviceCall: String => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _startAuctionAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
     ServerSecurity.authenticated(serviceCall)
   }
 
@@ -94,7 +96,7 @@ trait ItemServiceCalls {
     )
   }
 
-  private def getItemsForUser(creatorId: String, status: String, page: Option[String], fetchSize: Int): Future[ItemSummaryPagingState] = {
+  private def getItemsForUser(creatorId: UUID, status: String, page: Option[String], fetchSize: Int): Future[ItemSummaryPagingState] = {
     for {
       count <- countItemsByCreatorInStatus(creatorId, status)
       itemsWithNextPage <- selectItemsByCreatorInStatusWithPaging(creatorId, status, page, fetchSize)
@@ -106,7 +108,7 @@ trait ItemServiceCalls {
 
   }
 
-  private def countItemsByCreatorInStatus(creatorId: String, status: String) = {
+  private def countItemsByCreatorInStatus(creatorId: UUID, status: String) = {
     ports.db.selectOne(
       s"""
       SELECT COUNT(*)
@@ -122,7 +124,7 @@ trait ItemServiceCalls {
 
   private def convertItemSummary(item: Row): ItemSummary = {
     ItemSummary(
-      item.getString(ItemId), // TODO: UUID
+      item.getUUID(ItemId), // TODO: UUID
       item.getString(Title),
       item.getString(CurrencyId),
       item.getInt(ReservePrice),
@@ -133,7 +135,7 @@ trait ItemServiceCalls {
   /**
     * Motivation: https://discuss.lightbend.com/t/how-to-specify-pagination-for-select-query-read-side/870
     */
-  private def selectItemsByCreatorInStatusWithPaging(creatorId: String,
+  private def selectItemsByCreatorInStatusWithPaging(creatorId: UUID,
                                                      status: String,
                                                      page: Option[String],
                                                      fetchSize: Int): Future[(Seq[ItemSummary], Option[String])] = {

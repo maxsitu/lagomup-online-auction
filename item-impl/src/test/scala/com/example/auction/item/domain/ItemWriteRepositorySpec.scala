@@ -29,16 +29,16 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
   val ports = server.application.ports
   val offset = new AtomicInteger()
 
-  def sampleItem(creatorId: String): ItemAggregate = {
+  def sampleItem(creatorId: UUID): ItemAggregate = {
     ItemAggregate(
-      UUIDs.timeBased().toString, creatorId, "title", "desc", "USD", 10, 100, None, ItemAggregateStatus.Created.toString, 10, None, None, None
+      UUIDs.timeBased(), creatorId, "title", "desc", "USD", 10, 100, None, ItemAggregateStatus.Created.toString, 10, None, None, None
     )
   }
 
   "The write repository" should {
 
     "create an item" in {
-      val creatorId = UUID.randomUUID().toString
+      val creatorId = UUID.randomUUID()
       val item = sampleItem(creatorId)
       for {
         _ <- feed(item.id, ItemCreated(item))
@@ -55,11 +55,11 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
-  private def getItems(creatorId: String, itemStatus: String) = {
+  private def getItems(creatorId: UUID, itemStatus: String) = {
     ports.itemRepository.selectItemsByCreatorInStatus(creatorId, itemStatus)
   }
 
-  private def feed(itemId: String, event: ItemEvent) = {
+  private def feed(itemId: UUID, event: ItemEvent) = {
     testDriver.feed(itemId.toString, event, Sequence(offset.getAndIncrement))
   }
 

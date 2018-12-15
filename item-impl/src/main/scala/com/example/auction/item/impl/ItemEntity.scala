@@ -10,6 +10,7 @@ import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 import play.api.libs.json.{Format, Json}
 import java.time.Instant
 import akka.stream.scaladsl.Source
+import java.util.UUID
 
 class ItemEntity(val itemEventStream: ItemEventStream) extends PersistentEntity
   with ItemDomain {
@@ -63,7 +64,7 @@ class ItemEntity(val itemEventStream: ItemEventStream) extends PersistentEntity
 
 }
 
-case class ItemAggregate(id: String, creator: String, title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, price: Option[Int], status: String, auctionDuration: Int, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[String]) 
+case class ItemAggregate(id: UUID, creator: UUID, title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, price: Option[Int], status: String, auctionDuration: Int, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID]) 
 
 object ItemAggregate {
   implicit val format: Format[ItemAggregate] = Json.format
@@ -91,7 +92,7 @@ object CreateItem {
   implicit val format: Format[CreateItem] = Json.format
 }
 
-case class StartAuction(userId: String) extends ItemCommand with ReplyType[Done]
+case class StartAuction(userId: UUID) extends ItemCommand with ReplyType[Done]
 
 object StartAuction {
   implicit val format: Format[StartAuction] = Json.format
@@ -103,7 +104,7 @@ object UpdatePrice {
   implicit val format: Format[UpdatePrice] = Json.format
 }
 
-case class FinishAuction(winner: Option[String], price: Option[Int]) extends ItemCommand with ReplyType[Done]
+case class FinishAuction(winner: Option[UUID], price: Option[Int]) extends ItemCommand with ReplyType[Done]
 
 object FinishAuction {
   implicit val format: Format[FinishAuction] = Json.format
@@ -139,7 +140,7 @@ object PriceUpdated {
   implicit val format: Format[PriceUpdated] = Json.format
 }
 
-case class AuctionFinished(winner: Option[String], price: Option[Int]) extends ItemEvent
+case class AuctionFinished(winner: Option[UUID], price: Option[Int]) extends ItemEvent
 
 object AuctionFinished {
   implicit val format: Format[AuctionFinished] = Json.format

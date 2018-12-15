@@ -12,6 +12,7 @@ import com.lightbend.lagom.scaladsl.playjson.JsonSerializer
 import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
+import java.util.UUID
 
 trait BiddingService extends Service {
   def placeBid(itemId: String): ServiceCall[PlaceBid, BidResult]

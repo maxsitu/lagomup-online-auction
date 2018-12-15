@@ -10,6 +10,7 @@ import akka.stream.Materializer
 import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import scala.concurrent.{ExecutionContext, Future}
+import java.util.UUID
 
 trait BiddingServiceCalls_TODO {
 

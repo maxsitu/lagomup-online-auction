@@ -5,6 +5,7 @@ import akka.NotUsed
 import akka.stream.scaladsl.Source
 import com.datastax.driver.core.Row
 import scala.concurrent.Future
+import java.util.UUID
 
 trait BiddingReadRepository_TODO {
 

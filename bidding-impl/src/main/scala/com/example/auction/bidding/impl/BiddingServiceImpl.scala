@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
+import java.util.UUID
 
 
 class BiddingServiceImpl(val ports: BiddingPorts) extends BiddingService

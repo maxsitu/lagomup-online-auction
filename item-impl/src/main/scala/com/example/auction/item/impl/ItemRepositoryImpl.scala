@@ -8,6 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.ReadSideProcessor
 import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, CassandraSession}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.{Format, Json}
+import java.util.UUID
 
 class ItemRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
   extends ReadSideProcessor[ItemEvent]
@@ -74,27 +75,27 @@ val selectItemCreatorStatement = """SELECT * FROM itemCreator WHERE itemId = ?""
 var selectItemCreator: PreparedStatement = _
 
 
-  def selectItemsByCreatorInStatus(creatorId: String, status: String): Future[Seq[ItemSummaryByCreator]] = {
+  def selectItemsByCreatorInStatus(creatorId: UUID, status: String): Future[Seq[ItemSummaryByCreator]] = {
   db.selectAll(bindSelectItemsByCreatorInStatus(creatorId, status)).map(_.map(mapSelectItemsByCreatorInStatusResult))
 }
 
-def selectItemCreator(itemId: String): Future[Seq[String]] = {
+def selectItemCreator(itemId: UUID): Future[Seq[String]] = {
   db.selectAll(bindSelectItemCreator(itemId)).map(_.map(mapSelectItemCreatorResult))
 }
 
 
 
-  def bindInsertItemCreator(itemId: String, creatorId: String): BoundStatement = {
+  def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement = {
   val boundStatement = insertItemCreator.bind()
-  boundStatement.setString("itemId", itemId)
-boundStatement.setString("creatorId", creatorId)
+  boundStatement.setUUID("itemId", itemId)
+boundStatement.setUUID("creatorId", creatorId)
   boundStatement
 }
 
-def bindInsertItemSummaryByCreator(creatorId: String, itemId: String, title: String, currencyId: String, reservePrice: Int, status: String): BoundStatement = {
+def bindInsertItemSummaryByCreator(creatorId: UUID, itemId: UUID, title: String, currencyId: String, reservePrice: Int, status: String): BoundStatement = {
   val boundStatement = insertItemSummaryByCreator.bind()
-  boundStatement.setString("creatorId", creatorId)
-boundStatement.setString("itemId", itemId)
+  boundStatement.setUUID("creatorId", creatorId)
+boundStatement.setUUID("itemId", itemId)
 boundStatement.setString("title", title)
 boundStatement.setString("currencyId", currencyId)
 boundStatement.setInt("reservePrice", reservePrice)
@@ -102,27 +103,27 @@ boundStatement.setString("status", status)
   boundStatement
 }
 
-def bindUpdateItemSummaryStatus(status: String, creatorId: String, itemId: String): BoundStatement = {
+def bindUpdateItemSummaryStatus(status: String, creatorId: UUID, itemId: UUID): BoundStatement = {
   val boundStatement = updateItemSummaryStatus.bind()
   boundStatement.setString("status", status)
-boundStatement.setString("creatorId", creatorId)
-boundStatement.setString("itemId", itemId)
+boundStatement.setUUID("creatorId", creatorId)
+boundStatement.setUUID("itemId", itemId)
   boundStatement
 }
 
 
 
-  def bindSelectItemsByCreatorInStatus(creatorId: String, status: String): BoundStatement = {
+  def bindSelectItemsByCreatorInStatus(creatorId: UUID, status: String): BoundStatement = {
   val boundStatement = selectItemsByCreatorInStatus.bind()
-  boundStatement.setString("creatorId", creatorId)
+  boundStatement.setUUID("creatorId", creatorId)
 boundStatement.setString("status", status)
   
   boundStatement
 }
 
-def bindSelectItemCreator(itemId: String): BoundStatement = {
+def bindSelectItemCreator(itemId: UUID): BoundStatement = {
   val boundStatement = selectItemCreator.bind()
-  boundStatement.setString("itemId", itemId)
+  boundStatement.setUUID("itemId", itemId)
   
   boundStatement
 }
@@ -165,7 +166,7 @@ selectItemCreator = _selectItemCreator
 
 }
 
-case class ItemSummaryByCreator(creatorId: String, id: String, title: String, currencyId: String, reservePrice: Int, status: String) 
+case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String) 
 
 object ItemSummaryByCreator {
   implicit val format: Format[ItemSummaryByCreator] = Json.format

@@ -12,6 +12,7 @@ import com.lightbend.lagom.scaladsl.playjson.JsonSerializer
 import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
+import java.util.UUID
 
 trait UserService extends Service {
   def createUser(): ServiceCall[CreateUser, User]

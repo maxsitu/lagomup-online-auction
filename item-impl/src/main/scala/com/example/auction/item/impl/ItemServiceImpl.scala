@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
+import java.util.UUID
 
 
 class ItemServiceImpl(val ports: ItemPorts) extends ItemService
@@ -22,15 +23,15 @@ class ItemServiceImpl(val ports: ItemPorts) extends ItemService
   _createItem(userId, request)
 })
 
-override def startAuction(id: String) = _startAuctionAuthentication(userId => ServerServiceCall { request =>
+override def startAuction(id: UUID) = _startAuctionAuthentication(userId => ServerServiceCall { request =>
   _startAuction(userId, id, request)
 })
 
-override def getItem(id: String) = ServiceCall { request =>
+override def getItem(id: UUID) = ServiceCall { request =>
   _getItem(id, request)
 }
 
-override def getItemForUser(id: String, status: String, page: Option[String]) = ServiceCall { request =>
+override def getItemForUser(id: UUID, status: String, page: Option[String]) = ServiceCall { request =>
   _getItemForUser(id, status, page, request)
 }
 

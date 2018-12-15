@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
+import java.util.UUID
 
 
 class UserServiceImpl(val ports: UserPorts) extends UserService

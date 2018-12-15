@@ -3,12 +3,13 @@ package com.example.auction.item.domain
 import com.example.auction.item.impl._
 import com.datastax.driver.core.BoundStatement
 import scala.concurrent.Future
+import java.util.UUID
 
 trait ItemWriteRepository_TODO {
 
-  def bindInsertItemCreator(itemId: String, creatorId: String): BoundStatement
-def bindInsertItemSummaryByCreator(creatorId: String, itemId: String, title: String, currencyId: String, reservePrice: Int, status: String): BoundStatement
-def bindUpdateItemSummaryStatus(status: String, creatorId: String, itemId: String): BoundStatement
+  def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
+def bindInsertItemSummaryByCreator(creatorId: UUID, itemId: UUID, title: String, currencyId: String, reservePrice: Int, status: String): BoundStatement
+def bindUpdateItemSummaryStatus(status: String, creatorId: UUID, itemId: UUID): BoundStatement
 
   def processItemCreated(event: ItemCreated): Future[List[BoundStatement]] = {
   Future.successful(List.empty)

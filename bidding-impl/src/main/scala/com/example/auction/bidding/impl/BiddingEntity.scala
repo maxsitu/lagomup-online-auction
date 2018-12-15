@@ -10,6 +10,7 @@ import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
 import play.api.libs.json.{Format, Json}
 import java.time.Instant
 import akka.stream.scaladsl.Source
+import java.util.UUID
 
 class BiddingEntity(val biddingEventStream: BiddingEventStream) extends PersistentEntity
   with BiddingDomain {
