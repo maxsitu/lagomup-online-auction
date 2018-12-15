@@ -30,7 +30,7 @@ val createItemSummaryByCreatorTableStatement = """CREATE TABLE IF NOT EXISTS ite
 ) WITH CLUSTERING ORDER BY (itemId DESC)
 """
 val createItemSummaryByCreatorAndStatusTableStatement = """CREATE MATERIALIZED VIEW IF NOT EXISTS itemSummaryByCreatorAndStatus AS
-  SELECT * FROM itemSummaryByCreatorTable
+  SELECT * FROM itemSummaryByCreator
   WHERE status IS NOT NULL AND itemId IS NOT NULL
   PRIMARY KEY (creatorId, status, itemId)
   WITH CLUSTERING ORDER BY (status ASC, itemId DESC)
