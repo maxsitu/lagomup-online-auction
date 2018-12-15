@@ -7,6 +7,7 @@ import com.datastax.driver.core.{BoundStatement, PreparedStatement}
 import com.lightbend.lagom.scaladsl.persistence.ReadSideProcessor
 import com.lightbend.lagom.scaladsl.persistence.cassandra.{CassandraReadSide, CassandraSession}
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.json.{Format, Json}
 
 class ItemRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
   extends ReadSideProcessor[ItemEvent]
@@ -164,4 +165,9 @@ selectItemCreator = _selectItemCreator
 
 }
 
-case class ItemSummaryByCreator()
+case class ItemSummaryByCreator(creatorId: String, id: String, title: String, currencyId: String, reservePrice: Int, status: String) 
+
+object ItemSummaryByCreator {
+  implicit val format: Format[ItemSummaryByCreator] = Json.format
+}
+
