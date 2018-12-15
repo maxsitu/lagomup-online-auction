@@ -14,17 +14,15 @@ class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(i
     with BiddingReadRepository {
 
   // Tables
-  val createAuctionScheduleTableStatement = """
-          CREATE TABLE IF NOT EXISTS auctionSchedule (
-            itemId uuid,
-            endAuction timestamp,
-            PRIMARY KEY (itemId)
-         )
-      """
-val createAuctionScheduleIndexTableStatement = """
-          CREATE INDEX IF NOT EXISTS auctionScheduleIndex
-            on auctionSchedule (endAuction)
-      """
+  val createAuctionScheduleTableStatement = """CREATE TABLE IF NOT EXISTS auctionSchedule (
+  itemId uuid,
+  endAuction timestamp,
+  PRIMARY KEY (itemId)
+)
+"""
+val createAuctionScheduleIndexTableStatement = """CREATE INDEX IF NOT EXISTS auctionScheduleIndex
+  on auctionSchedule (endAuction)
+"""
 
 
   // Writes
