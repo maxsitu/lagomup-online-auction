@@ -70,16 +70,16 @@ ORDER BY status ASC, itemId DESC
 LIMIT ?
 """
 var selectItemsByCreatorInStatus: PreparedStatement = _
-val selectItemCreatorStatement = """SELECT * FROM itemCreator WHERE itemId = ? LIMIT ?"""
+val selectItemCreatorStatement = """SELECT * FROM itemCreator WHERE itemId = ?"""
 var selectItemCreator: PreparedStatement = _
 
 
-  def selectItemsByCreatorInStatus(creatorId: String, status: String, limit: Int): Future[Seq[ItemSummaryByCreator]] = {
-  db.selectAll(bindSelectItemsByCreatorInStatus(creatorId, status, limit)).map(_.map(mapSelectItemsByCreatorInStatusResult))
+  def selectItemsByCreatorInStatus(creatorId: String, status: String): Future[Seq[ItemSummaryByCreator]] = {
+  db.selectAll(bindSelectItemsByCreatorInStatus(creatorId, status)).map(_.map(mapSelectItemsByCreatorInStatusResult))
 }
 
-def selectItemCreator(itemId: String, limit: Int): Future[Seq[String]] = {
-  db.selectAll(bindSelectItemCreator(itemId, limit)).map(_.map(mapSelectItemCreatorResult))
+def selectItemCreator(itemId: String): Future[Seq[String]] = {
+  db.selectAll(bindSelectItemCreator(itemId)).map(_.map(mapSelectItemCreatorResult))
 }
 
 
@@ -112,18 +112,18 @@ boundStatement.setString("itemId", itemId)
 
 
 
-  def bindSelectItemsByCreatorInStatus(creatorId: String, status: String, limit: Int): BoundStatement = {
+  def bindSelectItemsByCreatorInStatus(creatorId: String, status: String): BoundStatement = {
   val boundStatement = selectItemsByCreatorInStatus.bind()
   boundStatement.setString("creatorId", creatorId)
 boundStatement.setString("status", status)
-  boundStatement.setInt("[LIMIT]", limit)
+  
   boundStatement
 }
 
-def bindSelectItemCreator(itemId: String, limit: Int): BoundStatement = {
+def bindSelectItemCreator(itemId: String): BoundStatement = {
   val boundStatement = selectItemCreator.bind()
   boundStatement.setString("itemId", itemId)
-  boundStatement.setInt("[LIMIT]", limit)
+  
   boundStatement
 }
 

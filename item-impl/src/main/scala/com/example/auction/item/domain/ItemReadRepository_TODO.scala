@@ -8,9 +8,9 @@ import scala.concurrent.Future
 
 trait ItemReadRepository_TODO {
 
-  def selectItemsByCreatorInStatus(creatorId: String, status: String, limit: Int): Future[Seq[ItemSummaryByCreator]]
+  def selectItemsByCreatorInStatus(creatorId: String, status: String): Future[Seq[ItemSummaryByCreator]]
 
-def selectItemCreator(itemId: String, limit: Int): Future[Seq[String]]
+def selectItemCreator(itemId: String): Future[Seq[String]]
 
 
 
