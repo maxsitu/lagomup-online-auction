@@ -1,6 +1,6 @@
 package com.example.auction.item.impl
 
-import com.example.auction.item.domain.{ItemReadRepository, ItemRepository}
+import com.example.auction.item.domain.ItemRepository
 import akka.stream.scaladsl.Source
 import akka.{Done, NotUsed}
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
@@ -11,8 +11,7 @@ import play.api.libs.json.{Format, Json}
 import java.util.UUID
 
 class ItemRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
-  extends ReadSideProcessor[ItemEvent]
-    with ItemRepository {
+  extends ReadSideProcessor[ItemEvent] with ItemRepository {
 
   // Tables
   val createItemCreatorTableStatement = """CREATE TABLE IF NOT EXISTS itemCreator (
@@ -116,14 +115,14 @@ boundStatement.setUUID("itemId", itemId)
   val boundStatement = selectItemsByCreatorInStatus.bind()
   boundStatement.setUUID("creatorId", creatorId)
 boundStatement.setString("status", status)
-
+  
   boundStatement
 }
 
 def bindSelectItemCreator(itemId: UUID): BoundStatement = {
   val boundStatement = selectItemCreator.bind()
   boundStatement.setUUID("itemId", itemId)
-
+  
   boundStatement
 }
 
@@ -165,7 +164,7 @@ selectItemCreator = _selectItemCreator
 
 }
 
-case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String)
+case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String) 
 
 object ItemSummaryByCreator {
   implicit val format: Format[ItemSummaryByCreator] = Json.format

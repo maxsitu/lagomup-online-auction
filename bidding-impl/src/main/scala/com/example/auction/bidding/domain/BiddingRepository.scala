@@ -5,7 +5,7 @@ import com.example.auction.bidding.impl._
 
 import scala.concurrent.Future
 
-trait BiddingWriteRepository {
+trait BiddingRepository extends BiddingReadRepository {
 
   def bindInsertAuction(itemId: String, endAuction: Long): BoundStatement
 

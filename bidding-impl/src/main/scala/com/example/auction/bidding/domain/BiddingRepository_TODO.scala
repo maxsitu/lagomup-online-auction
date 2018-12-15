@@ -5,7 +5,7 @@ import com.datastax.driver.core.BoundStatement
 import scala.concurrent.Future
 import java.util.UUID
 
-trait BiddingWriteRepository_TODO {
+trait BiddingRepository_TODO extends BiddingReadRepository_TODO {
 
   def bindInsertAuction(itemId: String, endAuction: Long): BoundStatement
 def bindDeleteAuction(itemId: String): BoundStatement

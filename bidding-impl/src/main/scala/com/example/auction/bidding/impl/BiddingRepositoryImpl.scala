@@ -1,6 +1,6 @@
 package com.example.auction.bidding.impl
 
-import com.example.auction.bidding.domain.{BiddingReadRepository, BiddingWriteRepository}
+import com.example.auction.bidding.domain.BiddingRepository
 import akka.stream.scaladsl.Source
 import akka.{Done, NotUsed}
 import com.datastax.driver.core.{BoundStatement, PreparedStatement}
@@ -11,9 +11,7 @@ import play.api.libs.json.{Format, Json}
 import java.util.UUID
 
 class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
-  extends ReadSideProcessor[BiddingEvent]
-    with BiddingWriteRepository
-    with BiddingReadRepository {
+  extends ReadSideProcessor[BiddingEvent] with BiddingRepository {
 
   // Tables
   val createAuctionScheduleTableStatement = """CREATE TABLE IF NOT EXISTS auctionSchedule (

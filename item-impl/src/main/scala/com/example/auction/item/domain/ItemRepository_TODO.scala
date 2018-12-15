@@ -5,7 +5,7 @@ import com.datastax.driver.core.BoundStatement
 import scala.concurrent.Future
 import java.util.UUID
 
-trait ItemWriteRepository_TODO {
+trait ItemRepository_TODO extends ItemReadRepository_TODO {
 
   def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
 def bindInsertItemSummaryByCreator(creatorId: UUID, itemId: UUID, title: String, currencyId: String, reservePrice: Int, status: String): BoundStatement
