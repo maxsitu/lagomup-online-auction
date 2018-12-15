@@ -63,11 +63,21 @@ var updateItemSummaryStatus: PreparedStatement = _
 
 
   // Reads
-  val selectItemCreatorStatement = """SELECT * FROM itemCreator WHERE itemId = ? LIMIT ?"""
+  val selectItemsByCreatorInStatusStatement = """SELECT * FROM itemSummaryByCreatorAndStatus
+WHERE creatorId = ? AND status = ?
+ORDER BY status ASC, itemId DESC
+LIMIT ?
+"""
+var selectItemsByCreatorInStatus: PreparedStatement = _
+val selectItemCreatorStatement = """SELECT * FROM itemCreator WHERE itemId = ? LIMIT ?"""
 var selectItemCreator: PreparedStatement = _
 
 
-  def selectItemCreator(itemId: String, limit: Int): Future[Seq[String]] = {
+  def selectItemsByCreatorInStatus(creatorId: String, status: String, limit: Int): Future[Seq[ItemSummaryByCreator]] = {
+  db.selectAll(bindSelectItemsByCreatorInStatus(creatorId, status, limit)).map(_.map(mapSelectItemsByCreatorInStatusResult))
+}
+
+def selectItemCreator(itemId: String, limit: Int): Future[Seq[String]] = {
   db.selectAll(bindSelectItemCreator(itemId, limit)).map(_.map(mapSelectItemCreatorResult))
 }
 
@@ -101,7 +111,15 @@ boundStatement.setString("itemId", itemId)
 
 
 
-  def bindSelectItemCreator(itemId: String, limit: Int): BoundStatement = {
+  def bindSelectItemsByCreatorInStatus(creatorId: String, status: String, limit: Int): BoundStatement = {
+  val boundStatement = selectItemsByCreatorInStatus.bind()
+  boundStatement.setString("creatorId", creatorId)
+boundStatement.setString("status", status)
+  boundStatement.setInt("[LIMIT]", limit)
+  boundStatement
+}
+
+def bindSelectItemCreator(itemId: String, limit: Int): BoundStatement = {
   val boundStatement = selectItemCreator.bind()
   boundStatement.setString("itemId", itemId)
   boundStatement.setInt("[LIMIT]", limit)
@@ -123,12 +141,14 @@ _ <- db.executeCreateTable(createItemSummaryByCreatorAndStatusTableStatement)
       _insertItemCreator <- db.prepare(insertItemCreatorStatement)
 _insertItemSummaryByCreator <- db.prepare(insertItemSummaryByCreatorStatement)
 _updateItemSummaryStatus <- db.prepare(updateItemSummaryStatusStatement)
-      _selectItemCreator <- db.prepare(selectItemCreatorStatement)
+      _selectItemsByCreatorInStatus <- db.prepare(selectItemsByCreatorInStatusStatement)
+_selectItemCreator <- db.prepare(selectItemCreatorStatement)
     } yield {
       insertItemCreator = _insertItemCreator
 insertItemSummaryByCreator = _insertItemSummaryByCreator
 updateItemSummaryStatus = _updateItemSummaryStatus
-      selectItemCreator = _selectItemCreator
+      selectItemsByCreatorInStatus = _selectItemsByCreatorInStatus
+selectItemCreator = _selectItemCreator
       Done
     }
   )
@@ -144,3 +164,4 @@ updateItemSummaryStatus = _updateItemSummaryStatus
 
 }
 
+case class ItemSummaryByCreator()
