@@ -33,6 +33,8 @@ abstract class ItemApplication(context: LagomApplicationContext)
   override lazy val jsonSerializerRegistry = ItemSerializerRegistry
   persistentEntityRegistry.register(wire[ItemEntity])
 lazy val itemEventStream = wire[ItemEventStreamImpl]
+lazy val itemRepository = wire[ItemRepositoryImpl]
+readSide.register(itemRepository)
 
 
   

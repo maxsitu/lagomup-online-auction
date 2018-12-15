@@ -6,6 +6,7 @@ import akka.stream.Materializer
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
+import com.example.auction.item.domain.ItemReadRepository
 
 import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import scala.concurrent.ExecutionContext
@@ -17,6 +18,7 @@ mat: Materializer,
 ec: ExecutionContext, 
 entityRegistry: PersistentEntityRegistry, 
 db: CassandraSession, 
-itemEventStream: ItemEventStream
+itemEventStream: ItemEventStream, 
+itemRepository: ItemReadRepository
 )
 
