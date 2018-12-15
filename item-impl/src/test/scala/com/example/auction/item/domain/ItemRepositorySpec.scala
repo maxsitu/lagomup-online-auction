@@ -1,5 +1,6 @@
 package com.example.auction.item.domain
 
+import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -11,7 +12,7 @@ import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.{ReadSideTestDriver, ServiceTest}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 
-class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with Matchers {
+class ItemRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with Matchers {
 
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
     new ItemApplication(ctx) {
@@ -48,6 +49,35 @@ class ItemWriteRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with 
           creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Created"
         )
       }
+    }
+
+    "update an item when starting the auction" in {
+      val creatorId = UUID.randomUUID
+      val item = sampleItem(creatorId)
+      for {
+        _ <- feed(item.id, ItemCreated(item))
+        _ <- feed(item.id, AuctionStarted(Instant.now))
+        created <- getItems(creatorId, "Created")
+        auction <- getItems(creatorId, "Auction")
+      } yield {
+        created shouldBe empty
+        auction should contain only ItemSummaryByCreator(
+          creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Auction"
+        )
+      }
+      pending
+    }
+
+    "ignore price updates" in {
+      pending
+    }
+
+    "update an item when finishing the auction" in {
+      pending
+    }
+
+    "get next pages using PagingState serialized token" in {
+      pending
     }
 
   }

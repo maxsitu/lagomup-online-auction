@@ -7,7 +7,7 @@ import com.example.auction.item.impl._
 
 import scala.concurrent.Future
 
-trait ItemWriteRepository {
+trait ItemRepository extends ItemReadRepository {
 
   def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
 
@@ -42,6 +42,17 @@ trait ItemWriteRepository {
 
   def processAuctionFinished(event: AuctionFinished): Future[List[BoundStatement]] = {
     Future.successful(List.empty)
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  private def doUpdateItemSummaryStatus(itemId: String, status: String) = {
+    val itemUuid = UUID.fromString(itemId)
+    //selectItemCreator(itemUuid).flatMap {
+    //  case None => ???
+    //}
+    // TODO: Need single reads
+    ???
   }
 
 }
