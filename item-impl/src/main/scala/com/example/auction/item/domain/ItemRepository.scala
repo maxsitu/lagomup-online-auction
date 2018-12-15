@@ -49,9 +49,10 @@ trait ItemRepository extends ItemReadRepository {
   private def doUpdateItemSummaryStatus(itemId: String, status: String) = {
     val itemUuid = UUID.fromString(itemId)
     //selectItemCreator(itemUuid).flatMap {
-    //  case None => ???
+    //  case None => throw new IllegalStateException("No itemCreator found for itemId " + itemId)
+    //  case Some(row) => ???
     //}
-    // TODO: Need single reads
+    // TODO: Need Execution Context
     ???
   }
 
