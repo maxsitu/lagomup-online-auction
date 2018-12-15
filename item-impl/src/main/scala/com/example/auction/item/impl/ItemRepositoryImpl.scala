@@ -77,8 +77,8 @@ var selectItemCreator: PreparedStatement = _
   db.selectAll(bindSelectItemsByCreatorInStatus(creatorId, status)).map(_.map(mapSelectItemsByCreatorInStatusResult))
 }
 
-def selectItemCreator(itemId: UUID): Future[Seq[String]] = {
-  db.selectAll(bindSelectItemCreator(itemId)).map(_.map(mapSelectItemCreatorResult))
+def selectItemCreator(itemId: UUID): Future[Option[UUID]] = {
+  db.selectOne(bindSelectItemCreator(itemId)).map(_.map(mapSelectItemCreatorResult))
 }
 
 

@@ -11,7 +11,7 @@ trait ItemReadRepository {
 
   def selectItemsByCreatorInStatus(creatorId: UUID, status: String): Future[Seq[ItemSummaryByCreator]]
 
-  def selectItemCreator(itemId: UUID): Future[Seq[String]]
+  def selectItemCreator(itemId: UUID): Future[Option[UUID]]
 
   /*
   creatorId UUID,
@@ -32,8 +32,8 @@ trait ItemReadRepository {
     )
   }
 
-  def mapSelectItemCreatorResult(row: Row): String = {
-    row.getString("userId") // TODO: UUID
+  def mapSelectItemCreatorResult(row: Row): UUID = {
+    row.getUUID("userId") // TODO: UUID
   }
 
 }
