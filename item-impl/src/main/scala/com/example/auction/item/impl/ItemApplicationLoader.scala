@@ -37,7 +37,7 @@ lazy val itemRepository = wire[ItemRepositoryImpl]
 readSide.register(itemRepository)
 
 
-  
+  lazy val env = wire[Environment]
   lazy val ports = wire[ItemPorts]
   override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])
 }
