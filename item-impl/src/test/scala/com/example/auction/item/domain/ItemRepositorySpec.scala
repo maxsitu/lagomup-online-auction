@@ -65,7 +65,7 @@ class ItemRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with Match
           creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Auction"
         )
       }
-      pending
+
     }
 
     "ignore price updates" in {

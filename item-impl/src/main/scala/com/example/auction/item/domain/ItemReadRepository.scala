@@ -33,7 +33,7 @@ trait ItemReadRepository {
   }
 
   def mapSelectItemCreatorResult(row: Row): UUID = {
-    row.getUUID("userId") // TODO: UUID
+    row.getUUID("creatorId") // TODO: UUID
   }
 
 }

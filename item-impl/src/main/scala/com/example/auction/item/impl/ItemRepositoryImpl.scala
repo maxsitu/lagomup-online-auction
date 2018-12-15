@@ -153,9 +153,9 @@ selectItemCreator = _selectItemCreator
     }
   )
   .setEventHandler[ItemCreated](e => processItemCreated(e.event))
-.setEventHandler[AuctionStarted](e => processAuctionStarted(e.event))
+.setEventHandler[AuctionStarted](e => processAuctionStarted(e.entityId, e.event))
 .setEventHandler[PriceUpdated](e => processPriceUpdated(e.event))
-.setEventHandler[AuctionFinished](e => processAuctionFinished(e.event))
+.setEventHandler[AuctionFinished](e => processAuctionFinished(e.entityId, e.event))
   .build()
 
 
