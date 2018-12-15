@@ -5,9 +5,13 @@ import java.util.UUID
 import com.datastax.driver.core.BoundStatement
 import com.example.auction.item.impl._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ItemRepository extends ItemReadRepository {
+
+  val environment: Environment
+
+  implicit val ec: ExecutionContext = environment.ec
 
   def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
 
@@ -33,7 +37,9 @@ trait ItemRepository extends ItemReadRepository {
   }
 
   def processAuctionStarted(event: AuctionStarted): Future[List[BoundStatement]] = {
-    Future.successful(List.empty)
+    //doUpdateItemSummaryStatus(event.)
+    // TODO: Need entityId
+    ???
   }
 
   def processPriceUpdated(event: PriceUpdated): Future[List[BoundStatement]] = {
@@ -46,14 +52,18 @@ trait ItemRepository extends ItemReadRepository {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  private def doUpdateItemSummaryStatus(itemId: String, status: String) = {
+  private def doUpdateItemSummaryStatus(itemId: String, status: String): Future[List[BoundStatement]] = {
     val itemUuid = UUID.fromString(itemId)
-    //selectItemCreator(itemUuid).flatMap {
-    //  case None => throw new IllegalStateException("No itemCreator found for itemId " + itemId)
-    //  case Some(row) => ???
-    //}
-    // TODO: Need Execution Context
-    ???
+    selectItemCreator(itemUuid).map {
+      case None => throw new IllegalStateException("No itemCreator found for itemId " + itemId)
+      case Some(creatorId) => List(
+        bindUpdateItemSummaryStatus(
+          status,
+          creatorId,
+          itemUuid
+        )
+      )
+    }
   }
 
 }

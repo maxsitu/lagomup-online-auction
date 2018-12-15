@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.{Format, Json}
 import java.util.UUID
 
-class ItemRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
+class ItemRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide, val environment: Environment)
   extends ReadSideProcessor[ItemEvent] with ItemRepository {
 
   // Tables
@@ -115,14 +115,14 @@ boundStatement.setUUID("itemId", itemId)
   val boundStatement = selectItemsByCreatorInStatus.bind()
   boundStatement.setUUID("creatorId", creatorId)
 boundStatement.setString("status", status)
-  
+
   boundStatement
 }
 
 def bindSelectItemCreator(itemId: UUID): BoundStatement = {
   val boundStatement = selectItemCreator.bind()
   boundStatement.setUUID("itemId", itemId)
-  
+
   boundStatement
 }
 
@@ -164,7 +164,7 @@ selectItemCreator = _selectItemCreator
 
 }
 
-case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String) 
+case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String)
 
 object ItemSummaryByCreator {
   implicit val format: Format[ItemSummaryByCreator] = Json.format
