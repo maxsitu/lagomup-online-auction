@@ -36,7 +36,7 @@ class ItemRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with Match
     )
   }
 
-  "The write repository" should {
+  "The Item Repository" should {
 
     "create an item" in {
       val creatorId = UUID.randomUUID()
