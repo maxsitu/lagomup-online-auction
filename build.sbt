@@ -50,7 +50,7 @@ lazy val `item-api` = (project in file("item-api"))
       lagomScaladslApi
     )
   )
-  .dependsOn(`utils`)
+  .dependsOn(`utils`, `bidding-api`)
 
 
 lazy val `item-impl` = (project in file("item-impl"))

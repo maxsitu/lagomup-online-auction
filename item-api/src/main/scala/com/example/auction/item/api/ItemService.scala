@@ -1,5 +1,6 @@
 package com.example.auction.item.api
 
+import com.example.auction.bidding.api._
 
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Source

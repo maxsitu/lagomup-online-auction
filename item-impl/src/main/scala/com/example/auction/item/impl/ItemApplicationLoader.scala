@@ -10,6 +10,7 @@ import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
+import com.example.auction.bidding.api.BiddingService
 
 import com.softwaremill.macwire._
 
@@ -37,7 +38,8 @@ lazy val itemRepository = wire[ItemRepositoryImpl]
 readSide.register(itemRepository)
 
 
-  
+  lazy val biddingService = serviceClient.implement[BiddingService]
+
   lazy val env = wire[AkkaComponents]
   lazy val ports = wire[ItemPorts]
   override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])

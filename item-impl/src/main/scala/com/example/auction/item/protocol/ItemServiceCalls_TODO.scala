@@ -1,5 +1,6 @@
 package com.example.auction.item.protocol
 
+import com.example.auction.bidding.api._
 
 import com.example.auction.item.api._
 import com.example.auction.item.impl.ItemPorts

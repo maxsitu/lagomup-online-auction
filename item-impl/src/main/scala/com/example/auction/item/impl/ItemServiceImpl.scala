@@ -1,5 +1,6 @@
 package com.example.auction.item.impl
 
+import com.example.auction.bidding.api._
 
 import com.example.auction.item.api._
 import com.example.auction.item.protocol._
@@ -16,9 +17,13 @@ import java.util.UUID
 
 
 class ItemServiceImpl(val ports: ItemPorts) extends ItemService
-  with ItemServiceCalls with ItemTopics  {
+  with ItemServiceCalls with ItemTopics with BidEventSubscriber {
 
-  
+  ports.biddingService.bidEvents.subscribe.atLeastOnce(Flow[BidEvent].mapAsync(1) { event =>
+  onBidEvent(event)
+})
+
+
   override def createItem() = _createItemAuthentication(userId => ServerServiceCall { request =>
   _createItem(userId, request)
 })
