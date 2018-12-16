@@ -1,5 +1,7 @@
 package com.example.auction.bidding.protocol
 
+import java.util.UUID
+
 import com.example.auction.bidding.api._
 import com.example.auction.bidding.impl
 import com.example.auction.bidding.impl.BiddingPorts
@@ -25,7 +27,7 @@ trait BiddingTopics {
         .mapAsync(1) { e =>
           e.event match {
             case impl.BidPlaced(bid) =>
-              val message = BidPlaced(e.entityId, convertBid(bid))
+              val message = BidPlaced(UUID.fromString(e.entityId), convertBid(bid))
               Future.successful(message, e.offset)
             case impl.BiddingFinished =>
               ports.entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetAuction).map {
@@ -35,10 +37,10 @@ trait BiddingTopics {
                     .headOption
                     .filter(_.bidPrice >= aggregate.auction.reservePrice)
                     .map(convertBid)
-                  val message = BiddingFinished(e.entityId, maybeWinningBid)
+                  val message = BiddingFinished(UUID.fromString(e.entityId), maybeWinningBid)
                   (message, e.offset)
                 case None =>
-                  val message = BiddingFinished(e.entityId, None)
+                  val message = BiddingFinished(UUID.fromString(e.entityId), None)
                   (message, e.offset)
               }
             case _ =>

@@ -10,8 +10,8 @@ trait BiddingRepository_TODO extends BiddingReadRepository_TODO {
   val environment: Environment
   implicit val ec: ExecutionContext = environment.ec
 
-  def bindInsertAuction(itemId: String, endAuction: Long): BoundStatement
-def bindDeleteAuction(itemId: String): BoundStatement
+  def bindInsertAuction(itemId: UUID, endAuction: Long): BoundStatement
+def bindDeleteAuction(itemId: UUID): BoundStatement
 
   def processAuctionStarted(entityId: String, event: AuctionStarted): Future[List[BoundStatement]] = {
   Future.successful(List.empty)

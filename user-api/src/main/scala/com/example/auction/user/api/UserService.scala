@@ -17,7 +17,7 @@ import java.util.UUID
 trait UserService extends Service {
   def createUser(): ServiceCall[CreateUser, User]
 
-def getUser(userId: String): ServiceCall[NotUsed, User]
+def getUser(userId: UUID): ServiceCall[NotUsed, User]
 
 def getUsers(): ServiceCall[NotUsed, List[User]]
 
@@ -47,7 +47,7 @@ object CreateUser {
   implicit val format: Format[CreateUser] = Json.format
 }
 
-case class User(id: String, name: String) 
+case class User(id: UUID, name: String) 
 
 object User {
   implicit val format: Format[User] = Json.format

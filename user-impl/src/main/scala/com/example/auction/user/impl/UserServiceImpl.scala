@@ -23,7 +23,7 @@ class UserServiceImpl(val ports: UserPorts) extends UserService
   _createUser(request)
 }
 
-override def getUser(userId: String) = ServiceCall { request =>
+override def getUser(userId: UUID) = ServiceCall { request =>
   _getUser(userId, request)
 }
 

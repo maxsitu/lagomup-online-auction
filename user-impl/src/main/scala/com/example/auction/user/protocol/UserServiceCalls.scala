@@ -23,14 +23,14 @@ trait UserServiceCalls {
   private val currentIdsQuery = PersistenceQuery(ports.environment.actorSystem).readJournalFor[CassandraReadJournal](CassandraReadJournal.Identifier)
 
   def _createUser(request: CreateUser): Future[User] = {
-    val userId = UUID.randomUUID().toString // TODO: UUID
-    ports.entityRegistry.refFor[UserEntity](userId).ask(impl.CreateUser(request.name)).map { _ =>
+    val userId = UUID.randomUUID() // TODO: UUID
+    ports.entityRegistry.refFor[UserEntity](userId.toString).ask(impl.CreateUser(request.name)).map { _ =>
       User(userId, request.name)
     }
   }
 
-  def _getUser(userId: String, request: NotUsed): Future[User] = {
-    ports.entityRegistry.refFor[UserEntity](userId).ask(GetUser).map {
+  def _getUser(userId: UUID, request: NotUsed): Future[User] = {
+    ports.entityRegistry.refFor[UserEntity](userId.toString).ask(GetUser).map {
       case Some(userState) => User(userId, userState.name)
       case None => throw NotFound(s"User with id $userId")
     }
@@ -44,7 +44,7 @@ trait UserServiceCalls {
         val entityId = id.split("\\|", 2).last
         ports.entityRegistry.refFor[UserEntity](entityId)
           .ask(GetUser)
-          .map(_.map(userState => User(entityId, userState.name)))
+          .map(_.map(userState => User(UUID.fromString(entityId), userState.name)))
       }.collect {
       case Some(user) => user
     }.runWith(Sink.seq).map(_.toList)

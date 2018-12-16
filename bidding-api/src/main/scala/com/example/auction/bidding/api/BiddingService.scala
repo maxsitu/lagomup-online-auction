@@ -15,9 +15,9 @@ import java.time.Instant
 import java.util.UUID
 
 trait BiddingService extends Service {
-  def placeBid(itemId: String): ServiceCall[PlaceBid, BidResult]
+  def placeBid(itemId: UUID): ServiceCall[PlaceBid, BidResult]
 
-def getBids(itemId: String): ServiceCall[NotUsed, List[Bid]]
+def getBids(itemId: UUID): ServiceCall[NotUsed, List[Bid]]
 
 
   def bidEvents: Topic[BidEvent]
@@ -36,7 +36,7 @@ pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, 
   topic("bidding-BidEvent", bidEvents _)(implicitly[MessageSerializer[BidEvent, ByteString]])
   .addProperty(
     KafkaProperties.partitionKeyStrategy,
-    PartitionKeyStrategy[BidEvent](_.itemId)
+    PartitionKeyStrategy[BidEvent](_.itemId.toString)
   )
 
 )
@@ -48,7 +48,7 @@ pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, 
 }
 
 sealed trait BidEvent {
-  val itemId: String
+  val itemId: UUID
 }
 
 object BidEvent {
@@ -58,13 +58,13 @@ object BidEvent {
 
 
 
-case class BidPlaced(itemId: String, bid: Bid) extends BidEvent
+case class BidPlaced(itemId: UUID, bid: Bid) extends BidEvent
 
 object BidPlaced {
   implicit val format: Format[BidPlaced] = Json.format
 }
 
-case class BiddingFinished(itemId: String, winningBid: Option[Bid]) extends BidEvent
+case class BiddingFinished(itemId: UUID, winningBid: Option[Bid]) extends BidEvent
 
 object BiddingFinished {
   implicit val format: Format[BiddingFinished] = Json.format
@@ -78,13 +78,13 @@ object PlaceBid {
   implicit val format: Format[PlaceBid] = Json.format
 }
 
-case class BidResult(currentPrice: Int, status: String, currentBidder: Option[String]) 
+case class BidResult(currentPrice: Int, status: String, currentBidder: Option[UUID]) 
 
 object BidResult {
   implicit val format: Format[BidResult] = Json.format
 }
 
-case class Bid(bidder: String, bidTime: Instant, price: Int, maximumPrice: Int) 
+case class Bid(bidder: UUID, bidTime: Instant, price: Int, maximumPrice: Int) 
 
 object Bid {
   implicit val format: Format[Bid] = Json.format

@@ -43,16 +43,16 @@ var endedAuctions: PreparedStatement = _
 
 
 
-  def bindInsertAuction(itemId: String, endAuction: Long): BoundStatement = {
+  def bindInsertAuction(itemId: UUID, endAuction: Long): BoundStatement = {
   val boundStatement = insertAuction.bind()
-  boundStatement.setString("itemId", itemId)
+  boundStatement.setUUID("itemId", itemId)
 boundStatement.setLong("endAuction", endAuction)
   boundStatement
 }
 
-def bindDeleteAuction(itemId: String): BoundStatement = {
+def bindDeleteAuction(itemId: UUID): BoundStatement = {
   val boundStatement = deleteAuction.bind()
-  boundStatement.setString("itemId", itemId)
+  boundStatement.setUUID("itemId", itemId)
   boundStatement
 }
 

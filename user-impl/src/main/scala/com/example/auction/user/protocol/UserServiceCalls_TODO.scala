@@ -20,7 +20,7 @@ trait UserServiceCalls_TODO {
   ???
 }
 
-def _getUser(userId: String, request: NotUsed): Future[User] = {
+def _getUser(userId: UUID, request: NotUsed): Future[User] = {
   ???
 }
 

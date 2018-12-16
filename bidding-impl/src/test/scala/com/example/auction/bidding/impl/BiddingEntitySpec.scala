@@ -19,10 +19,10 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
 
   val system = ActorSystem("BiddingEntitySpec", JsonSerializerRegistry.actorSystemSetupFor(BiddingSerializerRegistry))
 
-  val itemId = UUID.randomUUID.toString
-  val creator = UUID.randomUUID.toString
-  val bidder1 = UUID.randomUUID.toString
-  val bidder2 = UUID.randomUUID.toString
+  val itemId = UUID.randomUUID
+  val creator = UUID.randomUUID
+  val bidder1 = UUID.randomUUID
+  val bidder2 = UUID.randomUUID
   val auction = Auction(itemId, creator, 2000, 50, Instant.now, Instant.now.plus(7, ChronoUnit.DAYS))
 
   override protected def afterAll(): Unit = {
@@ -30,7 +30,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
   }
 
   def withTestDriver(block: PersistentEntityTestDriver[BiddingCommand, BiddingEvent, BiddingState] => Unit): Unit = {
-    val driver = new PersistentEntityTestDriver(system, new BiddingEntity(mock[BiddingEventStream]), itemId)
+    val driver = new PersistentEntityTestDriver(system, new BiddingEntity(mock[BiddingEventStream]), itemId.toString)
     block(driver)
     if (driver.getAllIssues.nonEmpty) {
       driver.getAllIssues.foreach(println)
@@ -317,7 +317,7 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
 
   }
 
-  private case class MatchingBid(bidder: String, bidPrice: Int, maximumBid: Int)
+  private case class MatchingBid(bidder: UUID, bidPrice: Int, maximumBid: Int)
 
   private def matchable(bid: Bid): MatchingBid = MatchingBid(bid.bidder, bid.bidPrice, bid.maximumBid)
 

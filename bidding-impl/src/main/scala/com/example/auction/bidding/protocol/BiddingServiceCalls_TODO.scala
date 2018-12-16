@@ -16,17 +16,17 @@ trait BiddingServiceCalls_TODO {
 
   val ports: BiddingPorts
 
-  def _placeBid(itemId: String, userId: String, request: PlaceBid): Future[BidResult] = {
+  def _placeBid(itemId: UUID, userId: UUID, request: PlaceBid): Future[BidResult] = {
   ???
 }
 
-def _getBids(itemId: String, request: NotUsed): Future[List[Bid]] = {
+def _getBids(itemId: UUID, request: NotUsed): Future[List[Bid]] = {
   ???
 }
 
 
 
-  def _placeBidAuthentication[Request, Response](serviceCall: String => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _placeBidAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
   ???
 }
 

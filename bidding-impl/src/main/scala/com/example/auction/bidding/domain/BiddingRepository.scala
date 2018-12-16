@@ -1,5 +1,7 @@
 package com.example.auction.bidding.domain
 
+import java.util.UUID
+
 import com.datastax.driver.core.BoundStatement
 import com.example.auction.bidding.impl._
 
@@ -10,9 +12,9 @@ trait BiddingRepository extends BiddingReadRepository {
   val environment: Environment
   implicit val ec: ExecutionContext = environment.ec
 
-  def bindInsertAuction(itemId: String, endAuction: Long): BoundStatement
+  def bindInsertAuction(itemId: UUID, endAuction: Long): BoundStatement
 
-  def bindDeleteAuction(itemId: String): BoundStatement
+  def bindDeleteAuction(itemId: UUID): BoundStatement
 
   def processAuctionStarted(entityId: String, event: AuctionStarted): Future[List[BoundStatement]] = {
     Future.successful(List.empty)

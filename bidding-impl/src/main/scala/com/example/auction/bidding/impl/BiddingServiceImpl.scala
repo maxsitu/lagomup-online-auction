@@ -19,11 +19,11 @@ class BiddingServiceImpl(val ports: BiddingPorts) extends BiddingService
   with BiddingServiceCalls with BiddingTopics  {
 
   
-  override def placeBid(itemId: String) = _placeBidAuthentication(userId => ServerServiceCall { request =>
+  override def placeBid(itemId: UUID) = _placeBidAuthentication(userId => ServerServiceCall { request =>
   _placeBid(userId, itemId, request)
 })
 
-override def getBids(itemId: String) = ServiceCall { request =>
+override def getBids(itemId: UUID) = ServiceCall { request =>
   _getBids(itemId, request)
 }
 
