@@ -69,14 +69,42 @@ class ItemRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with Match
     }
 
     "ignore price updates" in {
-      pending
+      val creatorId = UUID.randomUUID
+      val item = sampleItem(creatorId)
+      for {
+        _ <- feed(item.id, ItemCreated(item))
+        _ <- feed(item.id, AuctionStarted(Instant.now))
+        _ <- feed(item.id, PriceUpdated(23))
+        auction <- getItems(creatorId, "Auction")
+      } yield {
+        auction should contain only
+          ItemSummaryByCreator(
+            creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Auction"
+          )
+      }
     }
 
     "update an item when finishing the auction" in {
-      pending
+      val creatorId = UUID.randomUUID
+      val winnerId = UUID.randomUUID
+      val item = sampleItem(creatorId)
+      for {
+        _ <- feed(item.id, ItemCreated(item))
+        _ <- feed(item.id, AuctionStarted(Instant.now))
+        _ <- feed(item.id, AuctionFinished(Some(winnerId), Some(23)))
+        auction <- getItems(creatorId, "Auction")
+        completed <- getItems(creatorId, "Completed")
+      } yield {
+        auction shouldBe empty
+        completed should contain only
+          ItemSummaryByCreator(
+            creatorId, item.id, item.title, item.currencyId, item.reservePrice, "Completed"
+          )
+      }
     }
 
     "get next pages using PagingState serialized token" in {
+      // TODO: Need paging support
       pending
     }
 

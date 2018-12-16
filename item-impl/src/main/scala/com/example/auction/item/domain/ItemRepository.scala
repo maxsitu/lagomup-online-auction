@@ -44,7 +44,7 @@ trait ItemRepository extends ItemReadRepository {
   }
 
   def processAuctionFinished(entityId: String, event: AuctionFinished): Future[List[BoundStatement]] = {
-    doUpdateItemSummaryStatus(entityId, "Auction")
+    doUpdateItemSummaryStatus(entityId, "Completed")
   }
 
   // -------------------------------------------------------------------------------------------------------------------
