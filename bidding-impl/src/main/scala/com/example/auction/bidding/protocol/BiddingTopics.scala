@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait BiddingTopics {
 
   val ports: BiddingPorts
-  implicit val topicsEC: ExecutionContext = ports.environment.ec
+  implicit val topicsEC: ExecutionContext = ports.akkaComponents.ec
 
   def _bidEvents(): Topic[BidEvent] = {
 

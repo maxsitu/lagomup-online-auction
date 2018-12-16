@@ -12,7 +12,7 @@ import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import scala.concurrent.ExecutionContext
 
 case class BiddingPorts(
-  environment: Environment, 
+  akkaComponents: AkkaComponents, 
 pubSubRegistry: PubSubRegistry, 
 entityRegistry: PersistentEntityRegistry, 
 db: CassandraSession, 
@@ -20,7 +20,7 @@ biddingEventStream: BiddingEventStream,
 biddingRepository: BiddingReadRepository
 )
 
-case class Environment(
+case class AkkaComponents(
   actorSystem: ActorSystem,
   mat: Materializer,
   ec: ExecutionContext

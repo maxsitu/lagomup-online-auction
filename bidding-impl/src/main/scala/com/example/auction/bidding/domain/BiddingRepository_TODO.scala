@@ -7,8 +7,8 @@ import java.util.UUID
 
 trait BiddingRepository_TODO extends BiddingReadRepository_TODO {
 
-  val environment: Environment
-  implicit val ec: ExecutionContext = environment.ec
+  val akkaComponents: AkkaComponents
+  implicit val ec: ExecutionContext = akkaComponents.ec
 
   def bindInsertAuction(itemId: UUID, endAuction: Long): BoundStatement
 def bindDeleteAuction(itemId: UUID): BoundStatement

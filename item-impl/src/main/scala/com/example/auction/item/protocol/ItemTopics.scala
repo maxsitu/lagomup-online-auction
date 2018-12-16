@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ItemTopics {
 
   val ports: ItemPorts
-  implicit val itemTopicsEC: ExecutionContext = ports.environment.ec
+  implicit val itemTopicsEC: ExecutionContext = ports.akkaComponents.ec
 
   def _itemEvents(): Topic[ItemEvent] = {
     // TODO: taggedStreamWithOffset

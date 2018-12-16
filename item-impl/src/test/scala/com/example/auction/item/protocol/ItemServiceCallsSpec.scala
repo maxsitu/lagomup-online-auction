@@ -6,9 +6,7 @@ import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 class ItemServiceCallsSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
 //  val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
-//    ne
+//    // TODO
 //  }
-
-  // TODO: Complete
 
 }

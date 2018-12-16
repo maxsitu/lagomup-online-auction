@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ItemServiceCalls {
 
   val ports: ItemPorts
-  implicit val itemServiceCallsEC: ExecutionContext = ports.environment.ec
+  implicit val itemServiceCallsEC: ExecutionContext = ports.akkaComponents.ec
 
   def _createItem(userId: UUID, request: Item): Future[Item] = {
     if (userId != request.creator) {

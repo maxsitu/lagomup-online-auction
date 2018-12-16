@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.{Format, Json}
 import java.util.UUID
 
-class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide, val environment: Environment)
+class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide, val akkaComponents: AkkaComponents)
   extends ReadSideProcessor[BiddingEvent] with BiddingRepository {
 
   // Tables

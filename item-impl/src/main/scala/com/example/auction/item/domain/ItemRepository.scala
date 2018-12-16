@@ -9,8 +9,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait ItemRepository extends ItemReadRepository {
 
-  val environment: Environment
-  implicit val ec: ExecutionContext = environment.ec
+  val akkaComponents: AkkaComponents
+  implicit val ec: ExecutionContext = akkaComponents.ec
 
   def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
 

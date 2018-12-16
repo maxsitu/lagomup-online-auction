@@ -11,14 +11,14 @@ import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import scala.concurrent.ExecutionContext
 
 case class UserPorts(
-  environment: Environment, 
+  akkaComponents: AkkaComponents, 
 pubSubRegistry: PubSubRegistry, 
 entityRegistry: PersistentEntityRegistry, 
 db: CassandraSession, 
 userEventStream: UserEventStream
 )
 
-case class Environment(
+case class AkkaComponents(
   actorSystem: ActorSystem,
   mat: Materializer,
   ec: ExecutionContext

@@ -38,7 +38,7 @@ readSide.register(itemRepository)
 
 
   
-  lazy val env = wire[Environment]
+  lazy val env = wire[AkkaComponents]
   lazy val ports = wire[ItemPorts]
   override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])
 }

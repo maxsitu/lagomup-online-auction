@@ -7,8 +7,8 @@ import java.util.UUID
 
 trait ItemRepository_TODO extends ItemReadRepository_TODO {
 
-  val environment: Environment
-  implicit val ec: ExecutionContext = environment.ec
+  val akkaComponents: AkkaComponents
+  implicit val ec: ExecutionContext = akkaComponents.ec
 
   def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
 def bindInsertItemSummaryByCreator(creatorId: UUID, itemId: UUID, title: String, currencyId: String, reservePrice: Int, status: String): BoundStatement
