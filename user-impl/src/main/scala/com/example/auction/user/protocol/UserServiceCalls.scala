@@ -17,10 +17,10 @@ import scala.concurrent.{ExecutionContext, Future}
 trait UserServiceCalls {
 
   val ports: UserPorts
-  implicit val ec: ExecutionContext = ports.ec
-  implicit val mat: Materializer = ports.mat
+  implicit val ec: ExecutionContext = ports.environment.ec
+  implicit val mat: Materializer = ports.environment.mat
 
-  private val currentIdsQuery = PersistenceQuery(ports.actorSystem).readJournalFor[CassandraReadJournal](CassandraReadJournal.Identifier)
+  private val currentIdsQuery = PersistenceQuery(ports.environment.actorSystem).readJournalFor[CassandraReadJournal](CassandraReadJournal.Identifier)
 
   def _createUser(request: CreateUser): Future[User] = {
     val userId = UUID.randomUUID().toString // TODO: UUID

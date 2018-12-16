@@ -115,14 +115,14 @@ boundStatement.setUUID("itemId", itemId)
   val boundStatement = selectItemsByCreatorInStatus.bind()
   boundStatement.setUUID("creatorId", creatorId)
 boundStatement.setString("status", status)
-
+  
   boundStatement
 }
 
 def bindSelectItemCreator(itemId: UUID): BoundStatement = {
   val boundStatement = selectItemCreator.bind()
   boundStatement.setUUID("itemId", itemId)
-
+  
   boundStatement
 }
 
@@ -152,9 +152,9 @@ selectItemCreator = _selectItemCreator
       Done
     }
   )
-  .setEventHandler[ItemCreated](e => processItemCreated(e.event))
+  .setEventHandler[ItemCreated](e => processItemCreated(e.entityId, e.event))
 .setEventHandler[AuctionStarted](e => processAuctionStarted(e.entityId, e.event))
-.setEventHandler[PriceUpdated](e => processPriceUpdated(e.event))
+.setEventHandler[PriceUpdated](e => processPriceUpdated(e.entityId, e.event))
 .setEventHandler[AuctionFinished](e => processAuctionFinished(e.entityId, e.event))
   .build()
 
@@ -164,7 +164,7 @@ selectItemCreator = _selectItemCreator
 
 }
 
-case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String)
+case class ItemSummaryByCreator(creatorId: UUID, id: UUID, title: String, currencyId: String, reservePrice: Int, status: String) 
 
 object ItemSummaryByCreator {
   implicit val format: Format[ItemSummaryByCreator] = Json.format

@@ -10,7 +10,6 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ItemRepository extends ItemReadRepository {
 
   val environment: Environment
-
   implicit val ec: ExecutionContext = environment.ec
 
   def bindInsertItemCreator(itemId: UUID, creatorId: UUID): BoundStatement
@@ -19,7 +18,7 @@ trait ItemRepository extends ItemReadRepository {
 
   def bindUpdateItemSummaryStatus(status: String, creatorId: UUID, itemId: UUID): BoundStatement
 
-  def processItemCreated(event: ItemCreated): Future[List[BoundStatement]] = {
+  def processItemCreated(entityId: String, event: ItemCreated): Future[List[BoundStatement]] = {
     Future.successful(List(
       bindInsertItemCreator(
         event.item.id,
@@ -40,7 +39,7 @@ trait ItemRepository extends ItemReadRepository {
     doUpdateItemSummaryStatus(entityId, "Auction")
   }
 
-  def processPriceUpdated(event: PriceUpdated): Future[List[BoundStatement]] = {
+  def processPriceUpdated(entityId: String, event: PriceUpdated): Future[List[BoundStatement]] = {
     Future.successful(List.empty)
   }
 

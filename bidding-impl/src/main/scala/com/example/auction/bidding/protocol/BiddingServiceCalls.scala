@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait BiddingServiceCalls {
 
   val ports: BiddingPorts
-  implicit val serviceEC: ExecutionContext = ports.ec
+  implicit val serviceEC: ExecutionContext = ports.environment.ec
 
   def _placeBid(itemId: String, userId: String, request: PlaceBid): Future[BidResult] = {
     ports.entityRegistry.refFor[BiddingEntity](itemId).ask(impl.PlaceBid(request.maximumBidPrice, userId)).map { result =>

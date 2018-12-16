@@ -36,6 +36,7 @@ lazy val userEventStream = wire[UserEventStreamImpl]
 
 
   
+  lazy val env = wire[Environment]
   lazy val ports = wire[UserPorts]
   override lazy val lagomServer = serverFor[UserService](wire[UserServiceImpl])
 }

@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.libs.json.{Format, Json}
 import java.util.UUID
 
-class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide)(implicit ec: ExecutionContext)
+class BiddingRepositoryImpl(db: CassandraSession, readSide: CassandraReadSide, val environment: Environment)
   extends ReadSideProcessor[BiddingEvent] with BiddingRepository {
 
   // Tables
@@ -86,10 +86,10 @@ deleteAuction = _deleteAuction
       Done
     }
   )
-  .setEventHandler[AuctionStarted](e => processAuctionStarted(e.event))
-.setEventHandler[AuctionCancelled.type](e => processAuctionCancelled(e.event))
-.setEventHandler[BidPlaced](e => processBidPlaced(e.event))
-.setEventHandler[BiddingFinished.type](e => processBiddingFinished(e.event))
+  .setEventHandler[AuctionStarted](e => processAuctionStarted(e.entityId, e.event))
+.setEventHandler[AuctionCancelled.type](e => processAuctionCancelled(e.entityId, e.event))
+.setEventHandler[BidPlaced](e => processBidPlaced(e.entityId, e.event))
+.setEventHandler[BiddingFinished.type](e => processBiddingFinished(e.entityId, e.event))
   .build()
 
 
