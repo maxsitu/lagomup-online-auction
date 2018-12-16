@@ -16,7 +16,7 @@ import java.util.UUID
 
 
 class ItemServiceImpl(val ports: ItemPorts) extends ItemService
-  with ItemServiceCalls   {
+  with ItemServiceCalls with ItemTopics  {
 
   
   override def createItem() = _createItemAuthentication(userId => ServerServiceCall { request =>
@@ -36,7 +36,11 @@ override def getItemForUser(id: UUID, status: String, page: Option[String]) = Se
 }
 
 
-  
+  override def itemEvents() = {
+  _itemEvents()
+}
+
+
 
 }
 

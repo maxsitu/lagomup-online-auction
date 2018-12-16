@@ -9,7 +9,7 @@ import com.lightbend.lagom.scaladsl.server._
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import play.api.libs.ws.ahc.AhcWSComponents
-
+import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 
 import com.softwaremill.macwire._
 
@@ -29,7 +29,7 @@ class ItemApplicationLoader extends LagomApplicationLoader {
 
 abstract class ItemApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents  {
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents with LagomKafkaComponents {
   override lazy val jsonSerializerRegistry = ItemSerializerRegistry
   persistentEntityRegistry.register(wire[ItemEntity])
 lazy val itemEventStream = wire[ItemEventStreamImpl]

@@ -24,7 +24,9 @@ def getItem(id: UUID): ServiceCall[NotUsed, Item]
 def getItemForUser(id: UUID, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState]
 
 
-  
+  def itemEvents: Topic[ItemEvent]
+
+
   override def descriptor = {
   import Service._
 
@@ -36,12 +38,56 @@ pathCall("/api/item/:id", getItem _)(implicitly[MessageSerializer[NotUsed, ByteS
 pathCall("/api/item?userId&status&page", getItemForUser _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[ItemSummaryPagingState, ByteString]])
 )
 
-    
+    .withTopics(
+  topic("item-ItemEvent", itemEvents _)(implicitly[MessageSerializer[ItemEvent, ByteString]])
+  .addProperty(
+    KafkaProperties.partitionKeyStrategy,
+    PartitionKeyStrategy[ItemEvent](_.itemId.toString)
+  )
+
+)
+
     .withAutoAcl(true)
 }
 
       
 }
+
+sealed trait ItemEvent {
+  val itemId: UUID
+}
+
+object ItemEvent {
+  implicit val format: Format[ItemEvent] =
+    derived.flat.oformat((__ \ "type").format[String])
+}
+
+
+
+case class ItemUpdated(itemId: UUID, creator: UUID, title: String, description: String, currencyId: String, status: String) extends ItemEvent
+
+object ItemUpdated {
+  implicit val format: Format[ItemUpdated] = Json.format
+}
+
+case class AuctionStarted(itemId: UUID, creator: UUID, reservePrice: Int, increment: Int, startDate: Instant, endDate: Instant) extends ItemEvent
+
+object AuctionStarted {
+  implicit val format: Format[AuctionStarted] = Json.format
+}
+
+case class AuctionFinished(itemId: UUID, item: Item) extends ItemEvent
+
+object AuctionFinished {
+  implicit val format: Format[AuctionFinished] = Json.format
+}
+
+case class AuctionCancelled(itemId: UUID) extends ItemEvent
+
+object AuctionCancelled {
+  implicit val format: Format[AuctionCancelled] = Json.format
+}
+
 
 
 case class Item(id: Option[UUID], creator: UUID, itemData: ItemData, price: Option[Int], status: String, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID]) 
