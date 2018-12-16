@@ -92,13 +92,13 @@ class ItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll with 
     "allow getting an auction" in withDriver { driver =>
       driver.run(CreateItem(item))
       val outcome1 = driver.run(GetItem)
-      outcome1.replies should contain only item
+      outcome1.replies should contain only Some(item)
       driver.run(StartAuction(creatorId))
       val outcome2 = driver.run(GetItem)
-      outcome2.replies should contain only outcome2.state.aggregate.get
+      outcome2.replies should contain only outcome2.state.aggregate
       driver.run(FinishAuction(None, None))
       val outcome3 = driver.run(GetItem)
-      outcome3.replies should contain only outcome3.state.aggregate.get
+      outcome3.replies should contain only outcome3.state.aggregate
     }
 
   }

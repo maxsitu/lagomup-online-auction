@@ -38,7 +38,7 @@ class ItemEntity(val itemEventStream: ItemEventStream) extends PersistentEntity
     onFinishAuction(command, state, ctx)
 }
 
-      .onReadOnlyCommand[GetItem.type, ItemAggregate] {
+      .onReadOnlyCommand[GetItem.type, Option[ItemAggregate]] {
   case (query: GetItem.type, ctx, state) =>
     onGetItem(query, state, ctx)
 }
@@ -110,7 +110,7 @@ object FinishAuction {
   implicit val format: Format[FinishAuction] = Json.format
 }
 
-case object GetItem extends ItemCommand with ReplyType[ItemAggregate] {
+case object GetItem extends ItemCommand with ReplyType[Option[ItemAggregate]] {
   implicit val format: Format[GetItem.type] = JsonSerializer.emptySingletonFormat(GetItem)
 }
 

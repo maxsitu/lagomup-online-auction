@@ -64,12 +64,8 @@ trait ItemDomain {
     }
   }
 
-  def onGetItem(query: GetItem.type, state: ItemState, ctx: ReadOnlyCommandContext[ItemAggregate]): Unit = {
-    // TODO: Example always had ItemState, look at how UserService handles this
-    state.aggregate match {
-      case Some(aggregate) => ctx.reply(aggregate)
-      case None => ctx.invalidCommand(s"No state found in status ${state.status}")
-    }
+  def onGetItem(query: GetItem.type, state: ItemState, ctx: ReadOnlyCommandContext[Option[ItemAggregate]]): Unit = {
+    ctx.reply(state.aggregate)
   }
 
   def onItemCreated(event: ItemCreated, state: ItemState): ItemState = {

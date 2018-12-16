@@ -28,7 +28,7 @@ def onFinishAuction(command: FinishAuction, state: ItemState, ctx: CommandContex
 }
 
 
-  def onGetItem(query: GetItem.type, state: ItemState, ctx: ReadOnlyCommandContext[ItemAggregate]): Unit = {
+  def onGetItem(query: GetItem.type, state: ItemState, ctx: ReadOnlyCommandContext[Option[ItemAggregate]]): Unit = {
   ???
 }
 

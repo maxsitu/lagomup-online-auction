@@ -8,7 +8,7 @@ import com.datastax.driver.core.utils.UUIDs
 import com.datastax.driver.core.{PagingState, SimpleStatement, _}
 import com.example.auction.item.api._
 import com.example.auction.item.impl._
-import com.lightbend.lagom.scaladsl.api.transport.Forbidden
+import com.lightbend.lagom.scaladsl.api.transport.{Forbidden, NotFound}
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 
 import scala.collection.JavaConverters._
@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ItemServiceCalls {
 
   val ports: ItemPorts
-  implicit val ec: ExecutionContext = ports.environment.ec
+  implicit val itemServiceCallsEC: ExecutionContext = ports.environment.ec
 
   def _createItem(userId: UUID, request: Item): Future[Item] = {
     if (userId != request.creator) {
@@ -51,8 +51,10 @@ trait ItemServiceCalls {
   }
 
   def _getItem(id: UUID, request: NotUsed): Future[Item] = {
-    // TODO: Example tested for None here
-    ports.entityRegistry.refFor[ItemEntity](id.toString).ask(GetItem).map(convertItem)
+    ports.entityRegistry.refFor[ItemEntity](id.toString).ask(GetItem).map {
+      case Some(item) => convertItem(item)
+      case None => throw NotFound("Item " + id + " not found")
+    }
   }
 
   def _getItemForUser(id: UUID, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
