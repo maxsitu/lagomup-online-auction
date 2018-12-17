@@ -16,9 +16,8 @@ import java.util.UUID
 
 
 class UserServiceImpl(val ports: UserPorts) extends UserService
-  with UserServiceCalls   {
+  with UserServiceCalls  {
 
-  
   override def createUser() = ServiceCall { request =>
   _createUser(request)
 }

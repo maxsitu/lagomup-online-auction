@@ -16,9 +16,8 @@ import java.util.UUID
 
 
 class BiddingServiceImpl(val ports: BiddingPorts) extends BiddingService
-  with BiddingServiceCalls with BiddingTopics  {
+  with BiddingServiceCalls with BiddingTopics {
 
-  
   override def placeBid(itemId: UUID) = _placeBidAuthentication(userId => ServerServiceCall { request =>
   _placeBid(userId, itemId, request)
 })

@@ -12,11 +12,11 @@ import com.example.auction.item.domain.ItemReadRepository
 import scala.concurrent.ExecutionContext
 
 case class ItemPorts(
-  akkaComponents: AkkaComponents,
-biddingService: BiddingService,
-entityRegistry: PersistentEntityRegistry,
-db: CassandraSession,
-itemEventStream: ItemEventStream,
+  akkaComponents: AkkaComponents, 
+biddingService: BiddingService, 
+entityRegistry: PersistentEntityRegistry, 
+db: CassandraSession, 
+itemEventStream: ItemEventStream, 
 itemRepository: ItemReadRepository
 )
 
