@@ -1,6 +1,7 @@
 package com.example.auction.user.api
 
 
+import com.example.auction.utils.SecurityHeaderFilter
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Source
 import com.lightbend.lagom.scaladsl.api.broker.Topic
@@ -13,7 +14,6 @@ import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
 import java.util.UUID
-import com.example.auction.utils.SecurityHeaderFilter
 
 trait UserService extends Service {
   def createUser(): ServiceCall[CreateUser, User]

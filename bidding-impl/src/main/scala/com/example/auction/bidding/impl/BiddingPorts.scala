@@ -8,12 +8,10 @@ import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 import com.example.auction.bidding.domain.BiddingReadRepository
 
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import scala.concurrent.ExecutionContext
 
 case class BiddingPorts(
   akkaComponents: AkkaComponents, 
-pubSubRegistry: PubSubRegistry, 
 entityRegistry: PersistentEntityRegistry, 
 db: CassandraSession, 
 biddingEventStream: BiddingEventStream, 

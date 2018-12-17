@@ -2,6 +2,7 @@ package com.example.auction.item.api
 
 import com.example.auction.bidding.api._
 
+import com.example.auction.utils.SecurityHeaderFilter
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Source
 import com.lightbend.lagom.scaladsl.api.broker.Topic
@@ -14,7 +15,6 @@ import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
 import java.util.UUID
-import com.example.auction.utils.SecurityHeaderFilter
 
 trait ItemService extends Service {
   def createItem(): ServiceCall[Item, Item]

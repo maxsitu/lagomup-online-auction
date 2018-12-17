@@ -7,12 +7,10 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
-import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import scala.concurrent.ExecutionContext
 
 case class UserPorts(
   akkaComponents: AkkaComponents, 
-pubSubRegistry: PubSubRegistry, 
 entityRegistry: PersistentEntityRegistry, 
 db: CassandraSession, 
 userEventStream: UserEventStream
