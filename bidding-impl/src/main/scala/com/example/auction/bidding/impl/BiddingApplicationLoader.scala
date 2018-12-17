@@ -38,7 +38,7 @@ readSide.register(biddingRepository)
 
 
   
-  lazy val env = wire[AkkaComponents]
+  lazy val akkaComponents = wire[AkkaComponents]
   lazy val ports = wire[BiddingPorts]
   override lazy val lagomServer = serverFor[BiddingService](wire[BiddingServiceImpl])
 }

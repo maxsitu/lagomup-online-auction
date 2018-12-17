@@ -40,7 +40,7 @@ readSide.register(itemRepository)
 
   lazy val biddingService = serviceClient.implement[BiddingService]
 
-  lazy val env = wire[AkkaComponents]
+  lazy val akkaComponents = wire[AkkaComponents]
   lazy val ports = wire[ItemPorts]
   override lazy val lagomServer = serverFor[ItemService](wire[ItemServiceImpl])
 }
