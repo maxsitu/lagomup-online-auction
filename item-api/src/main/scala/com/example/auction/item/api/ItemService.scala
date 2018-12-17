@@ -1,6 +1,7 @@
 package com.example.auction.item.api
 
 import com.example.auction.bidding.api._
+
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Source
 import com.lightbend.lagom.scaladsl.api.broker.Topic
@@ -13,7 +14,6 @@ import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
 import java.util.UUID
-
 import com.example.auction.utils.SecurityHeaderFilter
 
 trait ItemService extends Service {
@@ -47,12 +47,13 @@ pathCall("/api/item?userId&status&page", getItemForUser _)(implicitly[MessageSer
     PartitionKeyStrategy[ItemEvent](_.itemId.toString)
   )
 
-).withHeaderFilter(SecurityHeaderFilter.Composed)
+)
 
+    .withHeaderFilter(SecurityHeaderFilter.Composed)
     .withAutoAcl(true)
 }
 
-
+      
 }
 
 sealed trait ItemEvent {
@@ -92,25 +93,25 @@ object AuctionCancelled {
 
 
 
-case class Item(id: Option[UUID], creator: UUID, itemData: ItemData, price: Option[Int], status: String, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID])
+case class Item(id: Option[UUID], creator: UUID, itemData: ItemData, price: Option[Int], status: String, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID]) 
 
 object Item {
   implicit val format: Format[Item] = Json.format
 }
 
-case class ItemSummaryPagingState(items: List[ItemSummary], nextPage: String, count: Int)
+case class ItemSummaryPagingState(items: List[ItemSummary], nextPage: String, count: Int) 
 
 object ItemSummaryPagingState {
   implicit val format: Format[ItemSummaryPagingState] = Json.format
 }
 
-case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID])
+case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
 
 object ItemData {
   implicit val format: Format[ItemData] = Json.format
 }
 
-case class ItemSummary(id: UUID, title: String, currencyId: String, reservePrice: Int, status: String)
+case class ItemSummary(id: UUID, title: String, currencyId: String, reservePrice: Int, status: String) 
 
 object ItemSummary {
   implicit val format: Format[ItemSummary] = Json.format

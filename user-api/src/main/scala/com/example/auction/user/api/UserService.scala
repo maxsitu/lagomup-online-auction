@@ -13,6 +13,7 @@ import julienrf.json.derived
 import play.api.libs.json._
 import java.time.Instant
 import java.util.UUID
+import com.example.auction.utils.SecurityHeaderFilter
 
 trait UserService extends Service {
   def createUser(): ServiceCall[CreateUser, User]
@@ -34,6 +35,7 @@ pathCall("/api/user", getUsers _)(implicitly[MessageSerializer[NotUsed, ByteStri
 )
 
     
+    .withHeaderFilter(SecurityHeaderFilter.Composed)
     .withAutoAcl(true)
 }
 

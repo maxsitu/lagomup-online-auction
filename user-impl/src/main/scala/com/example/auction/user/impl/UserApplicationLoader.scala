@@ -16,12 +16,12 @@ import com.softwaremill.macwire._
 class UserApplicationLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new UserApplication(context) {
+    new UserApplication(context)  {
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new UserApplication(context) with LagomDevModeComponents
+    new UserApplication(context)  with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[UserService])
 
@@ -29,7 +29,7 @@ class UserApplicationLoader extends LagomApplicationLoader {
 
 abstract class UserApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents  {
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = UserSerializerRegistry
   persistentEntityRegistry.register(wire[UserEntity])
 lazy val userEventStream = wire[UserEventStreamImpl]

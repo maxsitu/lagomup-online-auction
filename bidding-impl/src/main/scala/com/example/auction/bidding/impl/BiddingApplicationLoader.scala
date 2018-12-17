@@ -16,12 +16,12 @@ import com.softwaremill.macwire._
 class BiddingApplicationLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new BiddingApplication(context) {
+    new BiddingApplication(context) with LagomKafkaComponents {
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new BiddingApplication(context) with LagomDevModeComponents
+    new BiddingApplication(context) with LagomKafkaComponents with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[BiddingService])
 
@@ -29,7 +29,7 @@ class BiddingApplicationLoader extends LagomApplicationLoader {
 
 abstract class BiddingApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents with LagomKafkaComponents {
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = BiddingSerializerRegistry
   persistentEntityRegistry.register(wire[BiddingEntity])
 lazy val biddingEventStream = wire[BiddingEventStreamImpl]
