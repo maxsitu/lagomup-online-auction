@@ -1,12 +1,12 @@
-package com.example.auction.item.protocol
+package com.example.auction.utils
 
 import java.security.Principal
 import java.util.UUID
+import javax.security.auth.Subject
 
 import com.lightbend.lagom.scaladsl.api.security.ServicePrincipal
-import com.lightbend.lagom.scaladsl.api.transport.{Forbidden, RequestHeader}
+import com.lightbend.lagom.scaladsl.api.transport._
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
-import javax.security.auth.Subject
 
 sealed trait UserPrincipal extends Principal {
   val userId: UUID
@@ -28,6 +28,29 @@ object UserPrincipal {
         UserPrincipal.ServicelessUserPrincipal(userId)
     }
   }
+}
+
+object SecurityHeaderFilter extends HeaderFilter {
+  override def transformClientRequest(request: RequestHeader) = {
+    request.principal match {
+      case Some(userPrincipal: UserPrincipal) => request.withHeader("User-Id", userPrincipal.userId.toString)
+      case other => request
+    }
+  }
+
+  override def transformServerRequest(request: RequestHeader) = {
+    request.getHeader("User-Id") match {
+      case Some(userId) =>
+        request.withPrincipal(UserPrincipal.of(UUID.fromString(userId), request.principal))
+      case None => request
+    }
+  }
+
+  override def transformServerResponse(response: ResponseHeader, request: RequestHeader) = response
+
+  override def transformClientResponse(response: ResponseHeader, request: RequestHeader) = response
+
+  lazy val Composed = HeaderFilter.composite(SecurityHeaderFilter, UserAgentHeaderFilter)
 }
 
 object ServerSecurity {
@@ -52,5 +75,7 @@ object ClientSecurity {
   def authenticate(userId: UUID): RequestHeader => RequestHeader = { request =>
     request.withPrincipal(UserPrincipal.of(userId, request.principal))
   }
-
 }
+
+
+

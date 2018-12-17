@@ -6,6 +6,7 @@ import akka.NotUsed
 import com.example.auction.bidding.api._
 import com.example.auction.bidding.impl
 import com.example.auction.bidding.impl.{BiddingEntity, BiddingPorts, GetAuction}
+import com.example.auction.utils.ServerSecurity
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 
 import scala.concurrent.{ExecutionContext, Future}

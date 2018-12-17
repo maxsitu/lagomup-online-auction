@@ -14,6 +14,8 @@ lazy val `online-auction` = (project in file("."))
 lazy val `utils` = (project in file("utils"))
   .settings(
     libraryDependencies ++= Seq(
+      lagomScaladslApi,
+      lagomScaladslServer % Optional,
       "com.lightbend.lagom" %% "lagom-scaladsl-play-json" % "1.4.9",
 "org.julienrf" %% "play-json-derived-codecs" % "4.0.0"
     )

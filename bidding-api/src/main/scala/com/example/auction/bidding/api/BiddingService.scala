@@ -14,6 +14,8 @@ import play.api.libs.json._
 import java.time.Instant
 import java.util.UUID
 
+import com.example.auction.utils.SecurityHeaderFilter
+
 trait BiddingService extends Service {
   def placeBid(itemId: UUID): ServiceCall[PlaceBid, BidResult]
 
@@ -39,12 +41,12 @@ pathCall("/api/item/:id/bids", getBids _)(implicitly[MessageSerializer[NotUsed, 
     PartitionKeyStrategy[BidEvent](_.itemId.toString)
   )
 
-)
+).withHeaderFilter(SecurityHeaderFilter.Composed)
 
     .withAutoAcl(true)
 }
 
-      
+
 }
 
 sealed trait BidEvent {
@@ -72,19 +74,19 @@ object BiddingFinished {
 
 
 
-case class PlaceBid(maximumBidPrice: Int) 
+case class PlaceBid(maximumBidPrice: Int)
 
 object PlaceBid {
   implicit val format: Format[PlaceBid] = Json.format
 }
 
-case class BidResult(currentPrice: Int, status: String, currentBidder: Option[UUID]) 
+case class BidResult(currentPrice: Int, status: String, currentBidder: Option[UUID])
 
 object BidResult {
   implicit val format: Format[BidResult] = Json.format
 }
 
-case class Bid(bidder: UUID, bidTime: Instant, price: Int, maximumPrice: Int) 
+case class Bid(bidder: UUID, bidTime: Instant, price: Int, maximumPrice: Int)
 
 object Bid {
   implicit val format: Format[Bid] = Json.format

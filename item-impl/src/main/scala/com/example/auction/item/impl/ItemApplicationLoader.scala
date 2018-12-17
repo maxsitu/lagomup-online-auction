@@ -17,12 +17,12 @@ import com.softwaremill.macwire._
 class ItemApplicationLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new ItemApplication(context) {
+    new ItemApplication(context) with LagomKafkaComponents {
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new ItemApplication(context) with LagomDevModeComponents
+    new ItemApplication(context) with LagomKafkaComponents with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[ItemService])
 
@@ -30,7 +30,7 @@ class ItemApplicationLoader extends LagomApplicationLoader {
 
 abstract class ItemApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents with LagomKafkaComponents {
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = ItemSerializerRegistry
   persistentEntityRegistry.register(wire[ItemEntity])
 lazy val itemEventStream = wire[ItemEventStreamImpl]

@@ -8,6 +8,7 @@ import com.datastax.driver.core.utils.UUIDs
 import com.datastax.driver.core.{PagingState, SimpleStatement, _}
 import com.example.auction.item.api._
 import com.example.auction.item.impl._
+import com.example.auction.utils.ServerSecurity
 import com.lightbend.lagom.scaladsl.api.transport.{Forbidden, NotFound}
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 

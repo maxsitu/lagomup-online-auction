@@ -9,13 +9,14 @@ import com.datastax.driver.core.utils.UUIDs
 import com.example.auction.item.impl._
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
+import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.testkit.{ReadSideTestDriver, ServiceTest}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 
 class ItemRepositorySpec extends AsyncWordSpec with BeforeAndAfterAll with Matchers {
 
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
-    new ItemApplication(ctx) {
+    new ItemApplication(ctx) with LagomKafkaComponents {
 
       override def serviceLocator: ServiceLocator = NoServiceLocator
 
