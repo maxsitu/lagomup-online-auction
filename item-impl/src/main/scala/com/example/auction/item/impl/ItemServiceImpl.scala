@@ -17,12 +17,7 @@ import java.util.UUID
 
 
 class ItemServiceImpl(val ports: ItemPorts) extends ItemService
-  with ItemServiceCalls with ItemTopics with BidEventSubscriber {
-
-  ports.biddingService.bidEvents.subscribe.atLeastOnce(Flow[BidEvent].mapAsync(1) { event =>
-  onBidEvent(event)
-})
-
+  with ItemServiceCalls with ItemTopics {
 
   override def createItem() = _createItemAuthentication(userId => ServerServiceCall { request =>
   _createItem(userId, request)

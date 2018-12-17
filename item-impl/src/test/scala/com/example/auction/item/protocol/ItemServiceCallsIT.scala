@@ -17,14 +17,8 @@ import play.api.Configuration
 
 class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
-  var bidEventProducerStub: ProducerStub[BidEvent] = _
-
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
     new ItemApplication(ctx) with LocalServiceLocator with TestTopicComponents {
-
-      val stubFactory = new ProducerStubFactory(actorSystem, materializer)
-      bidEventProducerStub = stubFactory.producer[BidEvent]("bid-BidEvent")
-      override lazy val biddingService: BiddingService = new BiddingServiceStub(bidEventProducerStub)
 
       override def additionalConfiguration: AdditionalConfiguration = {
         super.additionalConfiguration ++ Configuration.from(Map(
@@ -87,15 +81,5 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
     // TODO: ID generation was method on Item
     itemService.getItem(item.id.getOrElse(UUID.randomUUID())).invoke
   }
-
-}
-
-class BiddingServiceStub(bidEventProducerStub: ProducerStub[BidEvent]) extends BiddingService {
-
-  def placeBid(itemId: UUID): ServiceCall[PlaceBid, BidResult] = ???
-
-  def getBids(itemId: UUID): ServiceCall[NotUsed, List[Bid]] = ???
-
-  def bidEvents: Topic[BidEvent] = bidEventProducerStub.topic
 
 }
