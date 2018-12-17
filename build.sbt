@@ -32,6 +32,7 @@ lazy val `bidding-api` = (project in file("bidding-api"))
 
 lazy val `bidding-impl` = (project in file("bidding-impl"))
   .enablePlugins(LagomScala)
+  .settings(lagomForkedTestSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
@@ -57,6 +58,7 @@ lazy val `item-api` = (project in file("item-api"))
 
 lazy val `item-impl` = (project in file("item-impl"))
   .enablePlugins(LagomScala)
+  .settings(lagomForkedTestSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
@@ -82,6 +84,7 @@ lazy val `user-api` = (project in file("user-api"))
 
 lazy val `user-impl` = (project in file("user-impl"))
   .enablePlugins(LagomScala)
+  .settings(lagomForkedTestSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
