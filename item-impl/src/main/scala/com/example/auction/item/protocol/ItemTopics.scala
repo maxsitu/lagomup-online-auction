@@ -3,9 +3,7 @@ package com.example.auction.item.protocol
 import java.util.UUID
 
 import akka.persistence.query.Offset
-import com.example.auction.item.api._
-import com.example.auction.item.impl
-import com.example.auction.item.impl.{AuctionFinished => _, AuctionStarted => _, ItemEvent => _, _}
+import com.example.auction.item.{api, impl}
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.EventStreamElement
@@ -14,10 +12,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait ItemTopics {
 
-  val ports: ItemPorts
+  val ports: impl.ItemPorts
   implicit val itemTopicsEC: ExecutionContext = ports.akkaComponents.ec
 
-  def _itemEvents(): Topic[ItemEvent] = {
+  def _itemEvents(): Topic[api.ItemEvent] = {
     // TODO: taggedStreamWithOffset
     TopicProducer.singleStreamWithOffset { fromOffset =>
       ports.entityRegistry.eventStream(impl.ItemEvent.Tag, fromOffset)
@@ -32,21 +30,21 @@ trait ItemTopics {
 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
-  private def convertItem(item: ItemAggregate): Item = {
-    val itemData = ItemData(item.title, item.description, item.currencyId, item.increment, item.reservePrice, item.auctionDuration, None)
-    Item(Some(item.id), item.creator, itemData, item.price, item.status, item.auctionStart,
+  private def convertItem(item: impl.ItemAggregate): api.Item = {
+    val itemData = api.ItemData(item.title, item.description, item.currencyId, item.increment, item.reservePrice, item.auctionDuration, None)
+    api.Item(Some(item.id), item.creator, itemData, item.price, item.status, item.auctionStart,
       item.auctionEnd, item.auctionWinner)
   }
 
-  private def convertEvent(eventStreamElement: EventStreamElement[impl.ItemEvent]): Future[(ItemEvent, Offset)] = {
+  private def convertEvent(eventStreamElement: EventStreamElement[impl.ItemEvent]): Future[(api.ItemEvent, Offset)] = {
 
     // TODO: Double and Triple check api.* vs impl.*
 
     eventStreamElement match {
       case EventStreamElement(itemId, impl.AuctionStarted(_), offset) =>
-        entityRefString(itemId).ask(GetItem).map {
+        entityRefString(itemId).ask(impl.GetItem).map {
           case Some(item) =>
-            (AuctionStarted(
+            (api.AuctionStarted(
               itemId = item.id,
               creator = item.creator,
               reservePrice = item.reservePrice,
@@ -59,9 +57,9 @@ trait ItemTopics {
             ???
         }
       case EventStreamElement(itemId, impl.AuctionFinished(winner, price), offset) =>
-        entityRefString(itemId).ask(GetItem).map {
+        entityRefString(itemId).ask(impl.GetItem).map {
           case Some(item) =>
-            (AuctionFinished(
+            (api.AuctionFinished(
               itemId = item.id,
               item = convertItem(item)
             ), offset)
@@ -71,7 +69,7 @@ trait ItemTopics {
         }
       case EventStreamElement(itemId, impl.ItemCreated(item), offset) =>
         Future.successful {
-          (ItemUpdated(
+          (api.ItemUpdated(
             itemId = item.id,
             creator = item.creator,
             title = item.title,
@@ -85,7 +83,7 @@ trait ItemTopics {
 
   private def entityRef(itemId: UUID) = entityRefString(itemId.toString)
 
-  private def entityRefString(itemId: String) = ports.entityRegistry.refFor[ItemEntity](itemId)
+  private def entityRefString(itemId: String) = ports.entityRegistry.refFor[impl.ItemEntity](itemId)
 
 
 }
