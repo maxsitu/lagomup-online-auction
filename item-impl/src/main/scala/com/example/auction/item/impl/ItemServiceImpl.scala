@@ -11,9 +11,9 @@ import com.lightbend.lagom.scaladsl.pubsub.PubSubRegistry
 import akka.stream.scaladsl.Flow
 import scala.concurrent.ExecutionContext
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
+import java.util.UUID
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
-import java.util.UUID
 
 
 class ItemServiceImpl(val ports: ItemPorts) extends ItemService

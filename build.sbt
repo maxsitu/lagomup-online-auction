@@ -8,7 +8,8 @@ lazy val `online-auction` = (project in file("."))
     `utils`,
     `bidding-api`, `bidding-impl`,
 `item-api`, `item-impl`,
-`user-api`, `user-impl`
+`user-api`, `user-impl`,
+`transaction-api`, `transaction-impl`
   )
 
 lazy val `utils` = (project in file("utils"))
@@ -96,5 +97,29 @@ lagomScaladslPersistenceCassandra
     )
   )
   .dependsOn(`user-api`)
+
+
+lazy val `transaction-api` = (project in file("transaction-api"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslApi
+    )
+  )
+  .dependsOn(`utils`, `item-api`)
+
+
+lazy val `transaction-impl` = (project in file("transaction-impl"))
+  .enablePlugins(LagomScala)
+  
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
+lagomScaladslPubSub,
+"org.scalatest" %% "scalatest" % "3.0.5" % Test,
+"org.scalamock" %% "scalamock" % "4.1.0" % Test,
+lagomScaladslTestKit
+    )
+  )
+  .dependsOn(`transaction-api`)
 
 
