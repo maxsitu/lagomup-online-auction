@@ -16,7 +16,11 @@ trait TransactionReadRepository {
   def selectUserTransactions(userId: UUID, status: String, limit: Int): Future[Seq[TransactionSummary]]
 
   def mapSelectTransactionUserResult(row: Row): TransactionUser = {
-    ???
+    TransactionUser(
+      row.getUUID("itemId"),
+      row.getUUID("creatorId"),
+      row.getUUID("winnerId")
+    )
   }
 
   def mapCountUserTransactionsResult(row: Row): Int = {

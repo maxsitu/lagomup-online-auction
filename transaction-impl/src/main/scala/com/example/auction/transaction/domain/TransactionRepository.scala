@@ -54,22 +54,34 @@ trait TransactionRepository extends TransactionReadRepository {
 
 
   def processDeliveryDetailsApproved(entityId: String, event: DeliveryDetailsApproved): Future[List[BoundStatement]] = {
-    Future.successful(List.empty)
+    updateTransactionSummaryStatus(event.itemId, "PaymentPending")
   }
 
 
   def processPaymentDetailsSubmitted(entityId: String, event: PaymentDetailsSubmitted): Future[List[BoundStatement]] = {
-    Future.successful(List.empty)
+    updateTransactionSummaryStatus(event.itemId, "PaymentSubmitted")
   }
 
 
   def processPaymentApproved(entityId: String, event: PaymentApproved): Future[List[BoundStatement]] = {
-    Future.successful(List.empty)
+    updateTransactionSummaryStatus(event.itemId, "PaymentConfirmed")
   }
 
 
   def processPaymentRejected(entityId: String, event: PaymentRejected): Future[List[BoundStatement]] = {
-    Future.successful(List.empty)
+    updateTransactionSummaryStatus(event.itemId, "PaymentPending")
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  private def updateTransactionSummaryStatus(itemId: UUID, status: String): Future[List[BoundStatement]] = {
+    selectTransactionUser(itemId).map {
+      case None => throw new IllegalStateException(s"No transactionUsers found for itemId $itemId")
+      case Some(transactionUser) =>
+        val updateCreatorStatus = bindUpdateTransactionSummaryStatus(status, transactionUser.creatorId, itemId)
+        val updateWinnerStatus = bindUpdateTransactionSummaryStatus(status, transactionUser.winnerId, itemId)
+        List(updateCreatorStatus, updateWinnerStatus)
+    }
   }
 
 }

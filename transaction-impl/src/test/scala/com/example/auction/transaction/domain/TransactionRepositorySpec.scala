@@ -50,11 +50,11 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
     }
 
     "get transaction started for winner" in {
-      pending
+      shouldGetTransactionStarted(winnerId)
     }
 
     "update status to payment pending for creator" in {
-      pending
+      shouldUpdateStatusToPaymentPending(creatorId)
     }
 
     "update status to payment pending for winner" in {
@@ -99,8 +99,7 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
     } yield {
       transactions should have size 1
       val expected: TransactionSummary = TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "NegotiatingDelivery")
-      val actual: TransactionSummary = transactions.head
-      actual should ===(expected)
+      transactions.head should ===(expected)
     }
   }
 
@@ -113,6 +112,20 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
   private def feed(event: TransactionEvent): Future[Done] = {
     // TODO: Event needs itemId
     testDriver.feed(event.itemId.toString, event, Sequence(offset.getAndIncrement))
+  }
+
+  private def shouldUpdateStatusToPaymentPending(userId: UUID) = {
+    for {
+      _ <- feed(TransactionStarted(itemId, transaction))
+      _ <- feed(DeliveryDetailsSubmitted(itemId, deliveryData))
+      _ <- feed(DeliveryPriceUpdated(itemId, deliveryPrice))
+      _ <- feed(DeliveryDetailsApproved(itemId))
+      transactions <- getTransactions(userId, "PaymentPending")
+    } yield {
+      transactions should have size 1
+      val expected = TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "PaymentPending")
+      transactions.head should ===(expected)
+    }
   }
 
 }
