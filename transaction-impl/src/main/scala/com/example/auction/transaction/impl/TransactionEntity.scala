@@ -21,13 +21,21 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
 
   override def behavior: Behavior = {
     Actions()
-      
+      .onCommand[StartTransaction, Done] {
+  case (command: StartTransaction, ctx, state) =>
+    onStartTransaction(command, state, ctx)
+}
+
       .onReadOnlyCommand[GetTransaction.type, Option[TransactionAggregate]] {
   case (query: GetTransaction.type, ctx, state) =>
     onGetTransaction(query, state, ctx)
 }
 
-      
+      .onEvent {
+  case (event: TransactionStarted, state) =>
+    onTransactionStarted(event, state)
+}
+
   }
 
 }
@@ -54,6 +62,12 @@ object TransactionState {
 
 sealed trait TransactionCommand
 
+case class StartTransaction(transaction: TransactionAggregate) extends TransactionCommand with ReplyType[Done]
+
+object StartTransaction {
+  implicit val format: Format[StartTransaction] = Json.format
+}
+
 case object GetTransaction extends TransactionCommand with ReplyType[Option[TransactionAggregate]] {
   implicit val format: Format[GetTransaction.type] = JsonSerializer.emptySingletonFormat(GetTransaction)
 }
@@ -64,6 +78,12 @@ sealed trait TransactionEvent extends AggregateEvent[TransactionEvent] {
 
 object TransactionEvent {
   val Tag = AggregateEventTag[TransactionEvent]
+}
+
+case class TransactionStarted(itemId: UUID, transaction: TransactionAggregate) extends TransactionEvent
+
+object TransactionStarted {
+  implicit val format: Format[TransactionStarted] = Json.format
 }
 
 case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
@@ -108,7 +128,9 @@ object TransactionSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[TransactionState],
 JsonSerializer[TransactionAggregate],
+JsonSerializer[StartTransaction],
 JsonSerializer[GetTransaction.type],
+JsonSerializer[TransactionStarted],
 JsonSerializer[ItemData],
 JsonSerializer[DeliveryData],
 JsonSerializer[Payment]
