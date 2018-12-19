@@ -84,7 +84,7 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
 
 }
 
-case class TransactionAggregate(itemId: UUID, creator: UUID, winner: UUID, itemData: ItemData, itemPrice: Int, deliveryData: DeliveryData, deliveryPrice: Option[Int], payment: Option[Payment]) 
+case class TransactionAggregate(itemId: UUID, creator: UUID, winner: UUID, itemData: ItemData, itemPrice: Int, deliveryData: Option[DeliveryData], deliveryPrice: Option[Int], payment: Option[Payment]) 
 
 object TransactionAggregate {
   implicit val format: Format[TransactionAggregate] = Json.format
