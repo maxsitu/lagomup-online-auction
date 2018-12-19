@@ -38,8 +38,6 @@ trait ItemTopics {
 
   private def convertEvent(eventStreamElement: EventStreamElement[impl.ItemEvent]): Future[(api.ItemEvent, Offset)] = {
 
-    // TODO: Double and Triple check api.* vs impl.*
-
     eventStreamElement match {
       case EventStreamElement(itemId, impl.AuctionStarted(_), offset) =>
         entityRefString(itemId).ask(impl.GetItem).map {
