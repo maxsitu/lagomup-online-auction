@@ -25,7 +25,9 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
   val transactionAggregate = TransactionAggregate(itemId, creator, winner, itemData, 2000, None, None, None)
   val startTransaction = StartTransaction(transactionAggregate)
   val submitDeliveryDetails = SubmitDeliveryDetails(winner, deliveryData)
-   val setDeliveryPrice = SetDeliveryPrice(creator, deliveryPrice)
+  val setDeliveryPrice = SetDeliveryPrice(creator, deliveryPrice)
+  val approveDeliveryDetails = ApproveDeliveryDetails(creator)
+
 
   def withTestDriver(block: PersistentEntityTestDriver[TransactionCommand, TransactionEvent, TransactionState] => Unit): Unit = {
     val driver = new PersistentEntityTestDriver(system, new TransactionEntity(mock[TransactionEventStream]), itemId.toString)
@@ -75,15 +77,26 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
     }
 
     "emit event when approving delivery details" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      val outcome = driver.run(approveDeliveryDetails)
+      outcome.state.status should ===(TransactionAggregateStatus.PaymentPending)
+      outcome.events should contain only DeliveryDetailsApproved(itemId)
     }
 
     "forbid approve delivery details by non-seller" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      val hacker = UUID.randomUUID()
+      val invalid = ApproveDeliveryDetails(hacker)
+      a[Forbidden] should be thrownBy driver.run(invalid)
     }
 
     "forbid approve empty delivery details" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      a[Forbidden] should be thrownBy driver.run(approveDeliveryDetails)
     }
 
     "emit event when submitting payment details" in withTestDriver { driver =>

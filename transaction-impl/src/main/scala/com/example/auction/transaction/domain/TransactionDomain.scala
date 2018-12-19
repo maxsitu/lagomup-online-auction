@@ -44,11 +44,26 @@ trait TransactionDomain {
         } else {
           throw Forbidden("Only the item creator can set the delivery price")
         }
+      case _ =>
+        ???
     }
   }
 
   def onApproveDeliveryDetails(command: ApproveDeliveryDetails, state: TransactionState, ctx: CommandContext[Done]): Persist = {
-    ???
+    state.status match {
+      case TransactionAggregateStatus.NegotiatingDelivery =>
+        if(command.userId == state.aggregate.get.creator) {
+          if(state.aggregate.get.deliveryData.isDefined && state.aggregate.get.deliveryPrice.isDefined) {
+            ctx.thenPersist(DeliveryDetailsApproved(UUID.fromString(entityId)))(_ => ctx.reply(Done))
+          } else {
+            throw Forbidden("Can't approve empty delivery detail")
+          }
+        } else {
+          throw Forbidden("Only the item creator can approve the delivery details")
+        }
+      case _ =>
+        ???
+    }
   }
 
   def onSubmitPaymentDetails(command: SubmitPaymentDetails, state: TransactionState, ctx: CommandContext[Done]): Persist = {
@@ -78,7 +93,7 @@ trait TransactionDomain {
   }
 
   def onDeliveryDetailsApproved(event: DeliveryDetailsApproved, state: TransactionState): TransactionState = {
-    ???
+    state.copy(status = TransactionAggregateStatus.PaymentPending)
   }
 
   def onPaymentDetailsSubmitted(event: PaymentDetailsSubmitted, state: TransactionState): TransactionState = {
