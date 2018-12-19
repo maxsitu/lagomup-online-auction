@@ -31,11 +31,20 @@ trait TransactionDomain {
         } else {
           throw Forbidden("Only the item creator can set the delivery price")
         }
+      case _ =>
+        ???
     }
   }
 
   def onSetDeliveryPrice(command: SetDeliveryPrice, state: TransactionState, ctx: CommandContext[Done]): Persist = {
-    ???
+    state.status match {
+      case TransactionAggregateStatus.NegotiatingDelivery =>
+        if (command.userId == state.aggregate.get.creator) {
+          ctx.thenPersist(DeliveryPriceUpdated(UUID.fromString(entityId), command.deliveryPrice))(_ => ctx.reply(Done))
+        } else {
+          throw Forbidden("Only the item creator can set the delivery price")
+        }
+    }
   }
 
   def onApproveDeliveryDetails(command: ApproveDeliveryDetails, state: TransactionState, ctx: CommandContext[Done]): Persist = {
@@ -64,7 +73,8 @@ trait TransactionDomain {
   }
 
   def onDeliveryPriceUpdated(event: DeliveryPriceUpdated, state: TransactionState): TransactionState = {
-    ???
+    val updatedAggregate = state.aggregate.get.copy(deliveryPrice = Some(event.deliveryPrice))
+    state.copy(aggregate = Some(updatedAggregate))
   }
 
   def onDeliveryDetailsApproved(event: DeliveryDetailsApproved, state: TransactionState): TransactionState = {

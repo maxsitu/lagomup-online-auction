@@ -1,10 +1,10 @@
 package com.example.auction.transaction.domain
 
-import java.time.Duration
 import java.util.UUID
 
 import akka.actor.ActorSystem
 import com.example.auction.transaction.impl._
+import com.lightbend.lagom.scaladsl.api.transport.Forbidden
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import com.lightbend.lagom.scaladsl.testkit.PersistentEntityTestDriver
 import org.scalamock.scalatest.MockFactory
@@ -25,6 +25,7 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
   val transactionAggregate = TransactionAggregate(itemId, creator, winner, itemData, 2000, None, None, None)
   val startTransaction = StartTransaction(transactionAggregate)
   val submitDeliveryDetails = SubmitDeliveryDetails(winner, deliveryData)
+   val setDeliveryPrice = SetDeliveryPrice(creator, deliveryPrice)
 
   def withTestDriver(block: PersistentEntityTestDriver[TransactionCommand, TransactionEvent, TransactionState] => Unit): Unit = {
     val driver = new PersistentEntityTestDriver(system, new TransactionEntity(mock[TransactionEventStream]), itemId.toString)
@@ -49,6 +50,68 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
       val outcome = driver.run(submitDeliveryDetails)
       outcome.state.status should ===(TransactionAggregateStatus.NegotiatingDelivery)
       outcome.events should contain only DeliveryDetailsSubmitted(itemId, deliveryData)
+    }
+
+    "forbid submitting delivery details by non-buyer" in withTestDriver { driver =>
+      driver.run(startTransaction)
+      val hacker = UUID.randomUUID()
+      val invalid = SubmitDeliveryDetails(hacker, deliveryData)
+      a[Forbidden] should be thrownBy driver.run(invalid)
+    }
+
+    "emit event when setting delivery price" in withTestDriver { driver =>
+      driver.run(startTransaction)
+      val outcome = driver.run(setDeliveryPrice)
+      outcome.state.status should ===(TransactionAggregateStatus.NegotiatingDelivery)
+      outcome.state.aggregate.get.deliveryPrice.get should ===(deliveryPrice)
+      outcome.events should contain only DeliveryPriceUpdated(itemId, deliveryPrice)
+    }
+
+    "forbid setting delivery price by non-seller" in withTestDriver { driver =>
+      driver.run(startTransaction)
+      val hacker = UUID.randomUUID()
+      val invalid = SetDeliveryPrice(hacker, deliveryPrice)
+      a[Forbidden] should be thrownBy driver.run(invalid)
+    }
+
+    "emit event when approving delivery details" in withTestDriver { driver =>
+      pending
+    }
+
+    "forbid approve delivery details by non-seller" in withTestDriver { driver =>
+      pending
+    }
+
+    "forbid approve empty delivery details" in withTestDriver { driver =>
+      pending
+    }
+
+    "emit event when submitting payment details" in withTestDriver { driver =>
+      pending
+    }
+
+    "forbid submitting payment details by non-buyer" in withTestDriver { driver =>
+      pending
+    }
+
+    "emit event when approving payment" in withTestDriver { driver =>
+      pending
+    }
+
+    "emit event when rejecting payment" in withTestDriver { driver =>
+      pending
+    }
+
+    "forbid submit payment status for non-seller" in withTestDriver { driver =>
+      pending
+    }
+
+    "allow see transaction by item creator" in withTestDriver { driver =>
+      pending
+    }
+
+    "forbid see transaction by non-winner or non-creator" in withTestDriver { driver =>
+      pending
     }
 
   }
