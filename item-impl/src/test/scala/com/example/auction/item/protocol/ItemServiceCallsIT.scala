@@ -4,8 +4,8 @@ import java.util.UUID
 
 import akka.NotUsed
 import com.example.auction.bidding.api._
-import com.example.auction.item.api.{Item, ItemData, ItemService}
-import com.example.auction.item.impl.ItemApplication
+import com.example.auction.item.api.{Item, ItemData, ItemService, ItemSummary}
+import com.example.auction.item.impl.{ItemAggregateStatus, ItemApplication}
 import com.example.auction.utils.ClientSecurity
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.transport.RequestHeader
@@ -14,6 +14,10 @@ import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory, ServiceTest, TestTopicComponents}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import play.api.Configuration
+
+import scala.concurrent.{Future, Promise}
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
 class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -48,7 +52,24 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
     }
 
     "return all items for a given user" in {
-      pending
+      val tom = UUID.randomUUID
+      val jerry = UUID.randomUUID
+      val tomItem = sampleItem(tom)
+      val jerryItem = sampleItem(jerry)
+      (for {
+        _ <- createItem(jerry, jerryItem)
+        createdTomItem <- createItem(tom, tomItem)
+      } yield {
+        awaitSuccess() {
+          for {
+            items <- itemService.getItemsForUser(tom, "Created", None).invoke()
+          } yield {
+            items.count should ===(1)
+            items.items should contain only ItemSummary(createdTomItem.id.getOrElse(UUID.randomUUID()), tomItem.itemData.title, tomItem.itemData.currencyId,
+              tomItem.itemData.reservePrice, tomItem.status)
+          }
+        }
+      }).flatMap(identity)
     }
 
     "emit auction started event" in {
@@ -80,6 +101,23 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
   private def retrieveItem(item: Item) = {
     // TODO: ID generation was method on Item
     itemService.getItem(item.id.getOrElse(UUID.randomUUID())).invoke
+  }
+
+  private def awaitSuccess[T](maxDuration: FiniteDuration = 10.seconds, checkEvery: FiniteDuration = 100.milliseconds)(block: => Future[T]): Future[T] = {
+    val checkUntil = System.currentTimeMillis() + maxDuration.toMillis
+
+    def doCheck(): Future[T] = {
+      block.recoverWith {
+        case recheck if checkUntil > System.currentTimeMillis() =>
+          val timeout = Promise[T]()
+          server.application.actorSystem.scheduler.scheduleOnce(checkEvery) {
+            timeout.completeWith(doCheck())
+          }(server.executionContext)
+          timeout.future
+      }
+    }
+
+    doCheck()
   }
 
 }

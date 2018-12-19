@@ -58,7 +58,7 @@ trait ItemServiceCalls {
     }
   }
 
-  def _getItemForUser(id: UUID, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
+  def _getItemsForUser(id: UUID, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
     getItemsForUser(id, status, page, DefaultFetchSize)
   }
 

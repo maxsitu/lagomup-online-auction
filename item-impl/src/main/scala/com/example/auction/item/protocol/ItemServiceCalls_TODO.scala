@@ -29,7 +29,7 @@ def _getItem(id: UUID, request: NotUsed): Future[Item] = {
   ???
 }
 
-def _getItemForUser(id: UUID, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
+def _getItemsForUser(id: UUID, status: String, page: Option[String], request: NotUsed): Future[ItemSummaryPagingState] = {
   ???
 }
 

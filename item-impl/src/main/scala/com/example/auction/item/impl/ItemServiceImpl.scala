@@ -31,8 +31,8 @@ override def getItem(id: UUID) = ServiceCall { request =>
   _getItem(id, request)
 }
 
-override def getItemForUser(id: UUID, status: String, page: Option[String]) = ServiceCall { request =>
-  _getItemForUser(id, status, page, request)
+override def getItemsForUser(id: UUID, status: String, page: Option[String]) = ServiceCall { request =>
+  _getItemsForUser(id, status, page, request)
 }
 
 

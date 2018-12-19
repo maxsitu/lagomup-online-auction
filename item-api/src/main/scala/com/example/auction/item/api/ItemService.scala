@@ -23,7 +23,7 @@ def startAuction(id: UUID): ServiceCall[NotUsed, Done]
 
 def getItem(id: UUID): ServiceCall[NotUsed, Item]
 
-def getItemForUser(id: UUID, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState]
+def getItemsForUser(id: UUID, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState]
 
 
   def itemEvents: Topic[ItemEvent]
@@ -37,7 +37,7 @@ def getItemForUser(id: UUID, status: String, page: Option[String]): ServiceCall[
   pathCall("/api/item", createItem _)(implicitly[MessageSerializer[Item, ByteString]], implicitly[MessageSerializer[Item, ByteString]]),
 pathCall("/api/item/:id/start", startAuction _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[Done, ByteString]]),
 pathCall("/api/item/:id", getItem _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[Item, ByteString]]),
-pathCall("/api/item?userId&status&page", getItemForUser _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[ItemSummaryPagingState, ByteString]])
+pathCall("/api/item?userId&status&page", getItemsForUser _)(implicitly[MessageSerializer[NotUsed, ByteString]], implicitly[MessageSerializer[ItemSummaryPagingState, ByteString]])
 )
 
     .withTopics(
