@@ -29,6 +29,22 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
   case (command: SubmitDeliveryDetails, ctx, state) =>
     onSubmitDeliveryDetails(command, state, ctx)
 }
+.onCommand[SetDeliveryPrice, Done] {
+  case (command: SetDeliveryPrice, ctx, state) =>
+    onSetDeliveryPrice(command, state, ctx)
+}
+.onCommand[ApproveDeliveryDetails, Done] {
+  case (command: ApproveDeliveryDetails, ctx, state) =>
+    onApproveDeliveryDetails(command, state, ctx)
+}
+.onCommand[SubmitPaymentDetails, Done] {
+  case (command: SubmitPaymentDetails, ctx, state) =>
+    onSubmitPaymentDetails(command, state, ctx)
+}
+.onCommand[SubmitPaymentStatus, Done] {
+  case (command: SubmitPaymentStatus, ctx, state) =>
+    onSubmitPaymentStatus(command, state, ctx)
+}
 
       .onReadOnlyCommand[GetTransaction.type, Option[TransactionAggregate]] {
   case (query: GetTransaction.type, ctx, state) =>
@@ -42,6 +58,26 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
 .onEvent {
   case (event: DeliveryDetailsSubmitted, state) =>
     onDeliveryDetailsSubmitted(event, state)
+}
+.onEvent {
+  case (event: DeliveryPriceUpdated, state) =>
+    onDeliveryPriceUpdated(event, state)
+}
+.onEvent {
+  case (event: DeliveryDetailsApproved, state) =>
+    onDeliveryDetailsApproved(event, state)
+}
+.onEvent {
+  case (event: PaymentDetailsSubmitted, state) =>
+    onPaymentDetailsSubmitted(event, state)
+}
+.onEvent {
+  case (event: PaymentApproved, state) =>
+    onPaymentApproved(event, state)
+}
+.onEvent {
+  case (event: PaymentRejected, state) =>
+    onPaymentRejected(event, state)
 }
 
   }
@@ -82,6 +118,30 @@ object SubmitDeliveryDetails {
   implicit val format: Format[SubmitDeliveryDetails] = Json.format
 }
 
+case class SetDeliveryPrice(userId: UUID, deliveryPrice: Int) extends TransactionCommand with ReplyType[Done]
+
+object SetDeliveryPrice {
+  implicit val format: Format[SetDeliveryPrice] = Json.format
+}
+
+case class ApproveDeliveryDetails(userId: UUID) extends TransactionCommand with ReplyType[Done]
+
+object ApproveDeliveryDetails {
+  implicit val format: Format[ApproveDeliveryDetails] = Json.format
+}
+
+case class SubmitPaymentDetails(userId: UUID, payment: Payment) extends TransactionCommand with ReplyType[Done]
+
+object SubmitPaymentDetails {
+  implicit val format: Format[SubmitPaymentDetails] = Json.format
+}
+
+case class SubmitPaymentStatus(userId: UUID, paymentStatus: String) extends TransactionCommand with ReplyType[Done]
+
+object SubmitPaymentStatus {
+  implicit val format: Format[SubmitPaymentStatus] = Json.format
+}
+
 case object GetTransaction extends TransactionCommand with ReplyType[Option[TransactionAggregate]] {
   implicit val format: Format[GetTransaction.type] = JsonSerializer.emptySingletonFormat(GetTransaction)
 }
@@ -104,6 +164,36 @@ case class DeliveryDetailsSubmitted(itemId: UUID, deliveryData: DeliveryData) ex
 
 object DeliveryDetailsSubmitted {
   implicit val format: Format[DeliveryDetailsSubmitted] = Json.format
+}
+
+case class DeliveryPriceUpdated(itemId: UUID, deliveryPrice: Int) extends TransactionEvent
+
+object DeliveryPriceUpdated {
+  implicit val format: Format[DeliveryPriceUpdated] = Json.format
+}
+
+case class DeliveryDetailsApproved(itemId: UUID) extends TransactionEvent
+
+object DeliveryDetailsApproved {
+  implicit val format: Format[DeliveryDetailsApproved] = Json.format
+}
+
+case class PaymentDetailsSubmitted(itemId: UUID, payment: Payment) extends TransactionEvent
+
+object PaymentDetailsSubmitted {
+  implicit val format: Format[PaymentDetailsSubmitted] = Json.format
+}
+
+case class PaymentApproved(itemId: UUID) extends TransactionEvent
+
+object PaymentApproved {
+  implicit val format: Format[PaymentApproved] = Json.format
+}
+
+case class PaymentRejected(itemId: UUID) extends TransactionEvent
+
+object PaymentRejected {
+  implicit val format: Format[PaymentRejected] = Json.format
 }
 
 case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
@@ -150,9 +240,18 @@ object TransactionSerializerRegistry extends JsonSerializerRegistry {
 JsonSerializer[TransactionAggregate],
 JsonSerializer[StartTransaction],
 JsonSerializer[SubmitDeliveryDetails],
+JsonSerializer[SetDeliveryPrice],
+JsonSerializer[ApproveDeliveryDetails],
+JsonSerializer[SubmitPaymentDetails],
+JsonSerializer[SubmitPaymentStatus],
 JsonSerializer[GetTransaction.type],
 JsonSerializer[TransactionStarted],
 JsonSerializer[DeliveryDetailsSubmitted],
+JsonSerializer[DeliveryPriceUpdated],
+JsonSerializer[DeliveryDetailsApproved],
+JsonSerializer[PaymentDetailsSubmitted],
+JsonSerializer[PaymentApproved],
+JsonSerializer[PaymentRejected],
 JsonSerializer[ItemData],
 JsonSerializer[DeliveryData],
 JsonSerializer[Payment]

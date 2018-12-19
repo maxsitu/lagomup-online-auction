@@ -4,7 +4,7 @@ import com.example.auction.transaction.impl._
 import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
-trait TransactionDomain {
+trait TransactionDomain_TODO {
   this: TransactionEntity with PersistentEntity =>
 
   def transactionEventStream: TransactionEventStream
