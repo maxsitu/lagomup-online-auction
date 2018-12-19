@@ -1,24 +1,24 @@
 package com.example.auction.item.protocol
 
+import java.time.Duration
 import java.util.UUID
 
-import akka.NotUsed
 import akka.stream.scaladsl.Sink
-import com.example.auction.bidding.api._
+import com.example.auction.item.api
 import com.example.auction.item.api._
-import com.example.auction.item.impl.{ItemAggregateStatus, ItemApplication}
+import com.example.auction.item.impl.ItemApplication
+//import com.example.auction.security.ClientSecurity._
 import com.example.auction.utils.ClientSecurity
-import com.lightbend.lagom.scaladsl.api.broker.Topic
-import com.lightbend.lagom.scaladsl.api.transport.RequestHeader
-import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
-import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory, ServiceTest, TestTopicComponents}
+import com.lightbend.lagom.scaladsl.api.AdditionalConfiguration
+import com.lightbend.lagom.scaladsl.server.{LagomApplication, LocalServiceLocator}
+import com.lightbend.lagom.scaladsl.testkit.{ServiceTest, TestTopicComponents}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import play.api.Configuration
+import play.api.libs.ws.ahc.AhcWSComponents
 
-import scala.concurrent.{Future, Promise}
-import scala.concurrent.duration.FiniteDuration
+import scala.collection.immutable.Seq
 import scala.concurrent.duration._
+import scala.concurrent.{Future, Promise}
 
 class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -88,7 +88,6 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
         events.head shouldBe an[ItemUpdated]
         events.drop(1).head shouldBe an[AuctionStarted]
       }
-      pending // Just hanging...
     }
 
   }

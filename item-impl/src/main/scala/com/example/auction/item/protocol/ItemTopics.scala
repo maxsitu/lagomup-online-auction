@@ -23,7 +23,7 @@ trait ItemTopics {
       ports.entityRegistry.eventStream(impl.ItemEvent.Tag, fromOffset)
         .filter { e =>
           e.event match {
-            case x@(_: ItemCreated | _: AuctionStarted | _: AuctionFinished) => true
+            case x@(_: impl.ItemCreated | _: impl.AuctionStarted | _: impl.AuctionFinished) => true
             case _ => false
           }
         }.mapAsync(1)(convertEvent)
