@@ -7,6 +7,7 @@ import com.example.auction.item.api._
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
+import com.example.auction.transaction.domain.TransactionReadRepository
 
 import scala.concurrent.ExecutionContext
 
@@ -15,7 +16,8 @@ case class TransactionPorts(
 itemService: ItemService, 
 entityRegistry: PersistentEntityRegistry, 
 db: CassandraSession, 
-transactionEventStream: TransactionEventStream
+transactionEventStream: TransactionEventStream, 
+transactionRepository: TransactionReadRepository
 )
 
 case class AkkaComponents(

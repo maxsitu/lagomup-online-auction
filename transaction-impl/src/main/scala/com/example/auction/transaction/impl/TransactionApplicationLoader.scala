@@ -34,6 +34,8 @@ abstract class TransactionApplication(context: LagomApplicationContext)
   override lazy val jsonSerializerRegistry = TransactionSerializerRegistry
   persistentEntityRegistry.register(wire[TransactionEntity])
 lazy val transactionEventStream = wire[TransactionEventStreamImpl]
+lazy val transactionRepository = wire[TransactionRepositoryImpl]
+readSide.register(transactionRepository)
 
 
   val itemService = serviceClient.implement[ItemService]
