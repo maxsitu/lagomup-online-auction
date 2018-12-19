@@ -36,7 +36,7 @@ def onSubmitPaymentStatus(command: SubmitPaymentStatus, state: TransactionState,
 }
 
 
-  def onGetTransaction(query: GetTransaction.type, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
+  def onGetTransaction(query: GetTransaction, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
   ???
 }
 

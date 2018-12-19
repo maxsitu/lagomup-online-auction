@@ -67,15 +67,44 @@ trait TransactionDomain {
   }
 
   def onSubmitPaymentDetails(command: SubmitPaymentDetails, state: TransactionState, ctx: CommandContext[Done]): Persist = {
-    ???
+    state.status match {
+      case TransactionAggregateStatus.PaymentPending =>
+        if (command.userId == state.aggregate.get.winner) {
+          ctx.thenPersist(PaymentDetailsSubmitted(UUID.fromString(entityId), command.payment))(_ => ctx.reply(Done))
+        } else {
+          throw Forbidden("Only the auction winner can submit payment details")
+        }
+      case _ =>
+        ???
+    }
   }
 
   def onSubmitPaymentStatus(command: SubmitPaymentStatus, state: TransactionState, ctx: CommandContext[Done]): Persist = {
-    ???
+    state.status match {
+      case TransactionAggregateStatus.PaymentSubmitted =>
+        if (command.userId ==  state.aggregate.get.creator) {
+          command.paymentStatus match {
+            case "Approved" =>
+              ctx.thenPersist(PaymentApproved(UUID.fromString(entityId)))(_ => ctx.reply(Done))
+            case "Rejected" =>
+              ctx.thenPersist(PaymentRejected(UUID.fromString(entityId)))(_ => ctx.reply(Done))
+            case _ =>
+              throw new IllegalArgumentException("Illegal payment status")
+          }
+        } else {
+          throw Forbidden("Only the item creator can approve or reject payment")
+        }
+      case _ =>
+        ???
+    }
   }
 
-  def onGetTransaction(query: GetTransaction.type, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
-    ???
+  def onGetTransaction(query: GetTransaction, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
+    if (query.userId == state.aggregate.get.creator || query.userId == state.aggregate.get.winner){
+      ctx.reply(state.aggregate)
+    } else {
+      throw Forbidden("Only the item owner and the auction winner can see transaction details")
+    }
   }
 
   def onTransactionStarted(event: TransactionStarted, state: TransactionState): TransactionState = {
@@ -97,15 +126,19 @@ trait TransactionDomain {
   }
 
   def onPaymentDetailsSubmitted(event: PaymentDetailsSubmitted, state: TransactionState): TransactionState = {
-    ???
+    val updatedAggregate = state.aggregate.get.copy(payment = Some(event.payment))
+    state.copy(
+      aggregate = Some(updatedAggregate),
+      status = TransactionAggregateStatus.PaymentSubmitted
+    )
   }
 
   def onPaymentApproved(event: PaymentApproved, state: TransactionState): TransactionState = {
-    ???
+    state.copy(status = TransactionAggregateStatus.PaymentConfirmed)
   }
 
   def onPaymentRejected(event: PaymentRejected, state: TransactionState): TransactionState = {
-    ???
+    state.copy(status = TransactionAggregateStatus.PaymentPending)
   }
 
 }

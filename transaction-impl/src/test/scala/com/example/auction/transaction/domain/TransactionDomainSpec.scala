@@ -27,7 +27,10 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
   val submitDeliveryDetails = SubmitDeliveryDetails(winner, deliveryData)
   val setDeliveryPrice = SetDeliveryPrice(creator, deliveryPrice)
   val approveDeliveryDetails = ApproveDeliveryDetails(creator)
-
+  val submitPaymentDetails = SubmitPaymentDetails(winner, payment)
+  val approvePayment = SubmitPaymentStatus(creator, "Approved")
+  val rejectPayment = SubmitPaymentStatus(creator, "Rejected")
+  val getTransaction = GetTransaction(creator)
 
   def withTestDriver(block: PersistentEntityTestDriver[TransactionCommand, TransactionEvent, TransactionState] => Unit): Unit = {
     val driver = new PersistentEntityTestDriver(system, new TransactionEntity(mock[TransactionEventStream]), itemId.toString)
@@ -100,31 +103,70 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
     }
 
     "emit event when submitting payment details" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      driver.run(approveDeliveryDetails)
+      val outcome = driver.run(submitPaymentDetails)
+      outcome.state.status should ===(TransactionAggregateStatus.PaymentSubmitted)
+      outcome.state.aggregate.get.payment.get should ===(payment)
+      outcome.events should contain only PaymentDetailsSubmitted(itemId, payment)
     }
 
     "forbid submitting payment details by non-buyer" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      driver.run(approveDeliveryDetails)
+      val hacker = UUID.randomUUID
+      val invalid = SubmitPaymentDetails(hacker, payment)
+      a[Forbidden] should be thrownBy driver.run(invalid)
     }
 
     "emit event when approving payment" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      driver.run(approveDeliveryDetails)
+      driver.run(submitPaymentDetails)
+      val outcome = driver.run(approvePayment)
+      outcome.state.status should ===(TransactionAggregateStatus.PaymentConfirmed)
+      outcome.events should contain only PaymentApproved(itemId)
     }
 
     "emit event when rejecting payment" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      driver.run(approveDeliveryDetails)
+      driver.run(submitPaymentDetails)
+      val outcome = driver.run(rejectPayment)
+      outcome.state.status should ===(TransactionAggregateStatus.PaymentPending)
+      outcome.events should contain only PaymentRejected(itemId)
     }
 
     "forbid submit payment status for non-seller" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      driver.run(submitDeliveryDetails)
+      driver.run(setDeliveryPrice)
+      driver.run(approveDeliveryDetails)
+      driver.run(submitPaymentDetails)
+      val hacker = UUID.randomUUID
+      val invalid = SubmitPaymentStatus(hacker, "Rejected")
+      a[Forbidden] should be thrownBy driver.run(invalid)
     }
 
     "allow see transaction by item creator" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      val outcome = driver.run(getTransaction)
+      outcome.replies should contain only outcome.state.aggregate
     }
 
     "forbid see transaction by non-winner or non-creator" in withTestDriver { driver =>
-      pending
+      driver.run(startTransaction)
+      val hacker = UUID.randomUUID
+      val invalid = GetTransaction(hacker)
+      a[Forbidden] should be thrownBy driver.run(invalid)
     }
 
   }
