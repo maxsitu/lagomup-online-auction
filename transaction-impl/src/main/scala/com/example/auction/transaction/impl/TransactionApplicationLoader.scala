@@ -9,7 +9,7 @@ import com.lightbend.lagom.scaladsl.server._
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import play.api.libs.ws.ahc.AhcWSComponents
-
+import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaClientComponents
 import com.example.auction.item.api.ItemService
 
 import com.softwaremill.macwire._
@@ -17,12 +17,12 @@ import com.softwaremill.macwire._
 class TransactionApplicationLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new TransactionApplication(context)  {
+    new TransactionApplication(context) with LagomKafkaClientComponents {
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new TransactionApplication(context)  with LagomDevModeComponents
+    new TransactionApplication(context) with LagomKafkaClientComponents with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[TransactionService])
 
