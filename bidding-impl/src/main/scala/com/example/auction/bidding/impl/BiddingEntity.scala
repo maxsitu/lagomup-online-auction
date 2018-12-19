@@ -111,6 +111,7 @@ case object GetAuction extends BiddingCommand with ReplyType[Option[AuctionAggre
 }
 
 sealed trait BiddingEvent extends AggregateEvent[BiddingEvent] {
+  
   def aggregateTag = BiddingEvent.Tag
 }
 

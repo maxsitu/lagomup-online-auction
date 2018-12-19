@@ -115,6 +115,7 @@ case object GetItem extends ItemCommand with ReplyType[Option[ItemAggregate]] {
 }
 
 sealed trait ItemEvent extends AggregateEvent[ItemEvent] {
+  
   def aggregateTag = ItemEvent.Tag
 }
 

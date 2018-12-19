@@ -73,6 +73,8 @@ case object GetUser extends UserCommand with ReplyType[Option[UserAggregate]] {
 }
 
 sealed trait UserEvent extends AggregateEvent[UserEvent] {
+  val name: String
+
   def aggregateTag = UserEvent.Tag
 }
 

@@ -149,6 +149,8 @@ object GetTransaction {
 }
 
 sealed trait TransactionEvent extends AggregateEvent[TransactionEvent] {
+  val itemId: UUID
+
   def aggregateTag = TransactionEvent.Tag
 }
 
