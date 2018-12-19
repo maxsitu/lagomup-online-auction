@@ -6,12 +6,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import akka.Done
 import akka.persistence.query.Sequence
 import com.datastax.driver.core.utils.UUIDs
-import com.example.auction.transaction.api.TransactionSummary
-import com.example.auction.transaction.impl
 import com.example.auction.transaction.impl._
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
-import com.lightbend.lagom.scaladsl.persistence.ReadSide
 import com.lightbend.lagom.scaladsl.testkit.{ReadSideTestDriver, ServiceTest}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 
@@ -23,7 +20,7 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
     new TransactionApplication(ctx) {
       override def serviceLocator: ServiceLocator = NoServiceLocator
 
-      override lazy val readSide: ReadSide = new ReadSideTestDriver()
+      override lazy val readSide = new ReadSideTestDriver()
     }
   }
 
@@ -49,8 +46,7 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
   "The transaction repository" should {
 
     "get transaction started for creator" in {
-      //shouldGetTransactionStarted(creatorId)
-      pending
+      shouldGetTransactionStarted(creatorId)
     }
 
     "get transaction started for winner" in {
@@ -102,21 +98,21 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
       transactions <- getTransactions(userId, "NegotiatingDelivery")
     } yield {
       transactions should have size 1
-      val expected = new TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "NegotiatingDelivery")
-      transactions.head should ===(expected)
+      val expected: TransactionSummary = TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "NegotiatingDelivery")
+      val actual: TransactionSummary = transactions.head
+      actual should ===(expected)
     }
   }
 
   // TODO: Paging
   // TODO: Status enum
-  private def getTransactions(userId: UUID, transactionStatus: String): Future[Seq[impl.TransactionSummary]] = {
+  private def getTransactions(userId: UUID, transactionStatus: String): Future[Seq[TransactionSummary]] = {
     transactionRepository.selectUserTransactions(userId, transactionStatus, 10)
   }
 
   private def feed(event: TransactionEvent): Future[Done] = {
     // TODO: Event needs itemId
-    //testDriver.feed(event.itemId.toString, event, Sequence(offset.getAndIncrement))
-    ???
+    testDriver.feed(event.itemId.toString, event, Sequence(offset.getAndIncrement))
   }
 
 }
