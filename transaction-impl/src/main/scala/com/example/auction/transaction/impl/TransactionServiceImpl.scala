@@ -12,6 +12,8 @@ import akka.stream.scaladsl.Flow
 import scala.concurrent.ExecutionContext
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import java.util.UUID
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 
 
 class TransactionServiceImpl(val ports: TransactionPorts) extends TransactionService

@@ -110,14 +110,15 @@ lazy val `transaction-api` = (project in file("transaction-api"))
 
 lazy val `transaction-impl` = (project in file("transaction-impl"))
   .enablePlugins(LagomScala)
-  
+  .settings(lagomForkedTestSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "com.softwaremill.macwire" %% "macros" % "2.3.1" % Provided,
 lagomScaladslPubSub,
 "org.scalatest" %% "scalatest" % "3.0.5" % Test,
 "org.scalamock" %% "scalamock" % "4.1.0" % Test,
-lagomScaladslTestKit
+lagomScaladslTestKit,
+lagomScaladslPersistenceCassandra
     )
   )
   .dependsOn(`transaction-api`)

@@ -3,6 +3,7 @@ package com.example.auction.transaction.impl
 import com.example.auction.transaction.api.TransactionService
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
+import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceComponents
 
 import com.lightbend.lagom.scaladsl.server._
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
@@ -29,9 +30,12 @@ class TransactionApplicationLoader extends LagomApplicationLoader {
 
 abstract class TransactionApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
-  with AhcWSComponents with PubSubComponents  {
-  
-  
+  with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
+  override lazy val jsonSerializerRegistry = TransactionSerializerRegistry
+  persistentEntityRegistry.register(wire[TransactionEntity])
+lazy val transactionEventStream = wire[TransactionEventStreamImpl]
+
+
   val itemService = serviceClient.implement[ItemService]
 
   lazy val akkaComponents = wire[AkkaComponents]
