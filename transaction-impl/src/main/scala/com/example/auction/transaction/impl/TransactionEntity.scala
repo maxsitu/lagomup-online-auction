@@ -25,6 +25,10 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
   case (command: StartTransaction, ctx, state) =>
     onStartTransaction(command, state, ctx)
 }
+.onCommand[SubmitDeliveryDetails, Done] {
+  case (command: SubmitDeliveryDetails, ctx, state) =>
+    onSubmitDeliveryDetails(command, state, ctx)
+}
 
       .onReadOnlyCommand[GetTransaction.type, Option[TransactionAggregate]] {
   case (query: GetTransaction.type, ctx, state) =>
@@ -34,6 +38,10 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
       .onEvent {
   case (event: TransactionStarted, state) =>
     onTransactionStarted(event, state)
+}
+.onEvent {
+  case (event: DeliveryDetailsSubmitted, state) =>
+    onDeliveryDetailsSubmitted(event, state)
 }
 
   }
@@ -68,6 +76,12 @@ object StartTransaction {
   implicit val format: Format[StartTransaction] = Json.format
 }
 
+case class SubmitDeliveryDetails(userId: UUID, deliveryData: DeliveryData) extends TransactionCommand with ReplyType[Done]
+
+object SubmitDeliveryDetails {
+  implicit val format: Format[SubmitDeliveryDetails] = Json.format
+}
+
 case object GetTransaction extends TransactionCommand with ReplyType[Option[TransactionAggregate]] {
   implicit val format: Format[GetTransaction.type] = JsonSerializer.emptySingletonFormat(GetTransaction)
 }
@@ -84,6 +98,12 @@ case class TransactionStarted(itemId: UUID, transaction: TransactionAggregate) e
 
 object TransactionStarted {
   implicit val format: Format[TransactionStarted] = Json.format
+}
+
+case class DeliveryDetailsSubmitted(itemId: UUID, deliveryData: DeliveryData) extends TransactionEvent
+
+object DeliveryDetailsSubmitted {
+  implicit val format: Format[DeliveryDetailsSubmitted] = Json.format
 }
 
 case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
@@ -129,8 +149,10 @@ object TransactionSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[TransactionState],
 JsonSerializer[TransactionAggregate],
 JsonSerializer[StartTransaction],
+JsonSerializer[SubmitDeliveryDetails],
 JsonSerializer[GetTransaction.type],
 JsonSerializer[TransactionStarted],
+JsonSerializer[DeliveryDetailsSubmitted],
 JsonSerializer[ItemData],
 JsonSerializer[DeliveryData],
 JsonSerializer[Payment]
