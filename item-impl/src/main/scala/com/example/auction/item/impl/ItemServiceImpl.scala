@@ -19,11 +19,11 @@ import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraSession
 class ItemServiceImpl(val ports: ItemPorts) extends ItemService
   with ItemServiceCalls with ItemTopics {
 
-  override def createItem() = _createItemAuthentication(userId => ServerServiceCall { request =>
+  override def createItem() = _authenticateCreateItem(userId => ServerServiceCall { request =>
   _createItem(userId, request)
 })
 
-override def startAuction(id: UUID) = _startAuctionAuthentication(userId => ServerServiceCall { request =>
+override def startAuction(id: UUID) = _authenticateStartAuction(userId => ServerServiceCall { request =>
   _startAuction(userId, id, request)
 })
 

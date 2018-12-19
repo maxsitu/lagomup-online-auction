@@ -35,11 +35,11 @@ def _getItemsForUser(id: UUID, status: String, page: Option[String], request: No
 
 
 
-  def _createItemAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _authenticateCreateItem[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
   ???
 }
 
-def _startAuctionAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+def _authenticateStartAuction[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
   ???
 }
 

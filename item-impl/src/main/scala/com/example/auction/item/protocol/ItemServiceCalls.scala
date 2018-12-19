@@ -62,11 +62,11 @@ trait ItemServiceCalls {
     getItemsForUser(id, status, page, DefaultFetchSize)
   }
 
-  def _createItemAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _authenticateCreateItem[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
     ServerSecurity.authenticated(serviceCall)
   }
 
-  def _startAuctionAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _authenticateStartAuction[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
     ServerSecurity.authenticated(serviceCall)
   }
 

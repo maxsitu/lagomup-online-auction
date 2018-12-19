@@ -30,7 +30,7 @@ trait BiddingServiceCalls {
     }
   }
 
-  def _placeBidAuthentication[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
+  def _authenticatePlaceBid[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
     ServerSecurity.authenticated(serviceCall)
   }
 
