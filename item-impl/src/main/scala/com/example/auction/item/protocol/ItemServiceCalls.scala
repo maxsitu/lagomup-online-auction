@@ -47,7 +47,7 @@ trait ItemServiceCalls {
     }
   }
 
-  def _startAuction(id: UUID, userId: UUID, request: NotUsed): Future[Done] = {
+  def _startAuction(userId: UUID, id: UUID, request: NotUsed): Future[Done] = {
     ports.entityRegistry.refFor[ItemEntity](id.toString).ask(StartAuction(userId))
   }
 

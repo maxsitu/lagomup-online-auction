@@ -21,7 +21,7 @@ trait ItemServiceCalls_TODO {
   ???
 }
 
-def _startAuction(id: UUID, userId: UUID, request: NotUsed): Future[Done] = {
+def _startAuction(userId: UUID, id: UUID, request: NotUsed): Future[Done] = {
   ???
 }
 

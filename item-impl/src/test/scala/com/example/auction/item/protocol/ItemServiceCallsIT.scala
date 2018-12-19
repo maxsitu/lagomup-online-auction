@@ -3,8 +3,9 @@ package com.example.auction.item.protocol
 import java.util.UUID
 
 import akka.NotUsed
+import akka.stream.scaladsl.Sink
 import com.example.auction.bidding.api._
-import com.example.auction.item.api.{Item, ItemData, ItemService, ItemSummary}
+import com.example.auction.item.api._
 import com.example.auction.item.impl.{ItemAggregateStatus, ItemApplication}
 import com.example.auction.utils.ClientSecurity
 import com.lightbend.lagom.scaladsl.api.broker.Topic
@@ -35,7 +36,7 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
 
   val itemService = server.serviceClient.implement[ItemService]
 
-  //import server.materializer
+  import server.materializer
 
   override def afterAll(): Unit = server.stop()
 
@@ -45,7 +46,7 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
       val creatorId = UUID.randomUUID()
       for {
         created <- createItem(creatorId, sampleItem(creatorId))
-        retrieved <- retrieveItem(created)
+        retrieved <- retrieveItem(created.id.get)
       } yield {
         created should ===(retrieved)
       }
@@ -73,7 +74,21 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
     }
 
     "emit auction started event" in {
-      pending
+      val creatorId = UUID.randomUUID
+      for {
+        createdItem <- createItem(creatorId, sampleItem(creatorId))
+        _ <- retrieveItem(createdItem.id.get)
+        _ <- startAuction(creatorId, createdItem.id.get)
+        events: Seq[ItemEvent] <- itemService.itemEvents.subscribe.atMostOnceSource
+          .filter(_.itemId == createdItem.id.getOrElse(UUID.randomUUID()))
+          .take(2)
+          .runWith(Sink.seq)
+      } yield {
+        events.size shouldBe 2
+        events.head shouldBe an[ItemUpdated]
+        events.drop(1).head shouldBe an[AuctionStarted]
+      }
+      pending // Just hanging...
     }
 
   }
@@ -98,9 +113,12 @@ class ItemServiceCallsIT extends AsyncWordSpec with Matchers with BeforeAndAfter
     itemService.createItem().handleRequestHeader(ClientSecurity.authenticate(creatorId)).invoke(createItem)
   }
 
-  private def retrieveItem(item: Item) = {
-    // TODO: ID generation was method on Item
-    itemService.getItem(item.id.getOrElse(UUID.randomUUID())).invoke
+  private def retrieveItem(itemId: UUID) = {
+    itemService.getItem(itemId).invoke
+  }
+
+  private def startAuction(creatorId: UUID, itemId: UUID) = {
+    itemService.startAuction(itemId).handleRequestHeader(ClientSecurity.authenticate(creatorId)).invoke
   }
 
   private def awaitSuccess[T](maxDuration: FiniteDuration = 10.seconds, checkEvery: FiniteDuration = 100.milliseconds)(block: => Future[T]): Future[T] = {

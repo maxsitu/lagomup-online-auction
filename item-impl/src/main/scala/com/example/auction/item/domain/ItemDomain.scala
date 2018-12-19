@@ -13,8 +13,8 @@ trait ItemDomain {
 
   def initialState: ItemState = ItemState(None, ItemAggregateStatus.NotCreated)
 
-  def onCreateItem(command: CreateItem, aggregate: ItemState, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
+  def onCreateItem(command: CreateItem, state: ItemState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
       case ItemAggregateStatus.NotCreated =>
         ctx.thenPersist(ItemCreated(command.item))(_ => ctx.reply(Done))
       case _ =>
@@ -40,8 +40,8 @@ trait ItemDomain {
     }
   }
 
-  def onUpdatePrice(command: UpdatePrice, aggregate: ItemState, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
+  def onUpdatePrice(command: UpdatePrice, state: ItemState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
       case ItemAggregateStatus.Auction =>
         ctx.thenPersist(PriceUpdated(command.price))(_ => ctx.reply(Done))
       case ItemAggregateStatus.Completed | ItemAggregateStatus.Cancelled =>
@@ -52,8 +52,8 @@ trait ItemDomain {
     }
   }
 
-  def onFinishAuction(command: FinishAuction, aggregate: ItemState, ctx: CommandContext[Done]): Persist = {
-    aggregate.status match {
+  def onFinishAuction(command: FinishAuction, state: ItemState, ctx: CommandContext[Done]): Persist = {
+    state.status match {
       case ItemAggregateStatus.Auction =>
         ctx.thenPersist(AuctionFinished(command.winner, command.price))(_ => ctx.reply(Done))
       case ItemAggregateStatus.Completed | ItemAggregateStatus.Cancelled =>

@@ -16,7 +16,7 @@ trait BiddingServiceCalls {
   val ports: BiddingPorts
   implicit val serviceEC: ExecutionContext = ports.akkaComponents.ec
 
-  def _placeBid(itemId: UUID, userId: UUID, request: PlaceBid): Future[BidResult] = {
+  def _placeBid(userId: UUID, itemId: UUID, request: PlaceBid): Future[BidResult] = {
     ports.entityRegistry.refFor[BiddingEntity](itemId.toString).ask(impl.PlaceBid(request.maximumBidPrice, userId)).map { result =>
       // TODO: result.status enum
       BidResult(result.currentPrice, result.status, result.currentBidder)

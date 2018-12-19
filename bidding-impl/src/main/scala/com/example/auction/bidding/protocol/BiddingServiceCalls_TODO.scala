@@ -16,7 +16,7 @@ trait BiddingServiceCalls_TODO {
 
   val ports: BiddingPorts
 
-  def _placeBid(itemId: UUID, userId: UUID, request: PlaceBid): Future[BidResult] = {
+  def _placeBid(userId: UUID, itemId: UUID, request: PlaceBid): Future[BidResult] = {
   ???
 }
 
