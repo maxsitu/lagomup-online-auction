@@ -34,7 +34,7 @@ trait TransactionServiceCalls {
 
   def _submitPaymentDetails(userId: UUID, itemId: UUID, request: PaymentInfo): Future[Done] = {
     ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
-      .ask(ApproveDeliveryDetails(userId))
+      .ask(SubmitPaymentDetails(userId, fromApi(request)))
   }
 
   def _submitPaymentStatus(userId: UUID, itemId: UUID, request: String): Future[Done] = {
@@ -143,6 +143,10 @@ trait TransactionServiceCalls {
       deliveryInfo.postalCode,
       deliveryInfo.country
     )
+  }
+
+  private def fromApi(paymentInfo: PaymentInfo): Payment = {
+    Payment(paymentInfo.comment)
   }
 
 }

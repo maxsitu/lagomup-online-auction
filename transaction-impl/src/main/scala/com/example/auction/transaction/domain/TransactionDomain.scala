@@ -18,6 +18,8 @@ trait TransactionDomain {
     state.status match {
       case TransactionAggregateStatus.NotStarted =>
         ctx.thenPersist(TransactionStarted(UUID.fromString(entityId), command.transaction))(_ => ctx.reply(Done))
+      case TransactionAggregateStatus.NegotiatingDelivery =>
+        done(ctx)
       case _ =>
         ???
     }
@@ -141,6 +143,13 @@ trait TransactionDomain {
 
   def onPaymentRejected(event: PaymentRejected, state: TransactionState): TransactionState = {
     state.copy(status = TransactionAggregateStatus.PaymentPending)
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def done(ctx: CommandContext[Done]): Persist = {
+    ctx.reply(Done)
+    ctx.done
   }
 
 }

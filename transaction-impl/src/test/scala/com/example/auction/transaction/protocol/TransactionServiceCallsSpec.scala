@@ -128,24 +128,41 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
     }
 
     "submit payment details" in {
-//      val f = fixture
-//      itemEventProducerStub.send(f.auctionFinished)
-//      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
-//      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
-//      approveDeliveryDetails(f.itemId, f.creatorId)
-//      submitPaymentDetails(f.itemId, f.winnerId, f.paymentInfo)
-//      eventually(timeout(Span(15, Seconds))) {
-//        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithPaymentDetails)
-//      }
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
+      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
+      approveDeliveryDetails(f.itemId, f.creatorId)
+      submitPaymentDetails(f.itemId, f.winnerId, f.paymentInfo)
+      eventually(timeout(Span(15, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithPaymentDetails)
+      }
     }
 
     "approve payment" in {
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
+      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
+      approveDeliveryDetails(f.itemId, f.creatorId)
+      submitPaymentDetails(f.itemId, f.winnerId, f.paymentInfo)
+      approvePayment(f.itemId, f.creatorId)
+      eventually(timeout(Span(15, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithPaymentApproved)
+      }
     }
 
     "reject payment" in {
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
+      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
+      approveDeliveryDetails(f.itemId, f.creatorId)
+      submitPaymentDetails(f.itemId, f.winnerId, f.paymentInfo)
+      rejectPayment(f.itemId, f.creatorId)
+      eventually(timeout(Span(15, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithPaymentRejected)
+      }
     }
 
   }
