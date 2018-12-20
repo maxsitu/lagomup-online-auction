@@ -38,15 +38,6 @@ trait TransactionServiceCalls {
   }
 
   def _getTransaction(userId: UUID, itemId: UUID, request: NotUsed): Future[TransactionInfo] = {
-    // TODO: Need current state with status
-    //    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
-    //      .ask(GetTransaction(userId))
-    //      .map {
-    //        case None =>
-    //          throw NotFound(s"Transaction for item $itemId not found")
-    //        case Some(aggregate) =>
-    //          toApi()
-    //      }
     ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
       .ask(StateSnapshot)
       .map {

@@ -17,7 +17,29 @@ trait ItemEventSubscriber {
 
   val ports: TransactionPorts
 
-  def onItemEvent(event: ItemEvent): Future[Done] = ???
+  def onItemEvent(event: ItemEvent): Future[Done] = {
+
+    println(
+      s"""|
+        |
+        |
+        |
+        |
+        |
+        |Got ItemEvent: ${event}
+        |
+        |
+        |
+        |
+        |
+        |
+        |
+      """.stripMargin)
+
+
+
+   ???
+  }
 
 }
 

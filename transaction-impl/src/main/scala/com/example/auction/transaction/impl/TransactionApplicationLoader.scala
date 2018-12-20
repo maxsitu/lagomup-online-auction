@@ -17,12 +17,12 @@ import com.softwaremill.macwire._
 class TransactionApplicationLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new TransactionApplication(context) with LagomKafkaClientComponents {
+    new TransactionApplication(context) with LagomKafkaClientComponents with ItemEventSubscription {
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new TransactionApplication(context) with LagomKafkaClientComponents with LagomDevModeComponents
+    new TransactionApplication(context) with LagomKafkaClientComponents with LagomDevModeComponents with ItemEventSubscription
 
   override def describeService = Some(readDescriptor[TransactionService])
 
@@ -45,3 +45,9 @@ readSide.register(transactionRepository)
   override lazy val lagomServer = serverFor[TransactionService](wire[TransactionServiceImpl])
 }
 
+trait ItemEventSubscription {
+  this: TransactionApplication =>
+
+  val itemEventSubscriber = wire[ItemEventSubscriberImpl]
+
+}

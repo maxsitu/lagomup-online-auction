@@ -7,7 +7,7 @@ import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
 import com.example.auction.item.api._
 import com.example.auction.transaction.api._
-import com.example.auction.transaction.impl.TransactionApplication
+import com.example.auction.transaction.impl.{ItemEventSubscription, TransactionApplication}
 import com.example.auction.utils.ClientSecurity
 import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.broker.Topic
@@ -26,7 +26,7 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
   var itemEventProducerStub: ProducerStub[ItemEvent] = _
 
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
-    new TransactionApplication(ctx) with LocalServiceLocator {
+    new TransactionApplication(ctx) with LocalServiceLocator { //} with ItemEventSubscription {
 
       val stubFactory = new ProducerStubFactory(actorSystem, materializer)
       itemEventProducerStub = stubFactory.producer[ItemEvent]("item-ItemEvent")
@@ -78,8 +78,6 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
 //      eventually(timeout(Span(10, Seconds))) {
 //        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
 //      }
-
-      // TODO: need current state with status
       pending
     }
 
