@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait BidEventSubscriber {
 
-  val ports: ItemPorts
+  val entityRegistry: PersistentEntityRegistry
 
   def onBidEvent(event: BidEvent): Future[Done] = ???
 

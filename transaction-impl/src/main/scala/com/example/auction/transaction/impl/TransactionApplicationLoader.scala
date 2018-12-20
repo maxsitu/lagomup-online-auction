@@ -44,3 +44,4 @@ readSide.register(transactionRepository)
   lazy val ports = wire[TransactionPorts]
   override lazy val lagomServer = serverFor[TransactionService](wire[TransactionServiceImpl])
 }
+

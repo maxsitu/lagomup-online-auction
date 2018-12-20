@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait ItemEventSubscriber_TODO {
 
-  val ports: TransactionPorts
+  val entityRegistry: PersistentEntityRegistry
 
   def onItemEvent(event: ItemEvent): Future[Done] = ???
 
