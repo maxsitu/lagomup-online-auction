@@ -8,9 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 
 class ItemEventSubscriberImpl(itemService: ItemService, val entityRegistry: PersistentEntityRegistry) extends ItemEventSubscriber {
 
-  itemService.itemEvents.subscribe.atLeastOnce(Flow[ItemEvent].mapAsync(1) { e =>
-    onItemEvent(e)
-  })
+  itemService.itemEvents.subscribe.atLeastOnce(Flow[ItemEvent].mapAsync(1)(onItemEvent))
 
 }
 

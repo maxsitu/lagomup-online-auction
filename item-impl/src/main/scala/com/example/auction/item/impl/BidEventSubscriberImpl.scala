@@ -8,9 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 
 class BidEventSubscriberImpl(biddingService: BiddingService, val entityRegistry: PersistentEntityRegistry) extends BidEventSubscriber {
 
-  biddingService.bidEvents.subscribe.atLeastOnce(Flow[BidEvent].mapAsync(1) { e =>
-    onBidEvent(e)
-  })
+  biddingService.bidEvents.subscribe.atLeastOnce(Flow[BidEvent].mapAsync(1)(onBidEvent))
 
 }
 
