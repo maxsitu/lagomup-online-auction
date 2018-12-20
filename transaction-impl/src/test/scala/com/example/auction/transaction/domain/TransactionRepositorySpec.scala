@@ -58,34 +58,35 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
     }
 
     "update status to payment pending for winner" in {
-      pending
+      shouldUpdateStatusToPaymentPending(winnerId)
     }
 
     "update status to payment submitted for creator" in {
-      pending
+      shouldUpdateStatusToPaymentSubmitted(creatorId)
     }
 
     "update status to payment submitted for winner" in {
-      pending
+      shouldUpdateStatusToPaymentSubmitted(winnerId)
     }
 
     "update status to payment confirmed after approval for creator" in {
-      pending
+      shouldUpdateStatusToPaymentConfirmedAfterApproval(creatorId)
     }
 
     "update status to payment confirmed after approval for winner" in {
-      pending
+      shouldUpdateStatusToPaymentConfirmedAfterApproval(winnerId)
     }
 
     "update status to payment pending after rejection for creator" in {
-      pending
+      shouldUpdateStatusToPaymentPendingAfterRejection(creatorId)
     }
 
     "update status to payment pending after rejection for winner" in {
-      pending
+      shouldUpdateStatusToPaymentPendingAfterRejection(winnerId)
     }
 
     "paginate transaction retrieval" in {
+      // TODO: Paging
       pending
     }
   }
@@ -120,6 +121,53 @@ class TransactionRepositorySpec extends AsyncWordSpec with Matchers with BeforeA
       _ <- feed(DeliveryDetailsSubmitted(itemId, deliveryData))
       _ <- feed(DeliveryPriceUpdated(itemId, deliveryPrice))
       _ <- feed(DeliveryDetailsApproved(itemId))
+      transactions <- getTransactions(userId, "PaymentPending")
+    } yield {
+      transactions should have size 1
+      val expected = TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "PaymentPending")
+      transactions.head should ===(expected)
+    }
+  }
+
+  private def shouldUpdateStatusToPaymentSubmitted(userId: UUID) = {
+    for {
+      _ <- feed(TransactionStarted(itemId, transaction))
+      _ <- feed(DeliveryDetailsSubmitted(itemId, deliveryData))
+      _ <- feed(DeliveryPriceUpdated(itemId, deliveryPrice))
+      _ <- feed(DeliveryDetailsApproved(itemId))
+      _ <- feed(PaymentDetailsSubmitted(itemId, payment))
+      transactions <- getTransactions(userId, "PaymentSubmitted")
+    } yield {
+      transactions should have size 1
+      val expected = TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "PaymentSubmitted")
+      transactions.head should ===(expected)
+    }
+  }
+
+  private def shouldUpdateStatusToPaymentConfirmedAfterApproval(userId: UUID) = {
+    for {
+      _ <- feed(TransactionStarted(itemId, transaction))
+      _ <- feed(DeliveryDetailsSubmitted(itemId, deliveryData))
+      _ <- feed(DeliveryPriceUpdated(itemId, deliveryPrice))
+      _ <- feed(DeliveryDetailsApproved(itemId))
+      _ <- feed(PaymentDetailsSubmitted(itemId, payment))
+      _ <- feed(PaymentApproved(itemId))
+      transactions <- getTransactions(userId, "PaymentConfirmed")
+    } yield {
+      transactions should have size 1
+      val expected = TransactionSummary(itemId, creatorId, winnerId, itemTitle, currencyId, itemPrice, "PaymentConfirmed")
+      transactions.head should ===(expected)
+    }
+  }
+
+  private def shouldUpdateStatusToPaymentPendingAfterRejection(userId: UUID) = {
+    for {
+      _ <- feed(TransactionStarted(itemId, transaction))
+      _ <- feed(DeliveryDetailsSubmitted(itemId, deliveryData))
+      _ <- feed(DeliveryPriceUpdated(itemId, deliveryPrice))
+      _ <- feed(DeliveryDetailsApproved(itemId))
+      _ <- feed(PaymentDetailsSubmitted(itemId, payment))
+      _ <- feed(PaymentRejected(itemId))
       transactions <- getTransactions(userId, "PaymentPending")
     } yield {
       transactions should have size 1
