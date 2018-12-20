@@ -1,20 +1,19 @@
 package com.example.auction.transaction.protocol
 
-import java.time.{Duration, Instant}
+import java.time.Instant
 import java.util.UUID
 
 import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
 import com.example.auction.item.api._
 import com.example.auction.transaction.api._
-import com.example.auction.transaction.impl.{ItemEventSubscription, TransactionApplication}
+import com.example.auction.transaction.impl.TransactionApplication
 import com.example.auction.utils.ClientSecurity
-import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.broker.Topic
+import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory, ServiceTest}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import play.api.Configuration
 
@@ -26,7 +25,7 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
   var itemEventProducerStub: ProducerStub[ItemEvent] = _
 
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
-    new TransactionApplication(ctx) with LocalServiceLocator { //} with ItemEventSubscription {
+    new TransactionApplication(ctx) with LocalServiceLocator {
 
       val stubFactory = new ProducerStubFactory(actorSystem, materializer)
       itemEventProducerStub = stubFactory.producer[ItemEvent]("item-ItemEvent")
@@ -73,11 +72,11 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
   "The transaction service" should {
 
     "create transaction on auction finished" in {
-//      val f = fixture
-//      itemEventProducerStub.send(f.auctionFinished)
-//      eventually(timeout(Span(10, Seconds))) {
-//        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
-//      }
+      //      val f = fixture
+      //      itemEventProducerStub.send(f.auctionFinished)
+      //      eventually(timeout(Span(10, Seconds))) {
+      //        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
+      //      }
       pending
     }
 
