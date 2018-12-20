@@ -22,8 +22,6 @@ trait ItemEventSubscriber {
             // If an auction doesn't have a winner, then we can't start a transaction
             Future.successful(Done)
           case Some(winner) =>
-            // TODO: need itemService and entityRegistry
-            println("YEHAAAA!")
             entityRegistry.refFor[TransactionEntity](itemId.toString)
               .ask(StartTransaction(toImpl(item, winner)))
         }
