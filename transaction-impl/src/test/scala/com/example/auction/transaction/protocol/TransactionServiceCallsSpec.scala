@@ -14,6 +14,7 @@ import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory, ServiceTest}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import play.api.Configuration
 
@@ -30,7 +31,7 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
       val itemServiceStub = new ItemServiceStub(actorSystem, materializer)
 
       // Start subscriber
-      new ItemEventSubscriberImpl(itemServiceStub)
+      new ItemEventSubscriberImpl(itemServiceStub, persistentEntityRegistry)
 
       itemEventProducerStub = itemServiceStub.producerStub
 
@@ -76,12 +77,12 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
   "The transaction service" should {
 
     "create transaction on auction finished" in {
-      //      val f = fixture
-      //      itemEventProducerStub.send(f.auctionFinished)
-      //      eventually(timeout(Span(10, Seconds))) {
-      //        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
-      //      }
-      pending
+            val f = fixture
+            itemEventProducerStub.send(f.auctionFinished)
+            eventually(timeout(Span(10, Seconds))) {
+              retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
+            }
+      //pending
     }
 
     "not create transaction with no winner" in {
