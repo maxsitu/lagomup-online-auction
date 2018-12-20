@@ -27,10 +27,10 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
   val server = ServiceTest.startServer(ServiceTest.defaultSetup.withCassandra()) { ctx =>
     new TransactionApplication(ctx) with LocalServiceLocator {
 
-      val stubFactory = new ProducerStubFactory(actorSystem, materializer)
-      itemEventProducerStub = stubFactory.producer[ItemEvent]("item-ItemEvent")
+      val itemServiceStub = new ItemServiceStub(actorSystem, materializer)
+      itemEventProducerStub = itemServiceStub.producerStub
 
-      override val itemService: ItemService = new ItemServiceStub(itemEventProducerStub)
+      override val itemService: ItemService = itemServiceStub
 
       override def additionalConfiguration: AdditionalConfiguration =
         super.additionalConfiguration ++ Configuration.from(Map(
@@ -127,16 +127,3 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
 
 }
 
-class ItemServiceStub(itemEventProducerStub: ProducerStub[ItemEvent]) extends ItemService {
-
-  def createItem(): ServiceCall[Item, Item] = ???
-
-  def startAuction(id: UUID): ServiceCall[NotUsed, Done] = ???
-
-  def getItem(id: UUID): ServiceCall[NotUsed, Item] = ???
-
-  def getItemsForUser(id: UUID, status: String, page: Option[String]): ServiceCall[NotUsed, ItemSummaryPagingState] = ???
-
-  def itemEvents: Topic[ItemEvent] = itemEventProducerStub.topic
-
-}
