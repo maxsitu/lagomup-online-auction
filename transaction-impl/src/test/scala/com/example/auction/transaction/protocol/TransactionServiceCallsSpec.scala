@@ -7,7 +7,7 @@ import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
 import com.example.auction.item.api._
 import com.example.auction.transaction.api._
-import com.example.auction.transaction.impl.TransactionApplication
+import com.example.auction.transaction.impl.{ItemEventSubscriberImpl, TransactionApplication}
 import com.example.auction.utils.ClientSecurity
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
@@ -28,6 +28,10 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
     new TransactionApplication(ctx) with LocalServiceLocator {
 
       val itemServiceStub = new ItemServiceStub(actorSystem, materializer)
+
+      // Start subscriber
+      new ItemEventSubscriberImpl(itemServiceStub)
+
       itemEventProducerStub = itemServiceStub.producerStub
 
       override val itemService: ItemService = itemServiceStub
