@@ -99,6 +99,8 @@ trait TransactionDomain {
     }
   }
 
+  // TODO: Remove after StateSnapshot working
+  @deprecated
   def onGetTransaction(query: GetTransaction, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
     if (query.userId == state.aggregate.get.creator || query.userId == state.aggregate.get.winner){
       ctx.reply(state.aggregate)

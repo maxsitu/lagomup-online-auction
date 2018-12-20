@@ -3,18 +3,19 @@ package com.example.auction.transaction.protocol
 import java.util.UUID
 
 import akka.{Done, NotUsed}
+import com.example.auction.item.api
 import com.example.auction.transaction.api._
 import com.example.auction.transaction.impl.{TransactionSummary => _, _}
 import com.example.auction.utils.ServerSecurity
-import com.lightbend.lagom.scaladsl.api.transport.NotFound
+import com.lightbend.lagom.scaladsl.api.transport.{Forbidden, NotFound}
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
-import controllers.Assets
 
 import scala.concurrent.Future
 
 trait TransactionServiceCalls {
 
   val ports: TransactionPorts
+  implicit val ec = ports.akkaComponents.ec
 
   def _submitDeliveryDetails(userId: UUID, itemId: UUID, request: DeliveryInfo): Future[Done] = {
     ???
@@ -38,15 +39,26 @@ trait TransactionServiceCalls {
 
   def _getTransaction(userId: UUID, itemId: UUID, request: NotUsed): Future[TransactionInfo] = {
     // TODO: Need current state with status
-//    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
-//      .ask(GetTransaction(userId))
-//      .map {
-//        case None =>
-//          throw NotFound(s"Transaction for item $itemId not found")
-//        case Some(aggregate) =>
-//          toApi()
-//      }
-    ???
+    //    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+    //      .ask(GetTransaction(userId))
+    //      .map {
+    //        case None =>
+    //          throw NotFound(s"Transaction for item $itemId not found")
+    //        case Some(aggregate) =>
+    //          toApi()
+    //      }
+    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+      .ask(StateSnapshot)
+      .map {
+        case TransactionState(None, _) =>
+          throw NotFound(s"Transaction for item $itemId not found")
+        case TransactionState(Some(aggregate), status) =>
+          if (userId == aggregate.creator || userId == aggregate.winner) {
+            toApi(aggregate, status)
+          } else {
+            throw Forbidden("Only the item owner and the auction winner can see transaction details")
+          }
+      }
   }
 
   // Authentication ----------------------------------------------------------------------------------------------------
@@ -85,28 +97,45 @@ trait TransactionServiceCalls {
 
   // Helpers -----------------------------------------------------------------------------------------------------------
 
-  private def toApi(aggregate: TransactionAggregate): TransactionInfo = {
-    // TODO: Need current state with status
-//    TransactionInfo(
-//      aggregate.itemId,
-//      aggregate.creator,
-//      aggregate.winner,
-//      aggregate.itemData,
-//      aggregate.itemPrice,
-//      aggregate.deliveryData.map(toApi),
-//      aggregate.deliveryPrice,
-//      aggregate.payment.map(toApi),
-//      aggregate.
-//    )
-    ???
+  private def toApi(aggregate: TransactionAggregate, status: TransactionAggregateStatus.Status): TransactionInfo = {
+    TransactionInfo(
+      aggregate.itemId,
+      aggregate.creator,
+      aggregate.winner,
+      toApi(aggregate.itemData),
+      aggregate.itemPrice,
+      aggregate.deliveryData.map(toApi),
+      aggregate.deliveryPrice,
+      aggregate.payment.map(toApi),
+      status.toString
+    )
   }
 
   private def toApi(deliveryData: DeliveryData): DeliveryInfo = {
-    ???
+    DeliveryInfo(
+      deliveryData.addressLine1,
+      deliveryData.addressLine2,
+      deliveryData.city,
+      deliveryData.state,
+      deliveryData.postalCode,
+      deliveryData.country
+    )
   }
 
   private def toApi(payment: Payment): PaymentInfo = {
-    ???
+    PaymentInfo(payment.comment)
+  }
+
+  private def toApi(itemData: ItemData): api.ItemData = {
+    api.ItemData(
+      itemData.title,
+      itemData.description,
+      itemData.currencyId,
+      itemData.increment,
+      itemData.reservePrice,
+      itemData.auctionDuration,
+      itemData.categoryId
+    )
   }
 
 }
