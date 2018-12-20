@@ -22,9 +22,10 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
   override def behavior: Behavior = {
     Actions()
       .onReadOnlyCommand[StateSnapshot.type, TransactionState] {
-      case (_: StateSnapshot.type , ctx, state) =>
-        ctx.reply(state)
-    }
+  case (_: StateSnapshot.type , ctx, state) =>
+    ctx.reply(state)
+}
+
       .onCommand[StartTransaction, Done] {
   case (command: StartTransaction, ctx, state) =>
     onStartTransaction(command, state, ctx)
@@ -88,7 +89,7 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
 
 }
 
-case class TransactionAggregate(itemId: UUID, creator: UUID, winner: UUID, itemData: ItemData, itemPrice: Int, deliveryData: Option[DeliveryData], deliveryPrice: Option[Int], payment: Option[Payment])
+case class TransactionAggregate(itemId: UUID, creator: UUID, winner: UUID, itemData: ItemData, itemPrice: Int, deliveryData: Option[DeliveryData], deliveryPrice: Option[Int], payment: Option[Payment]) 
 
 object TransactionAggregate {
   implicit val format: Format[TransactionAggregate] = Json.format
@@ -208,19 +209,19 @@ object PaymentRejected {
   implicit val format: Format[PaymentRejected] = Json.format
 }
 
-case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID])
+case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
 
 object ItemData {
   implicit val format: Format[ItemData] = Json.format
 }
 
-case class DeliveryData(addressLine1: String, addressLine2: String, city: String, state: String, postalCode: Int, country: String)
+case class DeliveryData(addressLine1: String, addressLine2: String, city: String, state: String, postalCode: Int, country: String) 
 
 object DeliveryData {
   implicit val format: Format[DeliveryData] = Json.format
 }
 
-case class Payment(comment: String)
+case class Payment(comment: String) 
 
 object Payment {
   implicit val format: Format[Payment] = Json.format
@@ -248,8 +249,8 @@ class TransactionEventStreamImpl(pubSubRegistry: PubSubRegistry) extends Transac
 
 object TransactionSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
-    JsonSerializer[StateSnapshot.type],
     JsonSerializer[TransactionState],
+JsonSerializer[StateSnapshot.type],
 JsonSerializer[TransactionAggregate],
 JsonSerializer[StartTransaction],
 JsonSerializer[SubmitDeliveryDetails],

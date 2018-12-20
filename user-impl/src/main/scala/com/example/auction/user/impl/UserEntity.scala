@@ -21,6 +21,11 @@ class UserEntity(val userEventStream: UserEventStream) extends PersistentEntity
 
   override def behavior: Behavior = {
     Actions()
+      .onReadOnlyCommand[StateSnapshot.type, UserState] {
+  case (_: StateSnapshot.type , ctx, state) =>
+    ctx.reply(state)
+}
+
       .onCommand[CreateUser, Done] {
   case (command: CreateUser, ctx, state) =>
     onCreateUser(command, state, ctx)
@@ -61,6 +66,10 @@ object UserState {
 }
 
 sealed trait UserCommand
+
+case object StateSnapshot extends UserCommand with ReplyType[UserState] {
+  implicit val format: Format[StateSnapshot.type] = JsonSerializer.emptySingletonFormat(StateSnapshot)
+}
 
 case class CreateUser(name: String) extends UserCommand with ReplyType[Done]
 
@@ -111,6 +120,7 @@ class UserEventStreamImpl(pubSubRegistry: PubSubRegistry) extends UserEventStrea
 object UserSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[UserState],
+JsonSerializer[StateSnapshot.type],
 JsonSerializer[UserAggregate],
 JsonSerializer[CreateUser],
 JsonSerializer[GetUser.type],
