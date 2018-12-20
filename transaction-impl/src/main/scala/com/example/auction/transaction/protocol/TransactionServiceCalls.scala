@@ -18,23 +18,28 @@ trait TransactionServiceCalls {
   implicit val ec = ports.akkaComponents.ec
 
   def _submitDeliveryDetails(userId: UUID, itemId: UUID, request: DeliveryInfo): Future[Done] = {
-    ???
+    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+      .ask(SubmitDeliveryDetails(userId, fromApi(request)))
   }
 
   def _setDeliveryPrice(userId: UUID, itemId: UUID, request: Int): Future[Done] = {
-    ???
+    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+      .ask(SetDeliveryPrice(userId, request))
   }
 
   def _approveDeliveryDetails(userId: UUID, itemId: UUID, request: NotUsed): Future[Done] = {
-    ???
+    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+      .ask(ApproveDeliveryDetails(userId))
   }
 
   def _submitPaymentDetails(userId: UUID, itemId: UUID, request: PaymentInfo): Future[Done] = {
-    ???
+    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+      .ask(ApproveDeliveryDetails(userId))
   }
 
   def _submitPaymentStatus(userId: UUID, itemId: UUID, request: String): Future[Done] = {
-    ???
+    ports.entityRegistry.refFor[TransactionEntity](itemId.toString)
+      .ask(SubmitPaymentStatus(userId, request))
   }
 
   def _getTransaction(userId: UUID, itemId: UUID, request: NotUsed): Future[TransactionInfo] = {
@@ -126,6 +131,17 @@ trait TransactionServiceCalls {
       itemData.reservePrice,
       itemData.auctionDuration,
       itemData.categoryId
+    )
+  }
+
+  private def fromApi(deliveryInfo: DeliveryInfo): DeliveryData = {
+    DeliveryData(
+      deliveryInfo.addressLine1,
+      deliveryInfo.addressLine2,
+      deliveryInfo.city,
+      deliveryInfo.state,
+      deliveryInfo.postalCode,
+      deliveryInfo.country
     )
   }
 

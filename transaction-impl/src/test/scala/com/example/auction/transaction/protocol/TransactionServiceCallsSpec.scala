@@ -3,16 +3,15 @@ package com.example.auction.transaction.protocol
 import java.time.Instant
 import java.util.UUID
 
-import akka.{Done, NotUsed}
 import com.datastax.driver.core.utils.UUIDs
 import com.example.auction.item.api._
 import com.example.auction.transaction.api._
 import com.example.auction.transaction.impl.{ItemEventSubscriberImpl, TransactionApplication}
 import com.example.auction.utils.ClientSecurity
-import com.lightbend.lagom.scaladsl.api.broker.Topic
-import com.lightbend.lagom.scaladsl.api.{AdditionalConfiguration, ServiceCall}
+import com.lightbend.lagom.scaladsl.api.AdditionalConfiguration
+import com.lightbend.lagom.scaladsl.api.transport.{Forbidden, NotFound}
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory, ServiceTest}
+import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ServiceTest}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
@@ -77,35 +76,67 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
   "The transaction service" should {
 
     "create transaction on auction finished" in {
-            val f = fixture
-            itemEventProducerStub.send(f.auctionFinished)
-            eventually(timeout(Span(10, Seconds))) {
-              retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
-            }
-      //pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      eventually(timeout(Span(10, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoStarted)
+      }
     }
 
     "not create transaction with no winner" in {
-      pending
+      val f = fixture
+      val itemIdWithNoWinner = UUID.randomUUID()
+      val itemWithNoWinner = Item(Some(itemIdWithNoWinner), f.creatorId, f.itemData, Some(f.itemPrice), "Completed", Some(Instant.now()), Some(Instant.now()), None)
+      val auctionFinishedWithNoWinner = AuctionFinished(itemIdWithNoWinner, itemWithNoWinner)
+      itemEventProducerStub.send(auctionFinishedWithNoWinner)
+      a[NotFound] should be thrownBy retrieveTransaction(itemIdWithNoWinner, f.creatorId)
     }
 
     "submit delivery details" in {
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
+      eventually(timeout(Span(15, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithDeliveryInfo)
+      }
     }
 
     "set delivery price" in {
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
+      eventually(timeout(Span(15, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithDeliveryPrice)
+      }
     }
 
     "approve delivery details" in {
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
+      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
+      approveDeliveryDetails(f.itemId, f.creatorId)
+      eventually(timeout(Span(15, Seconds))) {
+        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithPaymentPending)
+      }
     }
 
     "forbid approve empty delivery details" in {
-      pending
+      val f = fixture
+      itemEventProducerStub.send(f.auctionFinished)
+      a[Forbidden] should be thrownBy approveDeliveryDetails(f.itemId, f.creatorId)
     }
 
     "submit payment details" in {
+//      val f = fixture
+//      itemEventProducerStub.send(f.auctionFinished)
+//      submitDeliveryDetails(f.itemId, f.winnerId, f.deliveryInfo)
+//      setDeliveryPrice(f.itemId, f.creatorId, f.deliveryPrice)
+//      approveDeliveryDetails(f.itemId, f.creatorId)
+//      submitPaymentDetails(f.itemId, f.winnerId, f.paymentInfo)
+//      eventually(timeout(Span(15, Seconds))) {
+//        retrieveTransaction(f.itemId, f.creatorId) should ===(f.transactionInfoWithPaymentDetails)
+//      }
       pending
     }
 
@@ -126,6 +157,60 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
       transactionService.getTransaction(itemId)
         .handleRequestHeader(ClientSecurity.authenticate(creatorId))
         .invoke(),
+      awaitTimeout
+    )
+  }
+
+  private def submitDeliveryDetails(itemId: UUID, winnerId: UUID, deliveryInfo: DeliveryInfo): Unit = {
+    Await.result(
+      transactionService.submitDeliveryDetails(itemId)
+        .handleRequestHeader(ClientSecurity.authenticate(winnerId))
+        .invoke(deliveryInfo),
+      awaitTimeout
+    )
+  }
+
+  private def setDeliveryPrice(itemId: UUID, creatorId: UUID, deliveryPrice: Int): Unit = {
+    Await.result(
+      transactionService.setDeliveryPrice(itemId)
+        .handleRequestHeader(ClientSecurity.authenticate(creatorId))
+        .invoke(deliveryPrice),
+      awaitTimeout
+    )
+  }
+
+  private def approveDeliveryDetails(itemId: UUID, creatorId: UUID): Unit = {
+    Await.result(
+      transactionService.approveDeliveryDetails(itemId)
+        .handleRequestHeader(ClientSecurity.authenticate(creatorId))
+        .invoke(),
+      awaitTimeout
+    )
+  }
+
+  private def submitPaymentDetails(itemId: UUID, winnerId: UUID, paymentInfo: PaymentInfo): Unit = {
+    Await.result(
+      transactionService.submitPaymentDetails(itemId)
+        .handleRequestHeader(ClientSecurity.authenticate(winnerId))
+        .invoke(paymentInfo),
+      awaitTimeout
+    )
+  }
+
+  private def approvePayment(itemId: UUID, creatorId: UUID) = {
+    Await.result(
+      transactionService.submitPaymentStatus(itemId)
+        .handleRequestHeader(ClientSecurity.authenticate(creatorId))
+        .invoke("Approved"),
+      awaitTimeout
+    )
+  }
+
+  private def rejectPayment(itemId: UUID, creatorId: UUID) = {
+    Await.result(
+      transactionService.submitPaymentStatus(itemId)
+        .handleRequestHeader(ClientSecurity.authenticate(creatorId))
+        .invoke("Rejected"),
       awaitTimeout
     )
   }

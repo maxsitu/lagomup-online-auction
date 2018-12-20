@@ -62,7 +62,7 @@ trait TransactionDomain {
           throw Forbidden("Only the item creator can approve the delivery details")
         }
       case _ =>
-        ???
+        throw new IllegalStateException(s"${state.status} cannot $command")
     }
   }
 
