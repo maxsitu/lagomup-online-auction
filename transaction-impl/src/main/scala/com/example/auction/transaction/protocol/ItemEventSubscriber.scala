@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait ItemEventSubscriber {
 
-  val ports: TransactionPorts
+  //val ports: TransactionPorts
 
   def onItemEvent(event: ItemEvent): Future[Done] = {
 
