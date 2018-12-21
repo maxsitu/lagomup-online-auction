@@ -34,7 +34,7 @@ class TransactionServiceCallsSpec extends AsyncWordSpec with Matchers with Befor
 
       itemEventProducerStub = itemServiceStub.producerStub
 
-      override lazy val itemService: ItemService = itemServiceStub
+      override val itemService: ItemService = itemServiceStub
 
       override def additionalConfiguration: AdditionalConfiguration =
         super.additionalConfiguration ++ Configuration.from(Map(
