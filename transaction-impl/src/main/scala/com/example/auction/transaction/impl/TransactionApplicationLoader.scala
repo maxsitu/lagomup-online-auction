@@ -38,7 +38,7 @@ lazy val transactionRepository = wire[TransactionRepositoryImpl]
 readSide.register(transactionRepository)
 
 
-  lazy val itemService = serviceClient.implement[ItemService]
+  val itemService = serviceClient.implement[ItemService]
 
   lazy val akkaComponents = wire[AkkaComponents]
   lazy val ports = wire[TransactionPorts]
