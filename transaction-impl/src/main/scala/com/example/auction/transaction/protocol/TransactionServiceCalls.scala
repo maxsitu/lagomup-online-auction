@@ -57,11 +57,11 @@ trait TransactionServiceCalls {
       }
   }
 
-  // Authentication ----------------------------------------------------------------------------------------------------
-
   def _getTransactionsForUser(userId: UUID, status: String, pageNo: Option[String], pageSize: Option[String], request: NotUsed): Future[List[TransactionSummary]] = {
     ???
   }
+
+  // Authentication ----------------------------------------------------------------------------------------------------
 
   def _authenticateSubmitDeliveryDetails[Request, Response](serviceCall: UUID => ServerServiceCall[Request, Response]): ServerServiceCall[Request, Response] = {
     ServerSecurity.authenticated(serviceCall)
@@ -91,7 +91,7 @@ trait TransactionServiceCalls {
     ServerSecurity.authenticated(serviceCall)
   }
 
-  // Helpers -----------------------------------------------------------------------------------------------------------
+  // Mappers -----------------------------------------------------------------------------------------------------------
 
   private def toApi(aggregate: TransactionAggregate, status: TransactionAggregateStatus.Status): TransactionInfo = {
     TransactionInfo(
