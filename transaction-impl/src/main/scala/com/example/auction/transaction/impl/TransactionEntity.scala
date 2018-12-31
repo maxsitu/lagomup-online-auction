@@ -51,11 +51,6 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
           onSubmitPaymentStatus(command, state, ctx)
       }
 
-      .onReadOnlyCommand[GetTransaction, Option[TransactionAggregate]] {
-        case (query: GetTransaction, ctx, state) =>
-          onGetTransaction(query, state, ctx)
-      }
-
       .onEvent {
         case (event: TransactionStarted, state) =>
           onTransactionStarted(event, state)
@@ -147,12 +142,6 @@ case class SubmitPaymentStatus(userId: UUID, paymentStatus: String) extends Tran
 
 object SubmitPaymentStatus {
   implicit val format: Format[SubmitPaymentStatus] = Json.format
-}
-
-case class GetTransaction(userId: UUID) extends TransactionCommand with ReplyType[Option[TransactionAggregate]]
-
-object GetTransaction {
-  implicit val format: Format[GetTransaction] = Json.format
 }
 
 sealed trait TransactionEvent extends AggregateEvent[TransactionEvent] {
@@ -256,7 +245,6 @@ object TransactionSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[ApproveDeliveryDetails],
     JsonSerializer[SubmitPaymentDetails],
     JsonSerializer[SubmitPaymentStatus],
-    JsonSerializer[GetTransaction],
     JsonSerializer[TransactionStarted],
     JsonSerializer[DeliveryDetailsSubmitted],
     JsonSerializer[DeliveryPriceUpdated],

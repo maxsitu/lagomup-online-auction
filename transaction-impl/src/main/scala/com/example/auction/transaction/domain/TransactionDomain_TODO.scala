@@ -35,10 +35,6 @@ trait TransactionDomain_TODO {
     ???
   }
 
-  def onGetTransaction(query: GetTransaction, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
-    ???
-  }
-
   def onTransactionStarted(event: TransactionStarted, state: TransactionState): TransactionState = {
     ???
   }

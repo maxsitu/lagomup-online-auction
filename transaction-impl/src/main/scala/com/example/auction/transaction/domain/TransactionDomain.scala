@@ -101,16 +101,6 @@ trait TransactionDomain {
     }
   }
 
-  // TODO: Remove after StateSnapshot working
-  @deprecated
-  def onGetTransaction(query: GetTransaction, state: TransactionState, ctx: ReadOnlyCommandContext[Option[TransactionAggregate]]): Unit = {
-    if (query.userId == state.aggregate.get.creator || query.userId == state.aggregate.get.winner){
-      ctx.reply(state.aggregate)
-    } else {
-      throw Forbidden("Only the item owner and the auction winner can see transaction details")
-    }
-  }
-
   def onTransactionStarted(event: TransactionStarted, state: TransactionState): TransactionState = {
     TransactionState(Some(event.transaction), TransactionAggregateStatus.NegotiatingDelivery)
   }
