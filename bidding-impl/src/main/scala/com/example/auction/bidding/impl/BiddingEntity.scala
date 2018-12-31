@@ -2,12 +2,12 @@ package com.example.auction.bidding.impl
 
 import com.example.auction.utils.JsonFormats._
 import com.example.auction.bidding.domain.BiddingDomain
-import akka.{Done, NotUsed}
+import akka.{ Done, NotUsed }
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
-import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
-import play.api.libs.json.{Format, Json}
+import com.lightbend.lagom.scaladsl.persistence.{ AggregateEvent, AggregateEventTag, PersistentEntity }
+import com.lightbend.lagom.scaladsl.playjson.{ JsonSerializer, JsonSerializerRegistry }
+import com.lightbend.lagom.scaladsl.pubsub.{ PubSubRegistry, TopicId }
+import play.api.libs.json.{ Format, Json }
 import java.time.Instant
 import akka.stream.scaladsl.Source
 import java.util.UUID
@@ -22,60 +22,58 @@ class BiddingEntity(val biddingEventStream: BiddingEventStream) extends Persiste
   override def behavior: Behavior = {
     Actions()
       .onReadOnlyCommand[StateSnapshot.type, BiddingState] {
-  case (_: StateSnapshot.type , ctx, state) =>
-    ctx.reply(state)
-}
+        case (_: StateSnapshot.type, ctx, state) =>
+          ctx.reply(state)
+      }
 
       .onCommand[StartAuction, Done] {
-  case (command: StartAuction, ctx, state) =>
-    onStartAuction(command, state, ctx)
-}
-.onCommand[CancelAuction.type, Done] {
-  case (command: CancelAuction.type, ctx, state) =>
-    onCancelAuction(command, state, ctx)
-}
-.onCommand[PlaceBid, PlaceBidResult] {
-  case (command: PlaceBid, ctx, state) =>
-    onPlaceBid(command, state, ctx)
-}
-.onCommand[FinishBidding.type, Done] {
-  case (command: FinishBidding.type, ctx, state) =>
-    onFinishBidding(command, state, ctx)
-}
+        case (command: StartAuction, ctx, state) =>
+          onStartAuction(command, state, ctx)
+      }
+      .onCommand[CancelAuction.type, Done] {
+        case (command: CancelAuction.type, ctx, state) =>
+          onCancelAuction(command, state, ctx)
+      }
+      .onCommand[PlaceBid, PlaceBidResult] {
+        case (command: PlaceBid, ctx, state) =>
+          onPlaceBid(command, state, ctx)
+      }
+      .onCommand[FinishBidding.type, Done] {
+        case (command: FinishBidding.type, ctx, state) =>
+          onFinishBidding(command, state, ctx)
+      }
 
       .onReadOnlyCommand[GetAuction.type, Option[AuctionAggregate]] {
-  case (query: GetAuction.type, ctx, state) =>
-    onGetAuction(query, state, ctx)
-}
+        case (query: GetAuction.type, ctx, state) =>
+          onGetAuction(query, state, ctx)
+      }
 
       .onEvent {
-  case (event: AuctionStarted, state) =>
-    onAuctionStarted(event, state)
-}
-.onEvent {
-  case (event: AuctionCancelled.type, state) =>
-    onAuctionCancelled(event, state)
-}
-.onEvent {
-  case (event: BidPlaced, state) =>
-    onBidPlaced(event, state)
-}
-.onEvent {
-  case (event: BiddingFinished.type, state) =>
-    onBiddingFinished(event, state)
-}
+        case (event: AuctionStarted, state) =>
+          onAuctionStarted(event, state)
+      }
+      .onEvent {
+        case (event: AuctionCancelled.type, state) =>
+          onAuctionCancelled(event, state)
+      }
+      .onEvent {
+        case (event: BidPlaced, state) =>
+          onBidPlaced(event, state)
+      }
+      .onEvent {
+        case (event: BiddingFinished.type, state) =>
+          onBiddingFinished(event, state)
+      }
 
   }
 
 }
 
-case class AuctionAggregate(auction: Auction, status: String, biddingHistory: List[Bid]) 
+case class AuctionAggregate(auction: Auction, status: String, biddingHistory: List[Bid])
 
 object AuctionAggregate {
   implicit val format: Format[AuctionAggregate] = Json.format
 }
-
-
 
 object AuctionAggregateStatus extends Enumeration {
   val NotStarted, UnderAuction, Complete, Cancelled = Value
@@ -120,7 +118,7 @@ case object GetAuction extends BiddingCommand with ReplyType[Option[AuctionAggre
 }
 
 sealed trait BiddingEvent extends AggregateEvent[BiddingEvent] {
-  
+
   def aggregateTag = BiddingEvent.Tag
 }
 
@@ -148,19 +146,19 @@ case object BiddingFinished extends BiddingEvent {
   implicit val format: Format[BiddingFinished.type] = JsonSerializer.emptySingletonFormat(BiddingFinished)
 }
 
-case class PlaceBidResult(status: String, currentPrice: Int, currentBidder: Option[UUID]) 
+case class PlaceBidResult(status: String, currentPrice: Int, currentBidder: Option[UUID])
 
 object PlaceBidResult {
   implicit val format: Format[PlaceBidResult] = Json.format
 }
 
-case class Auction(itemId: UUID, creator: UUID, reservePrice: Int, increment: Int, startTime: Instant, endTime: Instant) 
+case class Auction(itemId: UUID, creator: UUID, reservePrice: Int, increment: Int, startTime: Instant, endTime: Instant)
 
 object Auction {
   implicit val format: Format[Auction] = Json.format
 }
 
-case class Bid(bidder: UUID, bidTime: Instant, bidPrice: Int, maximumBid: Int) 
+case class Bid(bidder: UUID, bidTime: Instant, bidPrice: Int, maximumBid: Int)
 
 object Bid {
   implicit val format: Format[Bid] = Json.format
@@ -189,20 +187,20 @@ class BiddingEventStreamImpl(pubSubRegistry: PubSubRegistry) extends BiddingEven
 object BiddingSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[BiddingState],
-JsonSerializer[StateSnapshot.type],
-JsonSerializer[AuctionAggregate],
-JsonSerializer[StartAuction],
-JsonSerializer[CancelAuction.type],
-JsonSerializer[PlaceBid],
-JsonSerializer[FinishBidding.type],
-JsonSerializer[GetAuction.type],
-JsonSerializer[AuctionStarted],
-JsonSerializer[AuctionCancelled.type],
-JsonSerializer[BidPlaced],
-JsonSerializer[BiddingFinished.type],
-JsonSerializer[PlaceBidResult],
-JsonSerializer[Auction],
-JsonSerializer[Bid]
+    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[AuctionAggregate],
+    JsonSerializer[StartAuction],
+    JsonSerializer[CancelAuction.type],
+    JsonSerializer[PlaceBid],
+    JsonSerializer[FinishBidding.type],
+    JsonSerializer[GetAuction.type],
+    JsonSerializer[AuctionStarted],
+    JsonSerializer[AuctionCancelled.type],
+    JsonSerializer[BidPlaced],
+    JsonSerializer[BiddingFinished.type],
+    JsonSerializer[PlaceBidResult],
+    JsonSerializer[Auction],
+    JsonSerializer[Bid]
   )
 }
 

@@ -11,13 +11,9 @@ trait BiddingReadRepository_TODO {
 
   def endedAuctions(endAuction: Long): Source[String, NotUsed]
 
-
-
   def mapEndedAuctionsResult(row: Row): String = {
-  ???
-}
-
-
+    ???
+  }
 
 }
 

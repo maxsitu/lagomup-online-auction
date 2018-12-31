@@ -2,12 +2,12 @@ package com.example.auction.transaction.impl
 
 import com.example.auction.utils.JsonFormats._
 import com.example.auction.transaction.domain.TransactionDomain
-import akka.{Done, NotUsed}
+import akka.{ Done, NotUsed }
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
-import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
-import play.api.libs.json.{Format, Json}
+import com.lightbend.lagom.scaladsl.persistence.{ AggregateEvent, AggregateEventTag, PersistentEntity }
+import com.lightbend.lagom.scaladsl.playjson.{ JsonSerializer, JsonSerializerRegistry }
+import com.lightbend.lagom.scaladsl.pubsub.{ PubSubRegistry, TopicId }
+import play.api.libs.json.{ Format, Json }
 import java.time.Instant
 import akka.stream.scaladsl.Source
 import java.util.UUID
@@ -22,80 +22,78 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
   override def behavior: Behavior = {
     Actions()
       .onReadOnlyCommand[StateSnapshot.type, TransactionState] {
-  case (_: StateSnapshot.type , ctx, state) =>
-    ctx.reply(state)
-}
+        case (_: StateSnapshot.type, ctx, state) =>
+          ctx.reply(state)
+      }
 
       .onCommand[StartTransaction, Done] {
-  case (command: StartTransaction, ctx, state) =>
-    onStartTransaction(command, state, ctx)
-}
-.onCommand[SubmitDeliveryDetails, Done] {
-  case (command: SubmitDeliveryDetails, ctx, state) =>
-    onSubmitDeliveryDetails(command, state, ctx)
-}
-.onCommand[SetDeliveryPrice, Done] {
-  case (command: SetDeliveryPrice, ctx, state) =>
-    onSetDeliveryPrice(command, state, ctx)
-}
-.onCommand[ApproveDeliveryDetails, Done] {
-  case (command: ApproveDeliveryDetails, ctx, state) =>
-    onApproveDeliveryDetails(command, state, ctx)
-}
-.onCommand[SubmitPaymentDetails, Done] {
-  case (command: SubmitPaymentDetails, ctx, state) =>
-    onSubmitPaymentDetails(command, state, ctx)
-}
-.onCommand[SubmitPaymentStatus, Done] {
-  case (command: SubmitPaymentStatus, ctx, state) =>
-    onSubmitPaymentStatus(command, state, ctx)
-}
+        case (command: StartTransaction, ctx, state) =>
+          onStartTransaction(command, state, ctx)
+      }
+      .onCommand[SubmitDeliveryDetails, Done] {
+        case (command: SubmitDeliveryDetails, ctx, state) =>
+          onSubmitDeliveryDetails(command, state, ctx)
+      }
+      .onCommand[SetDeliveryPrice, Done] {
+        case (command: SetDeliveryPrice, ctx, state) =>
+          onSetDeliveryPrice(command, state, ctx)
+      }
+      .onCommand[ApproveDeliveryDetails, Done] {
+        case (command: ApproveDeliveryDetails, ctx, state) =>
+          onApproveDeliveryDetails(command, state, ctx)
+      }
+      .onCommand[SubmitPaymentDetails, Done] {
+        case (command: SubmitPaymentDetails, ctx, state) =>
+          onSubmitPaymentDetails(command, state, ctx)
+      }
+      .onCommand[SubmitPaymentStatus, Done] {
+        case (command: SubmitPaymentStatus, ctx, state) =>
+          onSubmitPaymentStatus(command, state, ctx)
+      }
 
       .onReadOnlyCommand[GetTransaction, Option[TransactionAggregate]] {
-  case (query: GetTransaction, ctx, state) =>
-    onGetTransaction(query, state, ctx)
-}
+        case (query: GetTransaction, ctx, state) =>
+          onGetTransaction(query, state, ctx)
+      }
 
       .onEvent {
-  case (event: TransactionStarted, state) =>
-    onTransactionStarted(event, state)
-}
-.onEvent {
-  case (event: DeliveryDetailsSubmitted, state) =>
-    onDeliveryDetailsSubmitted(event, state)
-}
-.onEvent {
-  case (event: DeliveryPriceUpdated, state) =>
-    onDeliveryPriceUpdated(event, state)
-}
-.onEvent {
-  case (event: DeliveryDetailsApproved, state) =>
-    onDeliveryDetailsApproved(event, state)
-}
-.onEvent {
-  case (event: PaymentDetailsSubmitted, state) =>
-    onPaymentDetailsSubmitted(event, state)
-}
-.onEvent {
-  case (event: PaymentApproved, state) =>
-    onPaymentApproved(event, state)
-}
-.onEvent {
-  case (event: PaymentRejected, state) =>
-    onPaymentRejected(event, state)
-}
+        case (event: TransactionStarted, state) =>
+          onTransactionStarted(event, state)
+      }
+      .onEvent {
+        case (event: DeliveryDetailsSubmitted, state) =>
+          onDeliveryDetailsSubmitted(event, state)
+      }
+      .onEvent {
+        case (event: DeliveryPriceUpdated, state) =>
+          onDeliveryPriceUpdated(event, state)
+      }
+      .onEvent {
+        case (event: DeliveryDetailsApproved, state) =>
+          onDeliveryDetailsApproved(event, state)
+      }
+      .onEvent {
+        case (event: PaymentDetailsSubmitted, state) =>
+          onPaymentDetailsSubmitted(event, state)
+      }
+      .onEvent {
+        case (event: PaymentApproved, state) =>
+          onPaymentApproved(event, state)
+      }
+      .onEvent {
+        case (event: PaymentRejected, state) =>
+          onPaymentRejected(event, state)
+      }
 
   }
 
 }
 
-case class TransactionAggregate(itemId: UUID, creator: UUID, winner: UUID, itemData: ItemData, itemPrice: Int, deliveryData: Option[DeliveryData], deliveryPrice: Option[Int], payment: Option[Payment]) 
+case class TransactionAggregate(itemId: UUID, creator: UUID, winner: UUID, itemData: ItemData, itemPrice: Int, deliveryData: Option[DeliveryData], deliveryPrice: Option[Int], payment: Option[Payment])
 
 object TransactionAggregate {
   implicit val format: Format[TransactionAggregate] = Json.format
 }
-
-
 
 object TransactionAggregateStatus extends Enumeration {
   val NotStarted, NegotiatingDelivery, PaymentPending, PaymentSubmitted, PaymentConfirmed, ItemDispatched, ItemReceived, Cancelled, Refunding, Refunded = Value
@@ -209,19 +207,19 @@ object PaymentRejected {
   implicit val format: Format[PaymentRejected] = Json.format
 }
 
-case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID]) 
+case class ItemData(title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, auctionDuration: Int, categoryId: Option[UUID])
 
 object ItemData {
   implicit val format: Format[ItemData] = Json.format
 }
 
-case class DeliveryData(addressLine1: String, addressLine2: String, city: String, state: String, postalCode: Int, country: String) 
+case class DeliveryData(addressLine1: String, addressLine2: String, city: String, state: String, postalCode: Int, country: String)
 
 object DeliveryData {
   implicit val format: Format[DeliveryData] = Json.format
 }
 
-case class Payment(comment: String) 
+case class Payment(comment: String)
 
 object Payment {
   implicit val format: Format[Payment] = Json.format
@@ -250,25 +248,25 @@ class TransactionEventStreamImpl(pubSubRegistry: PubSubRegistry) extends Transac
 object TransactionSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[TransactionState],
-JsonSerializer[StateSnapshot.type],
-JsonSerializer[TransactionAggregate],
-JsonSerializer[StartTransaction],
-JsonSerializer[SubmitDeliveryDetails],
-JsonSerializer[SetDeliveryPrice],
-JsonSerializer[ApproveDeliveryDetails],
-JsonSerializer[SubmitPaymentDetails],
-JsonSerializer[SubmitPaymentStatus],
-JsonSerializer[GetTransaction],
-JsonSerializer[TransactionStarted],
-JsonSerializer[DeliveryDetailsSubmitted],
-JsonSerializer[DeliveryPriceUpdated],
-JsonSerializer[DeliveryDetailsApproved],
-JsonSerializer[PaymentDetailsSubmitted],
-JsonSerializer[PaymentApproved],
-JsonSerializer[PaymentRejected],
-JsonSerializer[ItemData],
-JsonSerializer[DeliveryData],
-JsonSerializer[Payment]
+    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[TransactionAggregate],
+    JsonSerializer[StartTransaction],
+    JsonSerializer[SubmitDeliveryDetails],
+    JsonSerializer[SetDeliveryPrice],
+    JsonSerializer[ApproveDeliveryDetails],
+    JsonSerializer[SubmitPaymentDetails],
+    JsonSerializer[SubmitPaymentStatus],
+    JsonSerializer[GetTransaction],
+    JsonSerializer[TransactionStarted],
+    JsonSerializer[DeliveryDetailsSubmitted],
+    JsonSerializer[DeliveryPriceUpdated],
+    JsonSerializer[DeliveryDetailsApproved],
+    JsonSerializer[PaymentDetailsSubmitted],
+    JsonSerializer[PaymentApproved],
+    JsonSerializer[PaymentRejected],
+    JsonSerializer[ItemData],
+    JsonSerializer[DeliveryData],
+    JsonSerializer[Payment]
   )
 }
 

@@ -12,20 +12,16 @@ trait UserDomain_TODO {
   def initialState: UserState = ???
 
   def onCreateUser(command: CreateUser, state: UserState, ctx: CommandContext[Done]): Persist = {
-  ???
-}
-
+    ???
+  }
 
   def onGetUser(query: GetUser.type, state: UserState, ctx: ReadOnlyCommandContext[Option[UserAggregate]]): Unit = {
-  ???
-}
-
+    ???
+  }
 
   def onUserCreated(event: UserCreated, state: UserState): UserState = {
-  ???
-}
-
-
+    ???
+  }
 
 }
 

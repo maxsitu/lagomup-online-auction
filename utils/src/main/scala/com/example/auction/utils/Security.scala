@@ -70,8 +70,8 @@ object ServerSecurity {
 object ClientSecurity {
 
   /**
-    * Authenticate a client request.
-    */
+   * Authenticate a client request.
+   */
   def authenticate(userId: UUID): RequestHeader => RequestHeader = { request =>
     request.withPrincipal(UserPrincipal.of(userId, request.principal))
   }

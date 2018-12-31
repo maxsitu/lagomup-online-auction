@@ -32,12 +32,10 @@ abstract class BiddingApplication(context: LagomApplicationContext)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = BiddingSerializerRegistry
   persistentEntityRegistry.register(wire[BiddingEntity])
-lazy val biddingEventStream = wire[BiddingEventStreamImpl]
-lazy val biddingRepository = wire[BiddingRepositoryImpl]
-readSide.register(biddingRepository)
+  lazy val biddingEventStream = wire[BiddingEventStreamImpl]
+  lazy val biddingRepository = wire[BiddingRepositoryImpl]
+  readSide.register(biddingRepository)
 
-
-  
   lazy val akkaComponents = wire[AkkaComponents]
   lazy val ports = wire[BiddingPorts]
   override lazy val lagomServer = serverFor[BiddingService](wire[BiddingServiceImpl])

@@ -11,11 +11,11 @@ import com.example.auction.bidding.domain.BiddingReadRepository
 import scala.concurrent.ExecutionContext
 
 case class BiddingPorts(
-  akkaComponents: AkkaComponents, 
-entityRegistry: PersistentEntityRegistry, 
-db: CassandraSession, 
-biddingEventStream: BiddingEventStream, 
-biddingRepository: BiddingReadRepository
+  akkaComponents: AkkaComponents,
+  entityRegistry: PersistentEntityRegistry,
+  db: CassandraSession,
+  biddingEventStream: BiddingEventStream,
+  biddingRepository: BiddingReadRepository
 )
 
 case class AkkaComponents(

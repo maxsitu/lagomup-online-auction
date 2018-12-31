@@ -3,7 +3,7 @@ package com.example.auction.utils
 import java.time.Duration
 import java.util.UUID
 
-import play.api.libs.json.{JsonValidationError, _}
+import play.api.libs.json.{ JsonValidationError, _ }
 
 import scala.util.Try
 
@@ -30,8 +30,8 @@ object JsonFormats {
     (__ \ "value").read[String].collect(
       JsonValidationError(s"Expected a JSON object with a single field with key 'value' and value '${singleton.getClass.getSimpleName}'")
     ) {
-      case s if s == singleton.getClass.getSimpleName => singleton
-    }
+        case s if s == singleton.getClass.getSimpleName => singleton
+      }
   }
 
   def singletonWrites[O]: Writes[O] = Writes { singleton =>

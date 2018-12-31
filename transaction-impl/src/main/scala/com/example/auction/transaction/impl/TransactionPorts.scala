@@ -12,12 +12,12 @@ import com.example.auction.transaction.domain.TransactionReadRepository
 import scala.concurrent.ExecutionContext
 
 case class TransactionPorts(
-  akkaComponents: AkkaComponents, 
-itemService: ItemService, 
-entityRegistry: PersistentEntityRegistry, 
-db: CassandraSession, 
-transactionEventStream: TransactionEventStream, 
-transactionRepository: TransactionReadRepository
+  akkaComponents: AkkaComponents,
+  itemService: ItemService,
+  entityRegistry: PersistentEntityRegistry,
+  db: CassandraSession,
+  transactionEventStream: TransactionEventStream,
+  transactionRepository: TransactionReadRepository
 )
 
 case class AkkaComponents(

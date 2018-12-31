@@ -10,18 +10,17 @@ import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.pubsub.PubSubComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 
-
 import com.softwaremill.macwire._
 
 class UserApplicationLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new UserApplication(context)  {
+    new UserApplication(context) {
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new UserApplication(context)  with LagomDevModeComponents
+    new UserApplication(context) with LagomDevModeComponents
 
   override def describeService = Some(readDescriptor[UserService])
 
@@ -32,10 +31,8 @@ abstract class UserApplication(context: LagomApplicationContext)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = UserSerializerRegistry
   persistentEntityRegistry.register(wire[UserEntity])
-lazy val userEventStream = wire[UserEventStreamImpl]
+  lazy val userEventStream = wire[UserEventStreamImpl]
 
-
-  
   lazy val akkaComponents = wire[AkkaComponents]
   lazy val ports = wire[UserPorts]
   override lazy val lagomServer = serverFor[UserService](wire[UserServiceImpl])

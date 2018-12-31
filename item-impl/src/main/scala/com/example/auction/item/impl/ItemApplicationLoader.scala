@@ -33,10 +33,9 @@ abstract class ItemApplication(context: LagomApplicationContext)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = ItemSerializerRegistry
   persistentEntityRegistry.register(wire[ItemEntity])
-lazy val itemEventStream = wire[ItemEventStreamImpl]
-lazy val itemRepository = wire[ItemRepositoryImpl]
-readSide.register(itemRepository)
-
+  lazy val itemEventStream = wire[ItemEventStreamImpl]
+  lazy val itemRepository = wire[ItemRepositoryImpl]
+  readSide.register(itemRepository)
 
   val biddingService = serviceClient.implement[BiddingService]
 

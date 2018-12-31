@@ -33,10 +33,9 @@ abstract class TransactionApplication(context: LagomApplicationContext)
   with AhcWSComponents with PubSubComponents with CassandraPersistenceComponents {
   override lazy val jsonSerializerRegistry = TransactionSerializerRegistry
   persistentEntityRegistry.register(wire[TransactionEntity])
-lazy val transactionEventStream = wire[TransactionEventStreamImpl]
-lazy val transactionRepository = wire[TransactionRepositoryImpl]
-readSide.register(transactionRepository)
-
+  lazy val transactionEventStream = wire[TransactionEventStreamImpl]
+  lazy val transactionRepository = wire[TransactionRepositoryImpl]
+  readSide.register(transactionRepository)
 
   val itemService = serviceClient.implement[ItemService]
 

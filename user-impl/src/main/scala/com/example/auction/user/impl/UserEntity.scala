@@ -2,12 +2,12 @@ package com.example.auction.user.impl
 
 import com.example.auction.utils.JsonFormats._
 import com.example.auction.user.domain.UserDomain
-import akka.{Done, NotUsed}
+import akka.{ Done, NotUsed }
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
-import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
-import play.api.libs.json.{Format, Json}
+import com.lightbend.lagom.scaladsl.persistence.{ AggregateEvent, AggregateEventTag, PersistentEntity }
+import com.lightbend.lagom.scaladsl.playjson.{ JsonSerializer, JsonSerializerRegistry }
+import com.lightbend.lagom.scaladsl.pubsub.{ PubSubRegistry, TopicId }
+import play.api.libs.json.{ Format, Json }
 import java.time.Instant
 import akka.stream.scaladsl.Source
 import java.util.UUID
@@ -22,36 +22,34 @@ class UserEntity(val userEventStream: UserEventStream) extends PersistentEntity
   override def behavior: Behavior = {
     Actions()
       .onReadOnlyCommand[StateSnapshot.type, UserState] {
-  case (_: StateSnapshot.type , ctx, state) =>
-    ctx.reply(state)
-}
+        case (_: StateSnapshot.type, ctx, state) =>
+          ctx.reply(state)
+      }
 
       .onCommand[CreateUser, Done] {
-  case (command: CreateUser, ctx, state) =>
-    onCreateUser(command, state, ctx)
-}
+        case (command: CreateUser, ctx, state) =>
+          onCreateUser(command, state, ctx)
+      }
 
       .onReadOnlyCommand[GetUser.type, Option[UserAggregate]] {
-  case (query: GetUser.type, ctx, state) =>
-    onGetUser(query, state, ctx)
-}
+        case (query: GetUser.type, ctx, state) =>
+          onGetUser(query, state, ctx)
+      }
 
       .onEvent {
-  case (event: UserCreated, state) =>
-    onUserCreated(event, state)
-}
+        case (event: UserCreated, state) =>
+          onUserCreated(event, state)
+      }
 
   }
 
 }
 
-case class UserAggregate(name: String) 
+case class UserAggregate(name: String)
 
 object UserAggregate {
   implicit val format: Format[UserAggregate] = Json.format
 }
-
-
 
 object UserAggregateStatus extends Enumeration {
   val NotCreated, Created = Value
@@ -120,11 +118,11 @@ class UserEventStreamImpl(pubSubRegistry: PubSubRegistry) extends UserEventStrea
 object UserSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[UserState],
-JsonSerializer[StateSnapshot.type],
-JsonSerializer[UserAggregate],
-JsonSerializer[CreateUser],
-JsonSerializer[GetUser.type],
-JsonSerializer[UserCreated]
+    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[UserAggregate],
+    JsonSerializer[CreateUser],
+    JsonSerializer[GetUser.type],
+    JsonSerializer[UserCreated]
   )
 }
 

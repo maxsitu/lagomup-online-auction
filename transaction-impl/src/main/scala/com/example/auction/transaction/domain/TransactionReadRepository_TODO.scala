@@ -11,25 +11,21 @@ trait TransactionReadRepository_TODO {
 
   def selectTransactionUser(itemId: UUID): Future[Option[TransactionUser]]
 
-def countUserTransactions(userId: UUID, status: String): Future[Option[Int]]
+  def countUserTransactions(userId: UUID, status: String): Future[Option[Int]]
 
-def selectUserTransactions(userId: UUID, status: String, limit: Int): Future[Seq[TransactionSummary]]
-
-
+  def selectUserTransactions(userId: UUID, status: String, limit: Int): Future[Seq[TransactionSummary]]
 
   def mapSelectTransactionUserResult(row: Row): TransactionUser = {
-  ???
-}
+    ???
+  }
 
-def mapCountUserTransactionsResult(row: Row): Int = {
-  ???
-}
+  def mapCountUserTransactionsResult(row: Row): Int = {
+    ???
+  }
 
-def mapSelectUserTransactionsResult(row: Row): TransactionSummary = {
-  ???
-}
-
-
+  def mapSelectUserTransactionsResult(row: Row): TransactionSummary = {
+    ???
+  }
 
 }
 

@@ -2,12 +2,12 @@ package com.example.auction.item.impl
 
 import com.example.auction.utils.JsonFormats._
 import com.example.auction.item.domain.ItemDomain
-import akka.{Done, NotUsed}
+import akka.{ Done, NotUsed }
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
-import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.pubsub.{PubSubRegistry, TopicId}
-import play.api.libs.json.{Format, Json}
+import com.lightbend.lagom.scaladsl.persistence.{ AggregateEvent, AggregateEventTag, PersistentEntity }
+import com.lightbend.lagom.scaladsl.playjson.{ JsonSerializer, JsonSerializerRegistry }
+import com.lightbend.lagom.scaladsl.pubsub.{ PubSubRegistry, TopicId }
+import play.api.libs.json.{ Format, Json }
 import java.time.Instant
 import akka.stream.scaladsl.Source
 import java.util.UUID
@@ -22,60 +22,58 @@ class ItemEntity(val itemEventStream: ItemEventStream) extends PersistentEntity
   override def behavior: Behavior = {
     Actions()
       .onReadOnlyCommand[StateSnapshot.type, ItemState] {
-  case (_: StateSnapshot.type , ctx, state) =>
-    ctx.reply(state)
-}
+        case (_: StateSnapshot.type, ctx, state) =>
+          ctx.reply(state)
+      }
 
       .onCommand[CreateItem, Done] {
-  case (command: CreateItem, ctx, state) =>
-    onCreateItem(command, state, ctx)
-}
-.onCommand[StartAuction, Done] {
-  case (command: StartAuction, ctx, state) =>
-    onStartAuction(command, state, ctx)
-}
-.onCommand[UpdatePrice, Done] {
-  case (command: UpdatePrice, ctx, state) =>
-    onUpdatePrice(command, state, ctx)
-}
-.onCommand[FinishAuction, Done] {
-  case (command: FinishAuction, ctx, state) =>
-    onFinishAuction(command, state, ctx)
-}
+        case (command: CreateItem, ctx, state) =>
+          onCreateItem(command, state, ctx)
+      }
+      .onCommand[StartAuction, Done] {
+        case (command: StartAuction, ctx, state) =>
+          onStartAuction(command, state, ctx)
+      }
+      .onCommand[UpdatePrice, Done] {
+        case (command: UpdatePrice, ctx, state) =>
+          onUpdatePrice(command, state, ctx)
+      }
+      .onCommand[FinishAuction, Done] {
+        case (command: FinishAuction, ctx, state) =>
+          onFinishAuction(command, state, ctx)
+      }
 
       .onReadOnlyCommand[GetItem.type, Option[ItemAggregate]] {
-  case (query: GetItem.type, ctx, state) =>
-    onGetItem(query, state, ctx)
-}
+        case (query: GetItem.type, ctx, state) =>
+          onGetItem(query, state, ctx)
+      }
 
       .onEvent {
-  case (event: ItemCreated, state) =>
-    onItemCreated(event, state)
-}
-.onEvent {
-  case (event: AuctionStarted, state) =>
-    onAuctionStarted(event, state)
-}
-.onEvent {
-  case (event: PriceUpdated, state) =>
-    onPriceUpdated(event, state)
-}
-.onEvent {
-  case (event: AuctionFinished, state) =>
-    onAuctionFinished(event, state)
-}
+        case (event: ItemCreated, state) =>
+          onItemCreated(event, state)
+      }
+      .onEvent {
+        case (event: AuctionStarted, state) =>
+          onAuctionStarted(event, state)
+      }
+      .onEvent {
+        case (event: PriceUpdated, state) =>
+          onPriceUpdated(event, state)
+      }
+      .onEvent {
+        case (event: AuctionFinished, state) =>
+          onAuctionFinished(event, state)
+      }
 
   }
 
 }
 
-case class ItemAggregate(id: UUID, creator: UUID, title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, price: Option[Int], status: String, auctionDuration: Int, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID]) 
+case class ItemAggregate(id: UUID, creator: UUID, title: String, description: String, currencyId: String, increment: Int, reservePrice: Int, price: Option[Int], status: String, auctionDuration: Int, auctionStart: Option[Instant], auctionEnd: Option[Instant], auctionWinner: Option[UUID])
 
 object ItemAggregate {
   implicit val format: Format[ItemAggregate] = Json.format
 }
-
-
 
 object ItemAggregateStatus extends Enumeration {
   val NotCreated, Created, Auction, Completed, Cancelled = Value
@@ -124,7 +122,7 @@ case object GetItem extends ItemCommand with ReplyType[Option[ItemAggregate]] {
 }
 
 sealed trait ItemEvent extends AggregateEvent[ItemEvent] {
-  
+
   def aggregateTag = ItemEvent.Tag
 }
 
@@ -179,17 +177,17 @@ class ItemEventStreamImpl(pubSubRegistry: PubSubRegistry) extends ItemEventStrea
 object ItemSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[ItemState],
-JsonSerializer[StateSnapshot.type],
-JsonSerializer[ItemAggregate],
-JsonSerializer[CreateItem],
-JsonSerializer[StartAuction],
-JsonSerializer[UpdatePrice],
-JsonSerializer[FinishAuction],
-JsonSerializer[GetItem.type],
-JsonSerializer[ItemCreated],
-JsonSerializer[AuctionStarted],
-JsonSerializer[PriceUpdated],
-JsonSerializer[AuctionFinished]
+    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[ItemAggregate],
+    JsonSerializer[CreateItem],
+    JsonSerializer[StartAuction],
+    JsonSerializer[UpdatePrice],
+    JsonSerializer[FinishAuction],
+    JsonSerializer[GetItem.type],
+    JsonSerializer[ItemCreated],
+    JsonSerializer[AuctionStarted],
+    JsonSerializer[PriceUpdated],
+    JsonSerializer[AuctionFinished]
   )
 }
 
