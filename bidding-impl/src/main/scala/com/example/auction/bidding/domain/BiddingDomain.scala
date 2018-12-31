@@ -58,11 +58,6 @@ trait BiddingDomain {
     }
   }
 
-  def onGetAuction(query: GetAuction.type, state: BiddingState, ctx: ReadOnlyCommandContext[Option[AuctionAggregate]]): Unit = {
-    // TODO: Example always had AuctionState
-    ctx.reply(state.aggregate)
-  }
-
   def onAuctionStarted(event: AuctionStarted, state: BiddingState): BiddingState = {
     // TODO: Remove status if not used
     BiddingState(Some(AuctionAggregate(event.auction, state.status.toString, Nil)), AuctionAggregateStatus.UnderAuction)

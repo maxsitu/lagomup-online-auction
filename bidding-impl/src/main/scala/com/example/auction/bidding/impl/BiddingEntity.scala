@@ -43,11 +43,6 @@ class BiddingEntity(val biddingEventStream: BiddingEventStream) extends Persiste
           onFinishBidding(command, state, ctx)
       }
 
-      .onReadOnlyCommand[GetAuction.type, Option[AuctionAggregate]] {
-        case (query: GetAuction.type, ctx, state) =>
-          onGetAuction(query, state, ctx)
-      }
-
       .onEvent {
         case (event: AuctionStarted, state) =>
           onAuctionStarted(event, state)
@@ -111,10 +106,6 @@ object PlaceBid {
 
 case object FinishBidding extends BiddingCommand with ReplyType[Done] {
   implicit val format: Format[FinishBidding.type] = JsonSerializer.emptySingletonFormat(FinishBidding)
-}
-
-case object GetAuction extends BiddingCommand with ReplyType[Option[AuctionAggregate]] {
-  implicit val format: Format[GetAuction.type] = JsonSerializer.emptySingletonFormat(GetAuction)
 }
 
 sealed trait BiddingEvent extends AggregateEvent[BiddingEvent] {
@@ -193,7 +184,6 @@ object BiddingSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[CancelAuction.type],
     JsonSerializer[PlaceBid],
     JsonSerializer[FinishBidding.type],
-    JsonSerializer[GetAuction.type],
     JsonSerializer[AuctionStarted],
     JsonSerializer[AuctionCancelled.type],
     JsonSerializer[BidPlaced],

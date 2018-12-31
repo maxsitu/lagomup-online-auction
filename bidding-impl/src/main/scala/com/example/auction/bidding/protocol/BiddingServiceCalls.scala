@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.NotUsed
 import com.example.auction.bidding.api._
 import com.example.auction.bidding.impl
-import com.example.auction.bidding.impl.{BiddingEntity, BiddingPorts, GetAuction}
+import com.example.auction.bidding.impl.{Bid => _, PlaceBid => _, _}
 import com.example.auction.utils.ServerSecurity
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 
@@ -24,9 +24,9 @@ trait BiddingServiceCalls {
   }
 
   def _getBids(itemId: UUID, request: NotUsed): Future[List[Bid]] = {
-    ports.entityRegistry.refFor[BiddingEntity](itemId.toString).ask(GetAuction).map {
-      case Some(aggregate) => aggregate.biddingHistory.map(convertBid).reverse
-      case None => List.empty
+    ports.entityRegistry.refFor[BiddingEntity](itemId.toString).ask(GetState).map {
+      case BiddingState(Some(aggregate), _) => aggregate.biddingHistory.map(convertBid).reverse
+      case BiddingState(None, _) => List.empty
     }
   }
 

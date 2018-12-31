@@ -309,9 +309,9 @@ class BiddingEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll wi
 
     "allow getting the auction state" in withTestDriver { driver =>
       driver.run(StartAuction(auction), PlaceBid(3000, bidder1))
-      val outcome = driver.run(GetAuction)
+      val outcome = driver.run(GetState)
       outcome.events shouldBe empty
-      outcome.replies should contain only outcome.state.aggregate
+      outcome.replies should contain only BiddingState(outcome.state.aggregate, AuctionAggregateStatus.UnderAuction)
     }
 
 

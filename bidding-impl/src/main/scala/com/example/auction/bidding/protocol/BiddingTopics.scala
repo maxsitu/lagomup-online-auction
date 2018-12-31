@@ -4,7 +4,7 @@ import java.util.UUID
 
 import com.example.auction.bidding.api._
 import com.example.auction.bidding.impl
-import com.example.auction.bidding.impl.BiddingPorts
+import com.example.auction.bidding.impl.{BiddingPorts, BiddingState}
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 
@@ -30,8 +30,8 @@ trait BiddingTopics {
               val message = BidPlaced(UUID.fromString(e.entityId), convertBid(bid))
               Future.successful(message, e.offset)
             case impl.BiddingFinished =>
-              ports.entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetAuction).map {
-                case Some(aggregate) =>
+              ports.entityRegistry.refFor[impl.BiddingEntity](e.entityId).ask(impl.GetState).map {
+                case BiddingState(Some(aggregate), _) =>
                   val maybeWinningBid = aggregate
                     .biddingHistory
                     .headOption
@@ -39,7 +39,7 @@ trait BiddingTopics {
                     .map(convertBid)
                   val message = BiddingFinished(UUID.fromString(e.entityId), maybeWinningBid)
                   (message, e.offset)
-                case None =>
+                case BiddingState(None, _) =>
                   val message = BiddingFinished(UUID.fromString(e.entityId), None)
                   (message, e.offset)
               }
