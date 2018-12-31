@@ -21,8 +21,8 @@ class ItemEntity(val itemEventStream: ItemEventStream) extends PersistentEntity
 
   override def behavior: Behavior = {
     Actions()
-      .onReadOnlyCommand[StateSnapshot.type, ItemState] {
-        case (_: StateSnapshot.type, ctx, state) =>
+      .onReadOnlyCommand[GetState.type, ItemState] {
+        case (_: GetState.type, ctx, state) =>
           ctx.reply(state)
       }
 
@@ -89,8 +89,8 @@ object ItemState {
 
 sealed trait ItemCommand
 
-case object StateSnapshot extends ItemCommand with ReplyType[ItemState] {
-  implicit val format: Format[StateSnapshot.type] = JsonSerializer.emptySingletonFormat(StateSnapshot)
+case object GetState extends ItemCommand with ReplyType[ItemState] {
+  implicit val format: Format[GetState.type] = JsonSerializer.emptySingletonFormat(GetState)
 }
 
 case class CreateItem(item: ItemAggregate) extends ItemCommand with ReplyType[Done]
@@ -177,7 +177,7 @@ class ItemEventStreamImpl(pubSubRegistry: PubSubRegistry) extends ItemEventStrea
 object ItemSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[ItemState],
-    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[GetState.type],
     JsonSerializer[ItemAggregate],
     JsonSerializer[CreateItem],
     JsonSerializer[StartAuction],

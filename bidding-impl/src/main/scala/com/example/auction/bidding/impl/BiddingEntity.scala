@@ -21,8 +21,8 @@ class BiddingEntity(val biddingEventStream: BiddingEventStream) extends Persiste
 
   override def behavior: Behavior = {
     Actions()
-      .onReadOnlyCommand[StateSnapshot.type, BiddingState] {
-        case (_: StateSnapshot.type, ctx, state) =>
+      .onReadOnlyCommand[GetState.type, BiddingState] {
+        case (_: GetState.type, ctx, state) =>
           ctx.reply(state)
       }
 
@@ -89,8 +89,8 @@ object BiddingState {
 
 sealed trait BiddingCommand
 
-case object StateSnapshot extends BiddingCommand with ReplyType[BiddingState] {
-  implicit val format: Format[StateSnapshot.type] = JsonSerializer.emptySingletonFormat(StateSnapshot)
+case object GetState extends BiddingCommand with ReplyType[BiddingState] {
+  implicit val format: Format[GetState.type] = JsonSerializer.emptySingletonFormat(GetState)
 }
 
 case class StartAuction(auction: Auction) extends BiddingCommand with ReplyType[Done]
@@ -187,7 +187,7 @@ class BiddingEventStreamImpl(pubSubRegistry: PubSubRegistry) extends BiddingEven
 object BiddingSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[BiddingState],
-    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[GetState.type],
     JsonSerializer[AuctionAggregate],
     JsonSerializer[StartAuction],
     JsonSerializer[CancelAuction.type],

@@ -157,7 +157,7 @@ class TransactionDomainSpec extends WordSpec with Matchers with BeforeAndAfterAl
 
     "allow see transaction by item creator" in withTestDriver { driver =>
       driver.run(startTransaction)
-      val outcome = driver.run(StateSnapshot)
+      val outcome = driver.run(GetState)
       outcome.replies should contain only TransactionState(outcome.state.aggregate, TransactionAggregateStatus.NegotiatingDelivery)
     }
 

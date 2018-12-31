@@ -21,8 +21,8 @@ class TransactionEntity(val transactionEventStream: TransactionEventStream) exte
 
   override def behavior: Behavior = {
     Actions()
-      .onReadOnlyCommand[StateSnapshot.type, TransactionState] {
-        case (_: StateSnapshot.type, ctx, state) =>
+      .onReadOnlyCommand[GetState.type, TransactionState] {
+        case (_: GetState.type, ctx, state) =>
           ctx.reply(state)
       }
 
@@ -104,8 +104,8 @@ object TransactionState {
 
 sealed trait TransactionCommand
 
-case object StateSnapshot extends TransactionCommand with ReplyType[TransactionState] {
-  implicit val format: Format[StateSnapshot.type] = JsonSerializer.emptySingletonFormat(StateSnapshot)
+case object GetState extends TransactionCommand with ReplyType[TransactionState] {
+  implicit val format: Format[GetState.type] = JsonSerializer.emptySingletonFormat(GetState)
 }
 
 case class StartTransaction(transaction: TransactionAggregate) extends TransactionCommand with ReplyType[Done]
@@ -237,7 +237,7 @@ class TransactionEventStreamImpl(pubSubRegistry: PubSubRegistry) extends Transac
 object TransactionSerializerRegistry extends JsonSerializerRegistry {
   override def serializers = List(
     JsonSerializer[TransactionState],
-    JsonSerializer[StateSnapshot.type],
+    JsonSerializer[GetState.type],
     JsonSerializer[TransactionAggregate],
     JsonSerializer[StartTransaction],
     JsonSerializer[SubmitDeliveryDetails],
