@@ -7,7 +7,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait UserDomain_TODO {
   this: UserEntity with PersistentEntity =>
 
-  def userEventStream: UserEventStream
+  //def userEventStream: UserEventStream
 
   def initialState: UserState = ???
 

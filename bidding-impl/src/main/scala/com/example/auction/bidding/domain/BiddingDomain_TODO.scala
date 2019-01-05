@@ -7,7 +7,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait BiddingDomain_TODO {
   this: BiddingEntity with PersistentEntity =>
 
-  def biddingEventStream: BiddingEventStream
+  //def biddingEventStream: BiddingEventStream
 
   def initialState: BiddingState = ???
 

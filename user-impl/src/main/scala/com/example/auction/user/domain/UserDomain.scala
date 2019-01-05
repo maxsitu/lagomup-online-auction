@@ -7,7 +7,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait UserDomain {
   this: UserEntity with PersistentEntity =>
 
-  def userEventStream: UserEventStream
+  //def userEventStream: UserEventStream
 
   def initialState: UserState = UserState(None, UserAggregateStatus.NotCreated)
 

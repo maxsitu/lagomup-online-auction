@@ -10,7 +10,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait TransactionDomain {
   this: TransactionEntity with PersistentEntity =>
 
-  def transactionEventStream: TransactionEventStream
+  //def transactionEventStream: TransactionEventStream
 
   def initialState: TransactionState = TransactionState(None, TransactionAggregateStatus.NotStarted)
 

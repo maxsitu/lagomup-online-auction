@@ -7,7 +7,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait TransactionDomain_TODO {
   this: TransactionEntity with PersistentEntity =>
 
-  def transactionEventStream: TransactionEventStream
+  //def transactionEventStream: TransactionEventStream
 
   def initialState: TransactionState = ???
 

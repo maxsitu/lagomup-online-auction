@@ -11,7 +11,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait BiddingDomain {
   this: BiddingEntity with PersistentEntity =>
 
-  def biddingEventStream: BiddingEventStream
+  //def biddingEventStream: BiddingEventStream
 
   def initialState: BiddingState = BiddingState(None, AuctionAggregateStatus.NotStarted)
 

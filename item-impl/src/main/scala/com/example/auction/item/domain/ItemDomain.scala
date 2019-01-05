@@ -9,7 +9,7 @@ import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 trait ItemDomain {
   this: ItemEntity with PersistentEntity =>
 
-  def itemEventStream: ItemEventStream
+  //def itemEventStream: ItemEventStream
 
   def initialState: ItemState = ItemState(None, ItemAggregateStatus.NotCreated)
 
