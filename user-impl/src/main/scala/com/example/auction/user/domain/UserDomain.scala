@@ -5,7 +5,7 @@ import com.example.auction.user.impl._
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait UserDomain {
-  this: UserEntity with PersistentEntity =>
+  self: UserEntity with PersistentEntity =>
 
   //def userEventStream: UserEventStream
 

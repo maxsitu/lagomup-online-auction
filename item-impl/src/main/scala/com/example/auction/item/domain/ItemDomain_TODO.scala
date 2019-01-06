@@ -5,7 +5,7 @@ import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait ItemDomain_TODO {
-  this: ItemEntity with PersistentEntity =>
+  self: ItemEntity with PersistentEntity =>
 
   //def itemEventStream: ItemEventStream
 

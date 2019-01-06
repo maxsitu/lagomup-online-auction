@@ -7,7 +7,7 @@ import com.example.auction.item.impl._
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait ItemDomain {
-  this: ItemEntity with PersistentEntity =>
+  self: ItemEntity with PersistentEntity =>
 
   //def itemEventStream: ItemEventStream
 

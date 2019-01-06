@@ -9,7 +9,7 @@ import com.lightbend.lagom.scaladsl.api.transport.{TransportErrorCode, Transport
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait BiddingDomain {
-  this: BiddingEntity with PersistentEntity =>
+  self: BiddingEntity with PersistentEntity =>
 
   //def biddingEventStream: BiddingEventStream
 

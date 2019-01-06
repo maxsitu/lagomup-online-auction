@@ -5,7 +5,7 @@ import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait UserDomain_TODO {
-  this: UserEntity with PersistentEntity =>
+  self: UserEntity with PersistentEntity =>
 
   //def userEventStream: UserEventStream
 

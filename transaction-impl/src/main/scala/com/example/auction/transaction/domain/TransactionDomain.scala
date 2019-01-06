@@ -8,7 +8,7 @@ import com.lightbend.lagom.scaladsl.api.transport.Forbidden
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait TransactionDomain {
-  this: TransactionEntity with PersistentEntity =>
+  self: TransactionEntity with PersistentEntity =>
 
   //def transactionEventStream: TransactionEventStream
 

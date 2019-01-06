@@ -5,7 +5,7 @@ import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 
 trait BiddingDomain_TODO {
-  this: BiddingEntity with PersistentEntity =>
+  self: BiddingEntity with PersistentEntity =>
 
   //def biddingEventStream: BiddingEventStream
 
